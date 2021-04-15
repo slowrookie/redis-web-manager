@@ -1,0 +1,50 @@
+{
+  "name": "redis-web-manager",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@fluentui/react": "^8.10.1",
+    "@fluentui/react-icons": "^1.1.118",
+    "@testing-library/jest-dom": "^5.11.10",
+    "@testing-library/react": "^11.2.6",
+    "@testing-library/user-event": "^12.8.3",
+    "@types/jest": "^26.0.22",
+    "@types/node": "^12.20.8",
+    "@types/react": "^17.0.3",
+    "@types/react-dom": "^17.0.3",
+    "dayjs": "^1.10.4",
+    "echarts": "^5.0.2",
+    "echarts-for-react": "^3.0.1",
+    "i18next": "^20.2.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-i18next": "^11.8.13",
+    "react-scripts": "4.0.3",
+    "typescript": "^4.2.4",
+    "web-vitals": "^1.1.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
