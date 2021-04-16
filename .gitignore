@@ -2,3 +2,6 @@
 /build
 
 go.sum
+
+.connections.json
+.config.json

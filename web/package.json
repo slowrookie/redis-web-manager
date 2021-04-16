@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@fluentui/react": "^8.10.1",
-    "@fluentui/react-icons": "^1.1.118",
+    "@fluentui/react-icons": "^0.4.1",
     "@testing-library/jest-dom": "^5.11.10",
     "@testing-library/react": "^11.2.6",
     "@testing-library/user-event": "^12.8.3",
@@ -46,5 +46,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "proxy": "http://localhost:8080"
 }
