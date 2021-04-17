@@ -34,6 +34,8 @@ type Command struct {
 	Commands [][]interface{} `json:"commands"`
 }
 
+var DefaultConnection = &Connection{}
+
 // Clients .
 var Clients = make(map[string]*redis.Client)
 

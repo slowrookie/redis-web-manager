@@ -30,11 +30,15 @@ func main() {
 			c.JSON(http.StatusOK, api.DefaultConfig)
 		})
 	}
-
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
+	// connections
+	r.GET("/connections", func(c *gin.Context) {
+		connections, err := api.DefaultConnection.Connections()
+		if nil != err {
+			c.String(http.StatusInternalServerError, fmt.Sprintf("error: %s", err))
+			return
+		}
+		c.JSON(http.StatusOK, connections)
 	})
+
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

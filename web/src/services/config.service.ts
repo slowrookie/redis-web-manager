@@ -5,17 +5,11 @@ export interface Config {
     language: string
 }
 
-export interface IConfigService {
-    getConfig: () => Promise<Config>
-    setConfig: (config: Config) => Promise<Config>
+export const getConfig = ():Promise<Config> => {
+    return fetch("/config").then(response => response.json() as Promise<Config>);   
 }
 
-const configService = (): IConfigService => {
-    return {
-        getConfig: () => fetch("/config").then(response => response.json() as Promise<Config>),
-        setConfig: (config: Config) => fetch("/config", { method: 'post', headers: defaultHeaders, body: JSON.stringify(config) })
-            .then(response => response.json() as Promise<Config>),
-    }
+export const setConfig = (config: Config): Promise<Config> => {
+    return fetch("/config", { method: 'post', headers: defaultHeaders, body: JSON.stringify(config) })
+    .then(response => response.json() as Promise<Config>);
 }
-
-export default configService;

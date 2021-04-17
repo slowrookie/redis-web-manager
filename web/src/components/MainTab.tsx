@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supportedLanguages } from '../locales/resources';
 import { Connection } from '../services/connection.service';
+import { ConnectionList } from './ConnectionList';
 
 export interface IMainTabProps {
   onChangeLanguage?: (language: string) => void
@@ -145,13 +146,13 @@ export const MainTab = (props: IMainTabProps) => {
       onDismiss={() => setContextmenu({ ...contextmenu, hidden: true })}
     />
 
-    <div style={{ display: mainTab.showConnectionList ? '' : 'none', height: 'calc(100vh - 40px)', overflowY: 'auto', overflowX: 'hidden', position: 'relative' }} >
-      {/* <ConnectionList onConnectionClick={handleConnectionClick} /> */}
+    <div style={{ display: mainTab.showConnectionList ? '' : 'none', height: 'calc(100vh - 42px)', overflowY: 'auto', overflowX: 'hidden' }} >
+      <ConnectionList onConnectionClick={handleConnectionClick} />
     </div>
 
     {
       mainTab.connections.length > 0 && mainTab.connections.map((v, i) => {
-        return (<div key={v.id} style={{ display: mainTab.selectedKey === v.id ? '' : 'none', height: 'calc(100vh - 40px)' }} >
+        return (<div key={v.id} style={{ display: mainTab.selectedKey === v.id ? '' : 'none', height: 'calc(100vh - 42px)' }} >
           {/* <ConnectionItem connection={v} /> */}
         </div>)
       })

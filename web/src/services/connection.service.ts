@@ -13,14 +13,6 @@ export interface Connection {
     dataScanLimit: number,
 }
 
-export interface IConnectionService {
-    connections: Promise<Array<Connection>>
+export const getConnections = (): Promise<Array<Connection>> => {
+    return fetch("/connections").then(response => response.json() as Promise<Array<Connection>>);
 }
-
-const useConfigService = (): IConnectionService => {
-    return {
-        connections: fetch("").then(response => response.json() as Promise<Array<Connection>>)
-    }
-}
-
-export default useConfigService;

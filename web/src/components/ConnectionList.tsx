@@ -1,7 +1,7 @@
 import { DocumentCard, DocumentCardActions, DocumentCardDetails, DocumentCardType, IconButton, Label, Stack, Text } from '@fluentui/react';
 import React, { CSSProperties, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Connection } from '../services/connection.service';
+import { Connection, getConnections } from '../services/connection.service';
 import { ErrorMessageBar } from './common/ErrorMessageBar';
 import { Loading } from './common/Loading';
 // import { ConnectionPanel } from './panel/ConnectionPanel';
@@ -28,12 +28,11 @@ export const ConnectionList = (props: IConnectionListProps) => {
 
   const load = useCallback(() => {
     setLoading(true);
-    // backendAPI.Connection.Connections()
-    //   .then((data) => {
-    //     data && data.length && setConnections(data.sort((a, b) => b.id - a.id));
-    //   })
-    //   .catch(err => setError(err))
-    //   .finally(() => { setLoading(false) });
+    getConnections().then((data: Array<Connection>) => {
+        data && data.length && setConnections(data.sort((a, b) => Number(b.id) - Number(a.id)));
+      })
+      .catch(err => setError(err))
+      .finally(() => { setLoading(false) });
   }, [])
 
   useEffect(() => {

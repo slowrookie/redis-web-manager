@@ -7,7 +7,7 @@ import { ErrorMessageBar } from './components/common/ErrorMessageBar';
 import { Loading } from './components/common/Loading';
 import { MainTab } from './components/MainTab';
 import i18n from './i18n';
-import configService, { Config } from './services/config.service';
+import { Config, getConfig, setConfig } from './services/config.service';
 import { themes } from './theme';
 
 // icons
@@ -71,7 +71,6 @@ registerIcons({
   }
 })
 
-const { getConfig, setConfig } = configService();
 
 function App() {
   const [_config, _setConfig] = useState<Config>({ theme: 'light', language: 'en_US' }),
