@@ -50,8 +50,8 @@ func (c *Connection) Connections() ([]Connection, error) {
 }
 
 // Test .
-func (c *Connection) Test(connection Connection) error {
-	client := c.client(connection)
+func (c *Connection) Test() error {
+	client := c.client(*c)
 	_, err := client.Ping(context.Background()).Result()
 	if nil != err {
 		return err
@@ -60,21 +60,21 @@ func (c *Connection) Test(connection Connection) error {
 }
 
 // New .
-func (c *Connection) New(connection Connection) ([]interface{}, error) {
-	if len(connection.ID) == 0 {
-		connection.ID = strconv.FormatInt(time.Now().UnixNano(), 10)
-		connections = append([]Connection{connection}, connections...)
+func (c *Connection) New() ([]interface{}, error) {
+	if len(c.ID) == 0 {
+		c.ID = strconv.FormatInt(time.Now().UnixNano(), 10)
+		connections = append([]Connection{*c}, connections...)
 	} else {
 		for i := 0; i < len(connections); i++ {
-			if connections[i].ID == connection.ID {
-				connections[i] = connection
+			if connections[i].ID == c.ID {
+				connections[i] = *c
 				break
 			}
 		}
 	}
 
-	client := c.client(connection)
-	conf, err := client.ConfigGet(context.Background(), "databases").Result()
+	client := c.client(*c)
+	databases, err := client.ConfigGet(context.Background(), "databases").Result()
 	if nil != err {
 		return nil, err
 	}
@@ -84,8 +84,8 @@ func (c *Connection) New(connection Connection) ([]interface{}, error) {
 		return nil, err
 	}
 
-	Clients[connection.ID] = client
-	return conf, nil
+	Clients[c.ID] = client
+	return databases, nil
 }
 
 // Delete .
@@ -144,13 +144,13 @@ func (c *Connection) Disconnection(id string) error {
 }
 
 // Copy .
-func (c *Connection) Copy(connection Connection) error {
-	connection.ID = strconv.FormatInt(time.Now().UnixNano(), 10)
-	connections = append(connections, connection)
+func (c *Connection) Copy() (Connection, error) {
+	c.ID = strconv.FormatInt(time.Now().UnixNano(), 10)
+	connections = append(connections, *c)
 	if err := c.writeConnections(); nil != err {
-		return err
+		return *c, err
 	}
-	return nil
+	return *c, nil
 }
 
 // Command

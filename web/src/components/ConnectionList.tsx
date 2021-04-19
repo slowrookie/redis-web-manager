@@ -1,7 +1,7 @@
 import { DocumentCard, DocumentCardActions, DocumentCardDetails, DocumentCardType, IconButton, Label, Stack, Text } from '@fluentui/react';
 import React, { CSSProperties, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Connection, getConnections } from '../services/connection.service';
+import { Connection, copyConnection, deleteConnection, getConnections } from '../services/connection.service';
 import { ErrorMessageBar } from './common/ErrorMessageBar';
 import { Loading } from './common/Loading';
 // import { ConnectionPanel } from './panel/ConnectionPanel';
@@ -20,7 +20,7 @@ export const ConnectionList = (props: IConnectionListProps) => {
   const { onConnectionClick } = props;
   const { t } = useTranslation();
 
-  const [connections, setConnections] = useState<Connection[]>([]),
+  const [connections, setConnections] = useState<Array<Connection>>([]),
     [error, setError] = useState(),
     [loading, setLoading] = useState(false),
     [selectedConnection, setSelectedConnection] = useState<Connection | null>(),
@@ -29,8 +29,8 @@ export const ConnectionList = (props: IConnectionListProps) => {
   const load = useCallback(() => {
     setLoading(true);
     getConnections().then((data: Array<Connection>) => {
-        data && data.length && setConnections(data.sort((a, b) => Number(b.id) - Number(a.id)));
-      })
+      data && data.length && setConnections(data.sort((a, b) => Number(b.id) - Number(a.id)));
+    })
       .catch(err => setError(err))
       .finally(() => { setLoading(false) });
   }, [])
@@ -67,10 +67,9 @@ export const ConnectionList = (props: IConnectionListProps) => {
                     e.stopPropagation();
                     setLoading(true);
                     connection.name = `${connection.name} Copy`;
-                    // backendAPI.Connection.Copy(connection)
-                    //   .then(load)
-                    //   .catch(err => setError(err))
-                    //   .finally(() => setLoading(false));
+                    copyConnection(connection).then(load)
+                      .catch(err => setError(err))
+                      .finally(() => setLoading(false));
                   }
                 },
                 {
@@ -78,12 +77,9 @@ export const ConnectionList = (props: IConnectionListProps) => {
                     e.preventDefault();
                     e.stopPropagation();
                     setLoading(true);
-                    // backendAPI.Connection.Delete(connection.id)
-                    //   .then(load)
-                    //   .catch(err => {
-                    //     setError(err);
-                    //   })
-                    //   .finally(() => setLoading(false));
+                    deleteConnection(connection.id).then(() => load())
+                      .catch(err => setError(err))
+                      .finally(() => setLoading(false));
                   }
                 }
               ]} />
