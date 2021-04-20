@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Connection, copyConnection, deleteConnection, getConnections } from '../services/connection.service';
 import { ErrorMessageBar } from './common/ErrorMessageBar';
 import { Loading } from './common/Loading';
+import { ConnectionPanel } from './panel/ConnectionPanel';
 // import { ConnectionPanel } from './panel/ConnectionPanel';
 
 const textOverflow: CSSProperties = {
@@ -23,7 +24,7 @@ export const ConnectionList = (props: IConnectionListProps) => {
   const [connections, setConnections] = useState<Array<Connection>>([]),
     [error, setError] = useState(),
     [loading, setLoading] = useState(false),
-    [selectedConnection, setSelectedConnection] = useState<Connection | null>(),
+    [selectedConnection, setSelectedConnection] = useState<Connection | undefined>(),
     [showEditPanel, setShowEditPanel] = useState(false);
 
   const load = useCallback(() => {
@@ -38,6 +39,10 @@ export const ConnectionList = (props: IConnectionListProps) => {
   useEffect(() => {
     load();
   }, [load]);
+
+  const handleSave = () => {
+    load();
+  }
 
   return (<>
     <ErrorMessageBar error={error}></ErrorMessageBar>
@@ -97,9 +102,9 @@ export const ConnectionList = (props: IConnectionListProps) => {
       styles={{ root: { zIndex: 1, position: 'absolute', bottom: 20, right: 20, width: 42, height: 42, padding: 0 } }}
       iconProps={{ iconName: 'circleAdditionSolid', style: { height: 'auto', fontSize: 32 } }} onClick={() => {
         setShowEditPanel(true);
-        setSelectedConnection(null);
+        setSelectedConnection(undefined);
       }} />
 
-    {/* <ConnectionPanel isOpen={showEditPanel} setIsOpen={setShowEditPanel} connection={selectedConnection} /> */}
+    <ConnectionPanel isOpen={showEditPanel} setIsOpen={setShowEditPanel} connection={selectedConnection} onSave={handleSave} />
   </>)
 }

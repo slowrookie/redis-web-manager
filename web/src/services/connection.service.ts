@@ -4,6 +4,7 @@ export interface Connection {
     name: string,
     host: string,
     port: number,
+    username: string,
     auth: string,
     keysPattern: string,
     namespaceSeparator: string,
@@ -27,11 +28,10 @@ export const testConnection = (connection: Connection): Promise<any> => {
         method: 'post',
         headers: defaultHeaders,
         body: JSON.stringify(connection)
-    })
-        .then(response => response.json());
+    });
 }
 
-export const saveConnection = (connection: Connection): Promise<Array<number>> => {
+export const saveConnection = (connection: Connection): Promise<Connection> => {
     return fetch("/connection", {
         method: 'post',
         headers: defaultHeaders,

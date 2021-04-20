@@ -1,6 +1,6 @@
 export const CONNECTIONS = "CONNECTIONS";
 
-export const KeyTypes = {
+export const KeyTypes: {[index: string]:string} = {
   STRING: 'STRING',
   LIST: 'LIST',
   SET: 'SET',

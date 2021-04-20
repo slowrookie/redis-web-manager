@@ -6,6 +6,8 @@ import { parseInfo } from './utils';
 import { ErrorMessageBar } from './common/ErrorMessageBar';
 import { Loading } from './common/Loading';
 import { Connection, openConnection } from '../services/connection.service';
+import { Info } from './info/Info';
+import { Database, IDatabase } from './Database';
 // import { Console } from './Console';
 // import { Database } from './Database';
 // import { Info } from './info/Info';
@@ -19,7 +21,7 @@ export const ConnectionItem = (props: ConnectionItemProps) => {
   const { connection } = props;
 
   const [info, setInfo] = useState(),
-    [databases, setDatabase] = useState<Array<{ db: number, dbsize: number }>>(),
+    [databases, setDatabase] = useState<Array<IDatabase>>([{ db: 0, dbsize: 0 }]),
     [error, setError] = useState<string>(),
     [loading, setLoading] = useState(false),
     [selectedKey, setSelectedKey] = useState<string | undefined>('serverInfo'),
@@ -75,13 +77,13 @@ export const ConnectionItem = (props: ConnectionItemProps) => {
       <Stack.Item grow={1}
         className={selectedKey ? AnimationClassNames.fadeIn400 : AnimationClassNames.fadeOut400}
         style={{ display: selectedKey === 'serverInfo' ? 'block' : 'none' }}>
-        {/* {info && <Info {...props} info={info} />} */}
+        {info && <Info {...props} info={info} />}
       </Stack.Item>
 
       <Stack.Item grow={1}
         className={selectedKey ? AnimationClassNames.fadeIn400 : AnimationClassNames.fadeOut400}
         style={{ display: selectedKey === 'database' ? 'block' : 'none' }}>
-        {/* {databases.length && <Database {...props} databases={databases} />} */}
+        {databases.length && <Database {...props} databases={databases} />}
       </Stack.Item>
 
       <Stack.Item grow={1}

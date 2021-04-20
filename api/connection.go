@@ -19,6 +19,7 @@ type Connection struct {
 	Name               string `json:"name"`
 	Host               string `json:"host"`
 	Port               int32  `json:"port"`
+	Username           string `json:"username"`
 	Auth               string `json:"auth"`
 	KeysPattern        string `json:"keysPattern"`
 	NamespaceSeparator string `json:"namespaceSeparator"`
@@ -60,7 +61,7 @@ func (c *Connection) Test() error {
 }
 
 // New .
-func (c *Connection) New() ([]interface{}, error) {
+func (c *Connection) New() (Connection, error) {
 	if len(c.ID) == 0 {
 		c.ID = strconv.FormatInt(time.Now().UnixNano(), 10)
 		connections = append([]Connection{*c}, connections...)
@@ -74,18 +75,14 @@ func (c *Connection) New() ([]interface{}, error) {
 	}
 
 	client := c.client(*c)
-	databases, err := client.ConfigGet(context.Background(), "databases").Result()
-	if nil != err {
-		return nil, err
-	}
 
 	// write file
 	if err := c.writeConnections(); nil != err {
-		return nil, err
+		return *c, err
 	}
 
 	Clients[c.ID] = client
-	return databases, nil
+	return *c, nil
 }
 
 // Delete .
