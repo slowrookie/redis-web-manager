@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supportedLanguages } from '../locales/resources';
 import { Connection } from '../services/connection.service';
+import { ConnectionItem } from './ConnectionItem';
 import { ConnectionList } from './ConnectionList';
 
 export interface IMainTabProps {
@@ -153,7 +154,7 @@ export const MainTab = (props: IMainTabProps) => {
     {
       mainTab.connections.length > 0 && mainTab.connections.map((v, i) => {
         return (<div key={v.id} style={{ display: mainTab.selectedKey === v.id ? '' : 'none', height: 'calc(100vh - 42px)' }} >
-          {/* <ConnectionItem connection={v} /> */}
+          <ConnectionItem connection={v} />
         </div>)
       })
     }

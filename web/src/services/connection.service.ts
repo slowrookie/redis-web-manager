@@ -43,7 +43,7 @@ export const deleteConnection = (id: string): Promise<any> => {
     return fetch(`/connection/${id}`, { method: 'delete' });
 }
 
-export const openConnection = (id: string): Promise<Array<any>> => {
+export const openConnection = (id: string): Promise<{ database: Array<any>, info: string }> => {
     return fetch(`/connection/${id}/open`, { method: 'post' }).then(response => response.json());
 }
 
@@ -59,10 +59,10 @@ export const copyConnection = (connection: Connection): Promise<Connection> => {
     }).then(response => response.json());
 }
 
-export const command = (command: Command): Promise<Connection> => {
+export const executeCommand = <T>(command: Command): Promise<T> => {
     return fetch(`/connection/command`, {
         method: 'post',
         headers: defaultHeaders,
         body: JSON.stringify(command)
-    }).then(response => response.json());
+    }).then(response => response.json() as Promise<T>);
 }
