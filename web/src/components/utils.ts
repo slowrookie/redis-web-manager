@@ -1,6 +1,6 @@
 export const CONNECTIONS = "CONNECTIONS";
 
-export const KeyTypes: {[index: string]:string} = {
+export const KeyTypes: { [index: string]: string } = {
   STRING: 'STRING',
   LIST: 'LIST',
   SET: 'SET',
@@ -9,7 +9,7 @@ export const KeyTypes: {[index: string]:string} = {
   STREAM: 'STREAM'
 }
 
-export const ComponentType = {
+export const ComponentType: { [index: string]: string } = {
   INFO: 'INFO',
   CONSOLE: 'CONSOLE',
   STRING: 'STRING',

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/slowrookie/redis-web-manager/api"
@@ -96,6 +97,34 @@ func main() {
 				return
 			}
 			c.JSON(http.StatusOK, ret)
+		})
+	}
+	// convert
+	convertGroup := r.Group("/convert")
+	{
+		convertGroup.POST("/length", func(c *gin.Context) {
+			data := c.PostForm("data")
+			c.String(http.StatusOK, strconv.Itoa(api.DefaultConvert.Length(data)))
+		})
+		convertGroup.POST("/toHex", func(c *gin.Context) {
+			data := c.PostForm("data")
+			c.String(http.StatusOK, api.DefaultConvert.ToHex(data))
+		})
+		convertGroup.POST("/toHex", func(c *gin.Context) {
+			data := c.PostForm("data")
+			c.String(http.StatusOK, api.DefaultConvert.ToJson(data))
+		})
+		convertGroup.POST("/toBinary", func(c *gin.Context) {
+			data := c.PostForm("data")
+			c.String(http.StatusOK, api.DefaultConvert.ToBinary(data))
+		})
+		convertGroup.POST("/base64ToText", func(c *gin.Context) {
+			data := c.PostForm("data")
+			c.String(http.StatusOK, api.DefaultConvert.Base64ToText(data))
+		})
+		convertGroup.POST("/base64ToJson", func(c *gin.Context) {
+			data := c.PostForm("data")
+			c.String(http.StatusOK, api.DefaultConvert.Base64ToJson(data))
 		})
 	}
 
