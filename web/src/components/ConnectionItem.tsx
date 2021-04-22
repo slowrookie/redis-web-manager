@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Connection, openConnection } from '../services/connection.service';
 import { ErrorMessageBar } from './common/ErrorMessageBar';
 import { Loading } from './common/Loading';
+import { DatabaseConfiguration } from './configuration/DatabaseConfiguration';
 import { Console } from './Console';
 import { Database, IDatabase } from './Database';
 import { Info } from './info/Info';
@@ -30,8 +31,6 @@ export const ConnectionItem = (props: ConnectionItemProps) => {
     openConnection(connection.id).then(ret => {
       console.log(ret);
       var info: any = parseInfo(ret.info);
-      console.log(info);
-
       setInfo(info);
       setDatabases([...Array(Number(ret.database[1]))].map((_, i) => {
         var reg = /[1-9][0-9]*/
@@ -54,7 +53,7 @@ export const ConnectionItem = (props: ConnectionItemProps) => {
           ],
           url: ''
         },
-        { name: t('Configuration'), key: 'configuration', url: '' },
+        { name: t('Configuration'), key: 'databaseConfig', url: '' },
       ]
     }
   ];
@@ -89,6 +88,12 @@ export const ConnectionItem = (props: ConnectionItemProps) => {
         className={selectedKey ? AnimationClassNames.fadeIn100 : AnimationClassNames.fadeOut100}
         style={{ display: selectedKey === 'cli' ? 'block' : 'none' }}>
         <Console {...props} />
+      </Stack.Item>
+
+      <Stack.Item grow={1}
+        className={selectedKey ? AnimationClassNames.fadeIn100 : AnimationClassNames.fadeOut100}
+        style={{ display: selectedKey === 'databaseConfig' ? 'block' : 'none' }}>
+        <DatabaseConfiguration {...props} />
       </Stack.Item>
 
       {/* error */}
