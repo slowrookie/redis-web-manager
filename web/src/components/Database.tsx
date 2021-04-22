@@ -45,13 +45,17 @@ export const Database = (props: IDatabaseProps) => {
 
   const [error, setError] = useState<string>(),
     [loading, setLoading] = useState(false),
-    [_databases, _setDatabase] = useState<Array<{ db: number, dbsize: number }>>(databases || []),
+    [_databases, _setDatabase] = useState<Array<{ db: number, dbsize: number }>>([]),
     [search, setSearch] = useState<IDatabaseSearch>({ db: 0, cursor: 0, pattern: connection.keysPattern, count: connection.dataScanLimit }),
     [currentCursor, setCurrentCurosr] = useState(0),
     [keysCount, setKeysCount] = useState({ scanned: 0, total: databases[0].dbsize }),
     [keys, setKeys] = useState<Array<string>>([]),
     [addKey, setAddKey] = useState<{ type: string, show: boolean }>({ type: KeyTypes.STRING, show: false }),
     [showKeyPanel, setShowKeyPanel] = useState<any>({ type: '', keyName: '' });
+
+  useEffect(() => {
+    _setDatabase(databases);
+  }, [databases])
 
   const loadKeys = useCallback(() => {
     setError('');

@@ -18,7 +18,7 @@ export const ConnectionItem = (props: ConnectionItemProps) => {
   const { connection } = props;
 
   const [info, setInfo] = useState(),
-    [databases, setDatabase] = useState<Array<IDatabase>>([{ db: 0, dbsize: 0 }]),
+    [databases, setDatabases] = useState<Array<IDatabase>>([{ db: 0, dbsize: 0 }]),
     [error, setError] = useState<string>(),
     [loading, setLoading] = useState(false),
     [selectedKey, setSelectedKey] = useState<string | undefined>('serverInfo'),
@@ -30,11 +30,13 @@ export const ConnectionItem = (props: ConnectionItemProps) => {
     openConnection(connection.id).then(ret => {
       console.log(ret);
       var info: any = parseInfo(ret.info);
+      console.log(info);
+
       setInfo(info);
-      setDatabase([...Array(ret.database[1])].map((_, i) => {
+      setDatabases([...Array(Number(ret.database[1]))].map((_, i) => {
         var reg = /[1-9][0-9]*/
         var keys = (info.Keyspace && info.Keyspace[`db${i}`] && info.Keyspace[`db${i}`].match(reg)[0]) || 0;
-        return { db: i, dbsize: keys }
+        return { db: i, dbsize: keys };
       }));
     })
       .catch(err => setError(err))
