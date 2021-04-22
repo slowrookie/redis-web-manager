@@ -19,7 +19,7 @@ export interface IDragSliderProps {
 export const DragSlider = (props: IDragSliderProps) => {
   const theme = useTheme();
 
-  const [dragSliderStyle, setDragSliderStyle] = useState({ ...DragSliderStyle }),
+  const [dragSliderStyle, setDragSliderStyle] = useState({ ...DragSliderStyle, background: theme.palette.neutralLight }),
     [moving, setMoving] = useState(false),
     [lastWidth, setLastWidth] = useState(MIN_WIDTH),
     _selfRef = useRef<HTMLDivElement | null>(null);
@@ -66,7 +66,7 @@ export const DragSlider = (props: IDragSliderProps) => {
     <div ref={_selfRef} style={{ height: '100%' }} onMouseUp={onMouseUp}>
       <Stack horizontal style={{ height: '100%' }}>
         <div style={{ width: lastWidth, overflow: 'auto' }}>{props.children}</div>
-        <div style={{ ...dragSliderStyle, background: theme.palette.neutralLight }}
+        <div style={{ ...dragSliderStyle }}
           onMouseEnter={onToggleHover}
           onMouseLeave={onToggleHover}
           onMouseDown={onMouseDown}

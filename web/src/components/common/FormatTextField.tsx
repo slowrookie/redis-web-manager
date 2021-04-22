@@ -89,8 +89,8 @@ export const FormatTextField = (props: IFormatTextFieldProps) => {
       </Stack>
 
       <Stack.Item grow={1}>
-        {viewValue ? <TextField readOnly styles={fieldStyles} {...props} value={viewValue} label={label}></TextField> :
-          <TextField styles={fieldStyles} {...props} onChange={handleValueChange} label={label}></TextField>}
+        {viewValue ? <TextField readOnly styles={fieldStyles} {...props} value={viewValue} label={undefined}></TextField> :
+          <TextField styles={fieldStyles} {...props} onChange={handleValueChange} label={undefined} ></TextField>}
       </Stack.Item>
 
     </Stack>

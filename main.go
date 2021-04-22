@@ -43,16 +43,18 @@ func main() {
 	connectioniGroup := r.Group("/connection")
 	{
 		connectioniGroup.POST("/test", func(c *gin.Context) {
-			c.Bind(api.DefaultConnection)
-			err := api.DefaultConnection.Test()
+			connection := &api.Connection{}
+			c.Bind(connection)
+			err := connection.Test()
 			if nil != err {
 				c.String(http.StatusInternalServerError, fmt.Sprintf("error: %s", err))
 				return
 			}
 		})
 		connectioniGroup.POST("/", func(c *gin.Context) {
-			c.Bind(api.DefaultConnection)
-			ret, err := api.DefaultConnection.New()
+			connection := &api.Connection{}
+			c.Bind(connection)
+			ret, err := connection.New()
 			if nil != err {
 				c.String(http.StatusInternalServerError, fmt.Sprintf("error: %s", err))
 				return
@@ -80,13 +82,14 @@ func main() {
 			}
 		})
 		connectioniGroup.POST("/copy", func(c *gin.Context) {
-			c.Bind(api.DefaultConnection)
-			connection, err := api.DefaultConnection.Copy()
+			connection := &api.Connection{}
+			c.Bind(connection)
+			_connection, err := connection.Copy()
 			if nil != err {
 				c.String(http.StatusInternalServerError, fmt.Sprintf("error: %s", err))
 				return
 			}
-			c.JSON(http.StatusOK, connection)
+			c.JSON(http.StatusOK, _connection)
 		})
 		connectioniGroup.POST("/command", func(c *gin.Context) {
 			cmd := &api.Command{}
@@ -103,28 +106,34 @@ func main() {
 	convertGroup := r.Group("/convert")
 	{
 		convertGroup.POST("/length", func(c *gin.Context) {
-			data := c.PostForm("data")
-			c.String(http.StatusOK, strconv.Itoa(api.DefaultConvert.Length(data)))
+			convert := &api.Convert{}
+			c.Bind(convert)
+			c.String(http.StatusOK, strconv.Itoa(convert.Length()))
 		})
 		convertGroup.POST("/toHex", func(c *gin.Context) {
-			data := c.PostForm("data")
-			c.String(http.StatusOK, api.DefaultConvert.ToHex(data))
+			convert := &api.Convert{}
+			c.Bind(convert)
+			c.String(http.StatusOK, convert.ToHex())
 		})
 		convertGroup.POST("/toJson", func(c *gin.Context) {
-			data := c.PostForm("data")
-			c.String(http.StatusOK, api.DefaultConvert.ToJson(data))
+			convert := &api.Convert{}
+			c.Bind(convert)
+			c.String(http.StatusOK, convert.ToJson())
 		})
 		convertGroup.POST("/toBinary", func(c *gin.Context) {
-			data := c.PostForm("data")
-			c.String(http.StatusOK, api.DefaultConvert.ToBinary(data))
+			convert := &api.Convert{}
+			c.Bind(convert)
+			c.String(http.StatusOK, convert.ToBinary())
 		})
 		convertGroup.POST("/base64ToText", func(c *gin.Context) {
-			data := c.PostForm("data")
-			c.String(http.StatusOK, api.DefaultConvert.Base64ToText(data))
+			convert := &api.Convert{}
+			c.Bind(convert)
+			c.String(http.StatusOK, convert.Base64ToText())
 		})
 		convertGroup.POST("/base64ToJson", func(c *gin.Context) {
-			data := c.PostForm("data")
-			c.String(http.StatusOK, api.DefaultConvert.Base64ToJson(data))
+			convert := &api.Convert{}
+			c.Bind(convert)
+			c.String(http.StatusOK, convert.Base64ToJson())
 		})
 	}
 

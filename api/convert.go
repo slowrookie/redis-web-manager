@@ -9,56 +9,59 @@ import (
 	"unicode"
 )
 
-type Convert struct{}
+type Convert struct {
+	Data string `json:"data"`
+}
 
 var DefaultConvert = &Convert{}
 
 // Length .
-func (c *Convert) Length(param string) int {
-	return len([]rune(param))
+func (c *Convert) Length() int {
+	return len([]rune(c.Data))
 }
 
 // ToHex .
-func (c *Convert) ToHex(param string) string {
-	return hex.EncodeToString([]byte(param))
+func (c *Convert) ToHex() string {
+	return hex.EncodeToString([]byte(c.Data))
 }
 
 // ToJson .
-func (c *Convert) ToJson(param string) string {
+func (c *Convert) ToJson() string {
 	var formatOut bytes.Buffer
-	err := json.Indent(&formatOut, []byte(param), "", "\t")
+	err := json.Indent(&formatOut, []byte(c.Data), "", "\t")
 	if nil != err {
-		return param
+		return c.Data
 	}
 	return formatOut.String()
 }
 
 // ToBinary .
-func (c *Convert) ToBinary(param string) (bstr string) {
-	for _, v := range param {
+func (c *Convert) ToBinary() (bstr string) {
+	for _, v := range c.Data {
 		bstr = fmt.Sprintf("%s%b", bstr, v)
 	}
 	return
 }
 
 // Base64ToText .
-func (c *Convert) Base64ToText(param string) string {
-	bts, err := base64.StdEncoding.DecodeString(param)
+func (c *Convert) Base64ToText() string {
+	bts, err := base64.StdEncoding.DecodeString(c.Data)
 	if nil != err {
-		return param
+		return c.Data
 	}
 	return string(bts)
 }
 
 // Base64ToJson .
-func (c *Convert) Base64ToJson(param string) string {
-	txt := c.Base64ToText(param)
-	return c.ToJson(string(txt))
+func (c *Convert) Base64ToJson() string {
+	txt := c.Base64ToText()
+	c.Data = string(txt)
+	return c.ToJson()
 }
 
 // banary
-func (c *Convert) IsPrintable(param string) bool {
-	for _, r := range param {
+func (c *Convert) IsPrintable() bool {
+	for _, r := range c.Data {
 		if r > unicode.MaxASCII || !unicode.IsPrint(r) {
 			return false
 		}

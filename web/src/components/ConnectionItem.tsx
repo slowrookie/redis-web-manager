@@ -1,16 +1,13 @@
 import { AnimationClassNames, Depths, INavLink, INavLinkGroup, Nav, Stack } from '@fluentui/react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-// import { backendAPI } from '../api';
-import { parseInfo } from './utils';
+import { Connection, openConnection } from '../services/connection.service';
 import { ErrorMessageBar } from './common/ErrorMessageBar';
 import { Loading } from './common/Loading';
-import { Connection, openConnection } from '../services/connection.service';
-import { Info } from './info/Info';
+import { Console } from './Console';
 import { Database, IDatabase } from './Database';
-// import { Console } from './Console';
-// import { Database } from './Database';
-// import { Info } from './info/Info';
+import { Info } from './info/Info';
+import { parseInfo } from './utils';
 
 export interface ConnectionItemProps {
   connection: Connection
@@ -75,21 +72,21 @@ export const ConnectionItem = (props: ConnectionItemProps) => {
       />
 
       <Stack.Item grow={1}
-        className={selectedKey ? AnimationClassNames.fadeIn400 : AnimationClassNames.fadeOut400}
+        className={selectedKey ? AnimationClassNames.fadeIn100 : AnimationClassNames.fadeOut100}
         style={{ display: selectedKey === 'serverInfo' ? 'block' : 'none' }}>
         {info && <Info {...props} info={info} />}
       </Stack.Item>
 
       <Stack.Item grow={1}
-        className={selectedKey ? AnimationClassNames.fadeIn400 : AnimationClassNames.fadeOut400}
+        className={selectedKey ? AnimationClassNames.fadeIn100 : AnimationClassNames.fadeOut100}
         style={{ display: selectedKey === 'database' ? 'block' : 'none' }}>
         {databases.length && <Database {...props} databases={databases} />}
       </Stack.Item>
 
       <Stack.Item grow={1}
-        className={selectedKey ? AnimationClassNames.fadeIn400 : AnimationClassNames.fadeOut400}
+        className={selectedKey ? AnimationClassNames.fadeIn100 : AnimationClassNames.fadeOut100}
         style={{ display: selectedKey === 'cli' ? 'block' : 'none' }}>
-        {/* <Console {...props} /> */}
+        <Console {...props} />
       </Stack.Item>
 
       {/* error */}
