@@ -1,32 +1,44 @@
-import {
-
-  Stack
-} from '@fluentui/react';
+import { Stack } from '@fluentui/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { backendAPI } from '../api';
+import { Connection, executeCommand } from '../services/connection.service';
 import { ErrorMessageBar } from './common/ErrorMessageBar';
 import { KeyHeader } from './KeyHeader';
 import { ZsetKeyCursor } from './ZsetKeyCursor';
 import { ZsetKeyIndex } from './ZsetKeyIndex';
+
+export interface IZsetKeyProps {
+  connection: Connection
+  db: number
+  component: string,
+  keyName: string,
+  onKeyNameChanged: (oldKeyName: string, keyName: string) => void
+  onDeletedKey: (keyName: string) => void
+}
+
+export interface IZsetKeyItem {
+  row: number,
+  value: string,
+  score: string
+}
 
 const DefaultZsetKeyProps = {
   keyName: '',
   TTL: -1,
 }
 
-export const ZsetKey = (props) => {
+export const ZsetKey = (props: IZsetKeyProps) => {
 
   const { connection, db, keyName, onKeyNameChanged } = props;
 
-  const childRef = useRef();
+  const childRef = useRef<any>();
 
   const [keyProps, setKeyProps] = useState({ ...DefaultZsetKeyProps, keyName }),
-    [error, setError] = useState(),
+    [error, setError] = useState<string>(),
     [searchType, setSearchType] = useState('CURSOR');
 
   const load = useCallback(() => {
     setError('');
-    backendAPI.Connection.Command({
+    executeCommand<Array<any>>({
       id: connection.id, commands: [
         ['SELECT', db],
         ['TTL', keyProps.keyName],
@@ -53,11 +65,11 @@ export const ZsetKey = (props) => {
           setKeyProps({ ...keyProps, keyName: newValue });
           onKeyNameChanged(oldValue, newValue);
         }}
-        onTTLChange={(v) => { setKeyProps({ ...keyProps, TTL: v }) }}
-        onRefresh={() => { childRef.current.refresh(); load(); }} />
+        onTTLChanged={(v) => { setKeyProps({ ...keyProps, TTL: v }) }}
+        onRefresh={() => { childRef && childRef.current && childRef.current.refresh(); load(); }} />
 
-      {searchType === 'INDEX' && <ZsetKeyIndex  {...props} onChangeSearchType={v => setSearchType(v)} childRef={childRef} />}
-      {searchType === 'CURSOR' && <ZsetKeyCursor {...props} onChangeSearchType={v => setSearchType(v)} childRef={childRef} />}
+      {searchType === 'INDEX' && <ZsetKeyIndex  {...props} onChangeSearchType={(v: string) => setSearchType(v)} childRef={childRef} />}
+      {searchType === 'CURSOR' && <ZsetKeyCursor {...props} onChangeSearchType={(v: string) => setSearchType(v)} childRef={childRef} />}
 
     </Stack >
   )

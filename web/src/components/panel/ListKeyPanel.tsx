@@ -9,8 +9,8 @@ export interface IListKeyPanelProps {
   connection: Connection
   db: number
   keyType: string
-  keyName: string
-  keyValue: string
+  keyName?: string
+  keyValue?: string
   isOpen: boolean
   index?: number
   disabledKeyName?: boolean

@@ -19,11 +19,9 @@ export interface IZsetKeyPanelProps {
   onSave: (keyItem: any) => void,
   isOpen: boolean
   keyType: string
-  keyName: string
-  keyValue: string,
-  keyScore: string,
-  KeyFieldName: string
-  KeyFieldValue: string
+  keyName?: string
+  keyValue?: string,
+  keyScore?: string,
   disabledKeyName?: boolean
 }
 
@@ -50,7 +48,7 @@ export const ZsetKeyPanel = (props: IZsetKeyPanelProps) => {
     setError('');
     setLoading(true);
     var commands = [['SELECT', db]];
-    (index && index >= 0) && commands.push(['ZREM', keyItem.name, keyValue]);
+    (index && index >= 0 && keyValue) && commands.push(['ZREM', keyItem.name, keyValue]);
     commands.push(['ZADD', keyItem.name, keyItem.score, keyItem.value]);
     executeCommand<Array<any>>({ id: connection.id, commands })
       .then((ret) => {

@@ -9,8 +9,8 @@ export interface ISetKeyPanelProps {
   connection: Connection
   db: number
   keyType: string
-  keyName: string
-  keyValue: string
+  keyName?: string
+  keyValue?: string
   isOpen: boolean
   index?: number
   disabledKeyName?: boolean
@@ -33,7 +33,7 @@ export const SetKeyPanel = (props: ISetKeyPanelProps) => {
     [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setKeyItem({ name: keyName, value: keyValue || '' });
+    setKeyItem({ name: keyName || '', value: keyValue || '' });
   }, [keyName, keyValue])
 
   const handleSave = (save = false) => {
@@ -41,7 +41,7 @@ export const SetKeyPanel = (props: ISetKeyPanelProps) => {
     setLoading(true);
 
     const commands = [['SELECT', db]];
-    (index && index >= 0) && commands.push(['SREM', keyItem.name, keyValue]);
+    (index && index >= 0 && keyValue) && commands.push(['SREM', keyItem.name, keyValue]);
     commands.push(['SADD', keyItem.name, keyItem.value]);
 
     executeCommand<Array<any>>({ id: connection.id, commands })

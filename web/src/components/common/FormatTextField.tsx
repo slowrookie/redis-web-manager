@@ -59,7 +59,6 @@ export const FormatTextField = (props: IFormatTextFieldProps) => {
   }
 
   const getLength = (v: string) => {
-    convertLength
     v && convertLength({ data: v }).then((ret) => {
       _setLength(Number(ret));
     });

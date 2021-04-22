@@ -99,7 +99,10 @@ export const Database = (props: IDatabaseProps) => {
 
   const keyEditPanel = () => {
     const panelProps = {
-      ...props, db: search.db, isOpen: addKey.show, keyType: addKey.type,
+      ...props,
+      db: search.db,
+      isOpen: addKey.show,
+      keyType: addKey.type,
       onDismiss: () => setAddKey({ ...addKey, show: false }),
       onSave: () => setSearch({ ...search, cursor: 0 })
     };

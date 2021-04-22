@@ -14,10 +14,10 @@ import { FormatTextField } from '../common/FormatTextField';
 export interface IStreamKeyPanelProps {
   connection: Connection
   db: number
-  keyId: string,
   keyType: string
-  keyName: string
-  keyValue: string
+  keyId?: string,
+  keyName?: string
+  keyValue?: string
   isOpen: boolean
   onlyView?: boolean
   index?: number

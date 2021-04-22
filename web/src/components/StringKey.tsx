@@ -1,7 +1,7 @@
 import { DefaultButton, Stack, TooltipHost } from '@fluentui/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { backendAPI } from '../api';
+import { Connection, executeCommand } from '../services/connection.service';
 import { ErrorMessageBar } from './common/ErrorMessageBar';
 import { FormatTextField } from './common/FormatTextField';
 import { Loading } from './common/Loading';
@@ -14,32 +14,49 @@ const buttonStyles = {
   }
 }
 
-const DefaultStringKeyProps = {
+export interface IStringKeyyProps {
+  connection: Connection
+  db: number
+  component: string,
+  keyName: string,
+  onKeyNameChanged: (oldKeyName: string, keyName: string) => void
+  onDeletedKey: (keyName: string) => void
+}
+
+export interface IStringKey {
+  keyName: string
+  TTL: number
+  value: string
+  initialValue: string
+  length: number
+}
+
+const defaultStringKey: IStringKey = {
   keyName: '',
   TTL: -1,
   value: '',
   initialValue: '',
-  lenght: 0
+  length: 0
 }
 
-export const StringKey = (props) => {
+export const StringKey = (props: IStringKeyyProps) => {
 
   const { keyName, connection, db, onKeyNameChanged } = props;
 
   const { t } = useTranslation();
 
-  const [keyProps, setKeyProps] = useState({ ...DefaultStringKeyProps, keyName: keyName }),
-    [error, setError] = useState(),
+  const [keyProps, setKeyProps] = useState({ ...defaultStringKey, keyName: keyName }),
+    [error, setError] = useState<string>(),
     [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setKeyProps({ ...DefaultStringKeyProps, keyName })
+    setKeyProps({ ...defaultStringKey, keyName })
   }, [keyName])
 
   const load = useCallback(() => {
     setLoading(true);
     setError('');
-    backendAPI.Connection.Command({
+    executeCommand<Array<any>>({
       id: connection.id, commands: [
         ['SELECT', db],
         ['TTL', keyProps.keyName],
@@ -50,8 +67,11 @@ export const StringKey = (props) => {
       if (!ret || !ret.length) return;
       console.log(ret);
       setKeyProps({
-        keyName: keyProps.keyName, TTL: ret[1],
-        value: ret[2], initialValue: ret[2], length: ret[3]
+        keyName: keyProps.keyName,
+        TTL: ret[1],
+        value: ret[2],
+        initialValue: ret[2],
+        length: ret[3]
       });
     })
       .catch(err => setError(err))
@@ -65,7 +85,7 @@ export const StringKey = (props) => {
 
   const handleValue = () => {
     setError('');
-    backendAPI.Connection.Command({
+    executeCommand({
       id: connection.id, commands: [
         ['SELECT', db],
         ['SET', keyProps.keyName, keyProps.value],
@@ -97,12 +117,12 @@ export const StringKey = (props) => {
           setKeyProps({ ...keyProps, keyName: newValue });
           onKeyNameChanged(oldValue, newValue);
         }}
-        onTTLChange={(v) => { setKeyProps({ ...keyProps, TTL: v }) }}
+        onTTLChanged={(v) => { setKeyProps({ ...keyProps, TTL: v }) }}
         onRefresh={() => load()} />
 
       <Stack.Item grow={1}>
         <FormatTextField label={t('Value')} multiline value={keyProps.value} length={keyProps.length}
-          onChange={(e, v) => setKeyProps({ ...keyProps, value: v })}
+          onChange={(e, v) => v && setKeyProps({ ...keyProps, value: v })}
           actions={textFieldActions()}
         ></FormatTextField>
       </Stack.Item>

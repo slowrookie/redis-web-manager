@@ -1,7 +1,7 @@
 import { ActionButton, Callout, IconButton, Slider, Stack, Text, TextField, TooltipHost, useTheme } from '@fluentui/react';
-import React, { useEffect, useState } from 'react';
+import React, { KeyboardEvent, MouseEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 
 export interface IStreamKeySearch {
   id: string
@@ -40,7 +40,7 @@ export const StreamKeySearch = (props: IStreamKeySearch) => {
     })
   }, [props])
 
-  const handleSearch = (ev: MouseEvent) => {
+  const handleSearch = (ev: MouseEvent<any> | KeyboardEvent) => {
     ev.preventDefault();
     onSearch(condition.start, condition.end, condition.count);
     setSearchVisible(false);
@@ -63,8 +63,8 @@ export const StreamKeySearch = (props: IStreamKeySearch) => {
           min={condition.firstTimestamp}
           max={condition.lastTimestamp}
           defaultLowerValue={condition.firstTimestamp}
-          lowerValue={condition.start === '-' ? condition.firstTimestamp : condition.start}
-          value={condition.end === '+' ? condition.lastTimestamp : condition.end}
+          lowerValue={condition.start === '-' ? condition.firstTimestamp : Number(condition.start)}
+          value={condition.end === '+' ? condition.lastTimestamp : Number(condition.end)}
           onChange={handleRangeChange}
           showValue={false}
           step={100} />
@@ -72,12 +72,12 @@ export const StreamKeySearch = (props: IStreamKeySearch) => {
         <TextField
           styles={textFieldStyles}
           label="START"
-          value={condition.start}
-          onChange={(e, v) => setCondition({ ...condition, start: v })}
+          value={`${condition.start}`}
+          onChange={(e, v) => setCondition({ ...condition, start: Number(v) })}
           onRenderLabel={(props, defaultRender) => {
             const start = condition.start === '-' ? condition.firstTimestamp : condition.start;
             return (<Stack horizontal horizontalAlign="space-between" verticalAlign="center">
-              {defaultRender(props)}
+              {defaultRender && defaultRender(props)}
               <Text variant="xSmall">{dayjs(start).format("YYYY-MM-DD HH:mm:ss SSS")}</Text>
             </Stack>)
           }}
@@ -91,12 +91,12 @@ export const StreamKeySearch = (props: IStreamKeySearch) => {
         <TextField
           styles={textFieldStyles}
           label="END"
-          value={condition.end}
-          onChange={(e, v) => setCondition({ ...condition, end: v })}
+          value={`${condition.end}`}
+          onChange={(e, v) => setCondition({ ...condition, end: Number(v) })}
           onRenderLabel={(props, defaultRender) => {
             const end = condition.end === '+' ? condition.lastTimestamp : condition.end
             return (<Stack horizontal horizontalAlign="space-between" verticalAlign="center">
-              {defaultRender(props)}
+              {defaultRender && defaultRender(props)}
               <Text variant="xSmall">{dayjs(end).format("YYYY-MM-DD HH:mm:ss SSS")}</Text>
             </Stack>)
           }}
@@ -107,12 +107,12 @@ export const StreamKeySearch = (props: IStreamKeySearch) => {
           }}
         />
 
-        <TextField styles={textFieldStyles} type="number" label="COUNT" suffix={`/ ${condition.length}`} value={condition.count}
+        <TextField styles={textFieldStyles} type="number" label="COUNT" suffix={`/ ${condition.length}`} value={`${condition.count}`}
           onChange={(e, v) => {
-            if (v > condition.length) {
-              v = condition.length
+            if (Number(v) > condition.length) {
+              v = `${condition.length}`
             }
-            setCondition({ ...condition, count: v });
+            setCondition({ ...condition, count: Number(v) });
           }}
           onKeyDown={(ev: KeyboardEvent) => {
             if (ev.key === 'Enter') {

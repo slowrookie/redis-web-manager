@@ -4,15 +4,17 @@ import {
   DetailsRow,
   DialogType,
   IconButton,
+  IDetailsRowStyles,
   Selection,
   SelectionMode, ShimmeredDetailsList, Stack, Text, TooltipHost, useTheme
 } from '@fluentui/react';
 import React, { useCallback, useEffect, useImperativeHandle, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { backendAPI } from '../api';
+import { Connection, executeCommand } from '../services/connection.service';
 import { ConfirmButton } from './common/ConfirmButton';
 import { ErrorMessageBar } from './common/ErrorMessageBar';
 import { ZsetKeyPanel } from './panel/ZsetKeyPanel';
+import { IZsetKeyItem } from './ZsetKey';
 import { ZsetKeySearch } from './ZsetKeyCursorSearch';
 
 const defaultMatchPattern = "*";
@@ -24,22 +26,31 @@ const defaultStringKeyProps = {
   scanned: 0,
 }
 
-export const ZsetKeyCursor = (props) => {
+export interface IZsetKeyCursorProps {
+  connection: Connection
+  db: number
+  keyName: string
+  component: string
+  childRef: any
+  onChangeSearchType: (type: string) => void
+}
+
+export const ZsetKeyCursor = (props: IZsetKeyCursorProps) => {
 
   const { connection, db, keyName, component, onChangeSearchType, childRef } = props;
   const { t } = useTranslation(), theme = useTheme();
 
   const [keyProps, setKeyProps] = useState({ ...defaultStringKeyProps, keyName }),
-    [selectedValue, setSelectedValue] = useState(),
-    [error, setError] = useState(),
+    [selectedValue, setSelectedValue] = useState<IZsetKeyItem | undefined>(),
+    [error, setError] = useState<string>(),
     [showEditPanel, setShowEditPanel] = useState(false),
     [search, setSearch] = useState({ cursor: 0, pattern: defaultMatchPattern, count: connection.dataScanLimit }),
-    [items, setItems] = useState([]);
+    [items, setItems] = useState<Array<IZsetKeyItem>>([]);
 
   const load = useCallback(() => {
     if (!search.pattern || !search.count) return;
     setError('');
-    backendAPI.Connection.Command({
+    executeCommand<Array<any>>({
       id: connection.id, commands: [
         ['SELECT', db],
         ['ZCARD', keyProps.keyName],
@@ -78,29 +89,31 @@ export const ZsetKeyCursor = (props) => {
 
   const selection = new Selection({
     onSelectionChanged: () => {
-      setSelectedValue(selection.getSelection()[0]);
+      setSelectedValue(selection.getSelection()[0] as IZsetKeyItem);
     }
   });
 
   const handleDeleteConfirm = () => {
-    backendAPI.Connection.Command({
+    if (!selectedValue) return;
+    executeCommand({
       id: connection.id, commands: [
         ['SELECT', db],
         ['ZREM', keyProps.keyName, selectedValue.value],
       ]
     })
       .then((ret) => {
-        setKeyProps({ ...keyProps, values: keyProps.values.filter(v => v.row !== selectedValue.row), length: keyProps.length ? keyProps.length - 1 : keyProps.length });
-        setSelectedValue();
+        setKeyProps({ ...keyProps, length: keyProps.length ? keyProps.length - 1 : keyProps.length });
+        setItems(items.filter(v => v.row !== selectedValue.row))
+        setSelectedValue(undefined);
       })
   }
 
   const handleEditPanelDismiss = () => {
     setShowEditPanel(false);
-    setSelectedValue();
+    setSelectedValue(undefined);
   }
 
-  const handleSave = (newValue) => {
+  const handleSave = (newValue: string) => {
     setSearch({ ...search, cursor: 0 });
   }
 
@@ -112,7 +125,7 @@ export const ZsetKeyCursor = (props) => {
     }
   });
 
-  const handleSearch = (pattern, count) => {
+  const handleSearch = (pattern: string, count: number) => {
     setSearch({ ...search, cursor: 0, pattern, count });
   }
 
@@ -133,7 +146,7 @@ export const ZsetKeyCursor = (props) => {
         <IconButton iconProps={{ iconName: 'circleAddition', style: { height: 'auto' } }}
           onClick={() => {
             setShowEditPanel(true);
-            setSelectedValue();
+            setSelectedValue(undefined);
           }} />
       </TooltipHost>
 
@@ -174,11 +187,12 @@ export const ZsetKeyCursor = (props) => {
         enableShimmer={!items.length}
         onItemInvoked={(item) => { setSelectedValue(item); setShowEditPanel(true) }}
         onRenderRow={props => {
-          return <DetailsRow {...props} styles={{
+          const detailsRowStyles: Partial<IDetailsRowStyles> = {
             root: {
               backgroundColor: (props && props.itemIndex % 2 === 0) ? theme.palette.neutralLighterAlt : ''
             }
-          }} />
+          };
+          return props ? <DetailsRow {...props} styles={detailsRowStyles} /> : (<></>)
         }}
       />
     </Stack.Item>
@@ -198,8 +212,11 @@ export const ZsetKeyCursor = (props) => {
     </Stack>
 
     {/* edit key */}
-    <ZsetKeyPanel {...props} isOpen={showEditPanel} keyType={component} keyValue={selectedValue?.value} keyScore={selectedValue?.score}
-      index={selectedValue?.row - 1}
+    <ZsetKeyPanel {...props} isOpen={showEditPanel}
+      keyType={component}
+      keyValue={selectedValue ? selectedValue.value : ''}
+      keyScore={selectedValue ? selectedValue.score : ''}
+      index={selectedValue ? selectedValue.row - 1 : undefined}
       disabledKeyName={true}
       onDismiss={handleEditPanelDismiss}
       onSave={handleSave} />

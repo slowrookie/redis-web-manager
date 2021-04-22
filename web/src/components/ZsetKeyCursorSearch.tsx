@@ -1,9 +1,16 @@
 import { ActionButton, Callout, IconButton, Stack, TextField, TooltipHost, useTheme } from '@fluentui/react';
-import React, { useEffect, useState } from 'react';
+import React, { KeyboardEvent, MouseEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+export interface IZsetKeyCursorProps {
+  id: string
+  onSearch: (pattern: string, count: number) => void
+  length: number
+  defaultMatchPattern: string
+  defaultCount: number
+}
 
-export const ZsetKeySearch = (props) => {
+export const ZsetKeySearch = (props: IZsetKeyCursorProps) => {
   const { id, onSearch, length, defaultMatchPattern, defaultCount } = props;
 
   const theme = useTheme(),
@@ -22,7 +29,7 @@ export const ZsetKeySearch = (props) => {
     })
   }, [props])
 
-  const handleSearch = (ev: MouseEvent) => {
+  const handleSearch = (ev: MouseEvent<any> | KeyboardEvent) => {
     ev.preventDefault();
     onSearch(condition.pattern, condition.count);
     setSearchVisible(false);
@@ -36,16 +43,16 @@ export const ZsetKeySearch = (props) => {
     {searchVisible && <Callout target={`#${id}`} onDismiss={() => setSearchVisible(false)} setInitialFocus={true}>
       <Stack tokens={{ childrenGap: 10, padding: 10 }} style={{ minWidth: 300 }}>
 
-        <TextField styles={textFieldStyles} label="MATCH" default={defaultMatchPattern} value={condition.pattern}
-          onChange={(e, v) => setCondition({ ...condition, pattern: v })}
+        <TextField styles={textFieldStyles} label="MATCH" defaultValue={defaultMatchPattern} value={condition.pattern}
+          onChange={(e, v) => v && setCondition({ ...condition, pattern: v })}
           onKeyDown={(ev: KeyboardEvent) => {
             if (ev.key === 'Enter') {
               handleSearch(ev);
             }
           }} />
 
-        <TextField styles={textFieldStyles} label="COUNT" type="number" suffix={`/ ${length}`} value={condition.count}
-          onChange={(e, v) => { setCondition({ ...condition, count: v }); }}
+        <TextField styles={textFieldStyles} label="COUNT" type="number" suffix={`/ ${length}`} value={`${condition.count}`}
+          onChange={(e, v) => { v && setCondition({ ...condition, count: Number(v) }); }}
           onKeyDown={(ev: KeyboardEvent) => {
             if (ev.key === 'Enter') {
               handleSearch(ev);

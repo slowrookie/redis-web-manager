@@ -19,9 +19,9 @@ export interface IHashKeyPanelProps {
   onSave: (field: string, value: string, index?: number) => void,
   isOpen: boolean
   keyType: string
-  keyName: string
-  KeyFieldName: string
-  KeyFieldValue: string
+  keyName?: string
+  KeyFieldName?: string
+  KeyFieldValue?: string
   disabledKeyName?: boolean
 }
 

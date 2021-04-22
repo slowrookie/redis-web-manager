@@ -110,7 +110,7 @@ func main() {
 			data := c.PostForm("data")
 			c.String(http.StatusOK, api.DefaultConvert.ToHex(data))
 		})
-		convertGroup.POST("/toHex", func(c *gin.Context) {
+		convertGroup.POST("/toJson", func(c *gin.Context) {
 			data := c.PostForm("data")
 			c.String(http.StatusOK, api.DefaultConvert.ToJson(data))
 		})
