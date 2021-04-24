@@ -14,19 +14,19 @@ export const DatabaseConfiguration = (props: IDatabaseConfigProps) => {
     [selectedKey, setSelectedKey] = useState<string | undefined>('Network');
 
   useEffect(() => {
-    executeCommand<Array<any>>({ id: props.connection.id, commands: [['CONFIG', 'GET', '*']] })
-      .then(ret => {
-        if (!ret || !ret.length) return;
-        console.log(ret)
-        const length: number = ret[0].length / 2;
-        const kv: { [index: string]: any } = {};
-        [...Array(length)].forEach((_, i) => {
-          const index = 2 * i;
-          kv[ret[0][index]] = ret[0][index + 1];
-        });
-        console.log(kv);
-        setConfigs({ ...kv })
-      })
+    // executeCommand<Array<any>>({ id: props.connection.id, commands: [['CONFIG', 'GET', '*']] })
+    //   .then(ret => {
+    //     if (!ret || !ret.length) return;
+    //     console.log(ret)
+    //     const length: number = ret[0].length / 2;
+    //     const kv: { [index: string]: any } = {};
+    //     [...Array(length)].forEach((_, i) => {
+    //       const index = 2 * i;
+    //       kv[ret[0][index]] = ret[0][index + 1];
+    //     });
+    //     console.log(kv);
+    //     setConfigs({ ...kv })
+    //   })
   }, []);
 
   const configGroups: INavLinkGroup[] = [

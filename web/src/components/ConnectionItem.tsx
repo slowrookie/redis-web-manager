@@ -10,37 +10,17 @@ import { Database, IDatabase } from './Database';
 import { Info } from './info/Info';
 import { parseInfo } from './utils';
 
-export interface ConnectionItemProps {
-  connection: Connection
+export interface IConnectionItemProps {
+  connection: Connection,
+  info: any,
+  databases: Array<IDatabase>
 }
 
-export const ConnectionItem = (props: ConnectionItemProps) => {
+export const ConnectionItem = (props: IConnectionItemProps) => {
+  const { connection, info, databases } = props;
 
-  const { connection } = props;
-
-  const [info, setInfo] = useState(),
-    [databases, setDatabases] = useState<Array<IDatabase>>([{ db: 0, dbsize: 0 }]),
-    [error, setError] = useState<string>(),
-    [loading, setLoading] = useState(false),
-    [selectedKey, setSelectedKey] = useState<string | undefined>('serverInfo'),
+  const [selectedKey, setSelectedKey] = useState<string | undefined>('serverInfo'),
     { t } = useTranslation();
-
-  useEffect(() => {
-    setError('');
-    setLoading(true);
-    openConnection(connection.id).then(ret => {
-      console.log(ret);
-      var info: any = parseInfo(ret.info);
-      setInfo(info);
-      setDatabases([...Array(Number(ret.database[1]))].map((_, i) => {
-        var reg = /[1-9][0-9]*/
-        var keys = (info.Keyspace && info.Keyspace[`db${i}`] && info.Keyspace[`db${i}`].match(reg)[0]) || 0;
-        return { db: i, dbsize: keys };
-      }));
-    })
-      .catch(err => setError(err))
-      .finally(() => { setLoading(false) });
-  }, [connection.id, setLoading]);
 
   const navLinkGroups: INavLinkGroup[] = [
     {
@@ -58,11 +38,8 @@ export const ConnectionItem = (props: ConnectionItemProps) => {
     }
   ];
 
-
   return (
     <Stack horizontal style={{ height: '100%', position: 'relative' }}>
-
-      <Loading loading={loading}></Loading>
 
       <Nav selectedKey={selectedKey} styles={{ root: { width: 150, height: '100%', boxShadow: Depths.depth8 } }}
         groups={navLinkGroups}
@@ -94,11 +71,6 @@ export const ConnectionItem = (props: ConnectionItemProps) => {
         className={selectedKey ? AnimationClassNames.fadeIn100 : AnimationClassNames.fadeOut100}
         style={{ display: selectedKey === 'databaseConfig' ? 'block' : 'none' }}>
         <DatabaseConfiguration {...props} />
-      </Stack.Item>
-
-      {/* error */}
-      <Stack.Item grow={1} style={{ display: error ? 'block' : 'none' }}>
-        <ErrorMessageBar error={error} />
       </Stack.Item>
 
     </Stack>

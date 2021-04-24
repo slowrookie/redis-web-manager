@@ -1,10 +1,11 @@
 import { DocumentCard, DocumentCardActions, DocumentCardDetails, DocumentCardType, Icon, Label, Stack, Text, useTheme } from '@fluentui/react';
 import React, { CSSProperties, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Connection, copyConnection, deleteConnection, getConnections } from '../services/connection.service';
+import { Connection, copyConnection, deleteConnection, getConnections, openConnection } from '../services/connection.service';
 import { ErrorMessageBar } from './common/ErrorMessageBar';
 import { Loading } from './common/Loading';
 import { ConnectionPanel } from './panel/ConnectionPanel';
+import { parseInfo } from './utils';
 
 const textOverflow: CSSProperties = {
   whiteSpace: 'nowrap',
@@ -13,7 +14,7 @@ const textOverflow: CSSProperties = {
 }
 
 export interface IConnectionListProps {
-  onConnectionClick: (connection: Connection) => void
+  onConnectionClick: (connection: Connection, info: {}, databases: Array<{db: number, dbsize: number}>) => void
 }
 
 export const ConnectionList = (props: IConnectionListProps) => {
@@ -43,6 +44,21 @@ export const ConnectionList = (props: IConnectionListProps) => {
     load();
   }
 
+  const handleConnectionClick = (connection: Connection) => {
+    openConnection(connection.id).then(ret => {
+      console.log(ret);
+      var info: any = parseInfo(ret.info);
+      var databases = ([...Array(Number(ret.database[1]))].map((_, i) => {
+        var reg = /[1-9][0-9]*/
+        var keys = (info.Keyspace && info.Keyspace[`db${i}`] && info.Keyspace[`db${i}`].match(reg)[0]) || 0;
+        return { db: i, dbsize: keys };
+      }));
+      onConnectionClick && onConnectionClick(connection, info, databases);
+    })
+      .catch(err => setError(err))
+      .finally(() => { setLoading(false) });
+  }
+
   return (<>
     <ErrorMessageBar error={error}></ErrorMessageBar>
 
@@ -62,7 +78,7 @@ export const ConnectionList = (props: IConnectionListProps) => {
       </DocumentCard>
 
       {connections && connections.map(connection => {
-        return <DocumentCard key={connection.id} type={DocumentCardType.compact} styles={{ root: { width: 320 } }} onClick={() => onConnectionClick(connection)}>
+        return <DocumentCard key={connection.id} type={DocumentCardType.compact} styles={{ root: { width: 320 } }} onClick={() => handleConnectionClick(connection)}>
           <DocumentCardDetails>
             <Label style={{ ...textOverflow, padding: '5px 10px' }}>{connection.name}</Label>
             <Text variant='small' style={{ ...textOverflow, padding: '0 10px' }}>{`${connection.host}:${connection.port}`}</Text>
