@@ -67,14 +67,14 @@ export const StreamKey = (props: IStreamKeyProps) => {
 
   const [keyProps, setKeyProps] = useState({ ...defaultStreamKey, keyName }),
     [selectedValue, setSelectedValue] = useState<IStreamKeyItem | undefined>(),
-    [error, setError] = useState<string>(),
+    [error, setError] = useState<Error>(),
     [showEditPanel, setShowEditPanel] = useState(false),
     [search, setSearch] = useState<IStreamKeySearch>({ start: '-', end: '+', count: connection.dataScanLimit, asc: true }),
     [items, setItems] = useState<Array<IStreamKeyItem>>([]);
 
   const load = useCallback(() => {
     if (!search.start || !search.end || !search.count) return;
-    setError('');
+    setError(undefined);
     const commands = [
       ['SELECT', db],
       ['TTL', keyProps.keyName],

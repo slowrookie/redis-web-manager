@@ -39,7 +39,7 @@ export const ZsetKeyIndex = (props: IZsetKeyIndexProps) => {
 
   const [keyProps, setKeyProps] = useState({ ...defaultZsetKeyIndexSearchProps, keyName }),
     [selectedValue, setSelectedValue] = useState<IZsetKeyItem>(),
-    [error, setError] = useState<string>(),
+    [error, setError] = useState<Error>(),
     [showEditPanel, setShowEditPanel] = useState(false),
     [search, setSearch] = useState({ start: 0, end: 20, asc: true }),
     [items, setItems] = useState<Array<IZsetKeyItem>>([]);
@@ -52,7 +52,7 @@ export const ZsetKeyIndex = (props: IZsetKeyIndexProps) => {
 
   const load = useCallback(() => {
     if (!search.end) return;
-    setError('');
+    setError(undefined);
     executeCommand<Array<any>>({
       id: connection.id, commands: [
         ['SELECT', db],

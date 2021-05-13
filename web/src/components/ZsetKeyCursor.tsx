@@ -42,14 +42,14 @@ export const ZsetKeyCursor = (props: IZsetKeyCursorProps) => {
 
   const [keyProps, setKeyProps] = useState({ ...defaultStringKeyProps, keyName }),
     [selectedValue, setSelectedValue] = useState<IZsetKeyItem | undefined>(),
-    [error, setError] = useState<string>(),
+    [error, setError] = useState<Error>(),
     [showEditPanel, setShowEditPanel] = useState(false),
     [search, setSearch] = useState({ cursor: 0, pattern: defaultMatchPattern, count: connection.dataScanLimit }),
     [items, setItems] = useState<Array<IZsetKeyItem>>([]);
 
   const load = useCallback(() => {
     if (!search.pattern || !search.count) return;
-    setError('');
+    setError(undefined);
     executeCommand<Array<any>>({
       id: connection.id, commands: [
         ['SELECT', db],

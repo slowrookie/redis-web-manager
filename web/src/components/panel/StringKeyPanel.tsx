@@ -24,11 +24,11 @@ export const StringKeyPanel = (props: IStringkeyPanelProps) => {
   const { t } = useTranslation(), theme = useTheme();
 
   const [keyItem, setKeyItem] = useState<ISringKey>({ name: '', value: '' }),
-    [error, setError] = useState<string>(),
+    [error, setError] = useState<Error>(),
     [loading, setLoading] = useState(false);
 
   const handleSave = (refresh = false) => {
-    setError('');
+    setError(undefined);
     setLoading(true);
     executeCommand<Array<any>>({ id: connection.id, commands: [['SELECT', db], ['SET', keyItem.name, keyItem.value]] })
       .then((ret) => {

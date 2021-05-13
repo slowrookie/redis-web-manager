@@ -37,7 +37,7 @@ export const ZsetKeyPanel = (props: IZsetKeyPanelProps) => {
   const { t } = useTranslation(), theme = useTheme();
 
   const [keyItem, setKeyItem] = useState({ name: '', value: '', score: '' }),
-    [error, setError] = useState<string>(),
+    [error, setError] = useState<Error>(),
     [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export const ZsetKeyPanel = (props: IZsetKeyPanelProps) => {
   }, [keyName, keyValue, keyScore])
 
   const handleSave = (save?: boolean) => {
-    setError('');
+    setError(undefined);
     setLoading(true);
     var commands = [['SELECT', db]];
     (index && index >= 0 && keyValue) && commands.push(['ZREM', keyItem.name, keyValue]);

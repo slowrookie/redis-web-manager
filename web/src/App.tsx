@@ -75,7 +75,7 @@ registerIcons({
 function App() {
   const [_config, _setConfig] = useState<Config>({ theme: 'light', language: 'en_US' }),
     [theme, setTheme] = useState<Theme>(themes.light),
-    [error, setError] = useState<string>(),
+    [error, setError] = useState<Error>(),
     [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {

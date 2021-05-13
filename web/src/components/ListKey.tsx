@@ -57,7 +57,7 @@ export const ListKey = (props: IListKeyProps) => {
 
   const [keyProps, setKeyProps] = useState<IListKey>({ ...defaultListKey, keyName }),
     [selectedValue, setSelectedValue] = useState<IListKeyItem | undefined>(),
-    [error, setError] = useState<string>(),
+    [error, setError] = useState<Error>(),
     [showEditPanel, setShowEditPanel] = useState(false),
     [search, setSearch] = useState<{ start: number, end: number }>({ start: 0, end: 20 }),
     [items, setItems] = useState<Array<IListKeyItem>>([]),
@@ -65,7 +65,7 @@ export const ListKey = (props: IListKeyProps) => {
 
   const load = useCallback(() => {
     if (!search) return;
-    setError('');
+    setError(undefined);
     executeCommand<Array<any>>({
       id: connection.id, commands: [
         ['SELECT', db],

@@ -43,7 +43,7 @@ export const Database = (props: IDatabaseProps) => {
   const theme = useTheme(),
     { t } = useTranslation();
 
-  const [error, setError] = useState<string>(),
+  const [error, setError] = useState<Error>(),
     [loading, setLoading] = useState(false),
     [_databases, _setDatabase] = useState<Array<{ db: number, dbsize: number }>>([]),
     [search, setSearch] = useState<IDatabaseSearch>({ db: 0, cursor: 0, pattern: connection.keysPattern, count: connection.dataScanLimit }),
@@ -58,7 +58,7 @@ export const Database = (props: IDatabaseProps) => {
   }, [databases])
 
   const loadKeys = useCallback(() => {
-    setError('');
+    setError(undefined);
     setLoading(true);
     executeCommand<Array<any>>({ id: connection.id, commands: [['SELECT', search.db], ['DBSIZE'], ['SCAN', search.cursor, 'MATCH', search.pattern, 'COUNT', search.count]] })
       .then((ret) => {
@@ -81,7 +81,7 @@ export const Database = (props: IDatabaseProps) => {
           return [...ks].concat(ret[2][1].sort());
         });
       })
-      .catch(err => setError(err))
+      .catch((err: Error) => { setError(err); })
       .finally(() => { setLoading(false) });
   }, [connection, search]);
 

@@ -36,7 +36,7 @@ export const HashKeyPanel = (props: IHashKeyPanelProps) => {
   const { connection, db, index, onDismiss, onSave, isOpen, keyType, keyName, KeyFieldName, KeyFieldValue, disabledKeyName } = props;
   const { t } = useTranslation(), theme = useTheme();
   const [keyItem, setKeyItem] = useState<HashKey>({ name: keyName || '', field: KeyFieldName || '', value: KeyFieldValue || '' }),
-    [error, setError] = useState<string>(),
+    [error, setError] = useState<any>(),
     [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export const HashKeyPanel = (props: IHashKeyPanelProps) => {
   }, [keyName, KeyFieldName, KeyFieldValue])
 
   const handleSave = (save?: boolean) => {
-    setError('');
+    setError(undefined);
     setLoading(true);
     executeCommand<Array<any>>({
       id: connection.id, commands: [

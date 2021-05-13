@@ -1,7 +1,8 @@
-import { ContextualMenu, DirectionalHint, IContextualMenuItem, MessageBar, MessageBarType, Stack, Target, useTheme } from '@fluentui/react';
+import { ContextualMenu, DirectionalHint, IContextualMenuItem, Stack, Target, useTheme } from '@fluentui/react';
 import React, { ChangeEvent, CSSProperties, KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection, executeCommand } from '../services/connection.service';
+import { ErrorMessageBar } from './common/ErrorMessageBar';
 
 
 export interface IConsoleProps {
@@ -55,7 +56,7 @@ export const Console = (props: IConsoleProps) => {
 
   const [lines, setLines] = useState<Array<IInputLine>>([defaultInputLine]),
     [currentLine, setCurrentLine] = useState(''),
-    [error, setError] = useState(''),
+    [error, setError] = useState<Error>(),
     [selectedDB, setSelectedDB] = useState<number>(0),
     [showContextualMenu, setShowContextualMenu] = useState(false),
     [contextualMenuTarget, setContextualMenuTarget] = useState<Target>(),
@@ -63,7 +64,7 @@ export const Console = (props: IConsoleProps) => {
 
   const handleKeyPress = (e: KeyboardEvent) => {
     if (e.key === "Enter") {
-      setError('');
+      setError(undefined);
       var commands: Array<Array<any>> = [[]];
       var currentCommand = currentLine.trim().split(" ");
       var currentDB: number = selectedDB;
@@ -92,7 +93,7 @@ export const Console = (props: IConsoleProps) => {
           setLines([...lines]);
           setCurrentLine('');
         })
-        .catch(err => setError(err));
+        .catch((err: Error) => { setError(err); });
     }
   }
 
@@ -130,10 +131,8 @@ export const Console = (props: IConsoleProps) => {
   return (
     <div style={{ height: "100%" }} ref={consoleDiv}>
       <Stack style={{ height: '100%' }}>
-        {error && <MessageBar styles={{ icon: { height: 16, lineHeight: '14px' } }} messageBarType={MessageBarType.blocked} isMultiline={true} onDismiss={() => { setError(""); }} truncated={true}>
-          {error}
-        </MessageBar>
-        }
+
+        <ErrorMessageBar error={error} />
 
         <Stack.Item grow={1} style={{ padding: 5, overflow: 'auto', backgroundColor: 'black', color: 'white', fontSize: 12 }}>
           {lines && lines.map((line, i) => <Stack key={i} horizontal verticalAlign="center" tokens={{ childrenGap: 10 }}>

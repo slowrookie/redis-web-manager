@@ -29,7 +29,7 @@ export const ListKeyPanel = (props: IListKeyPanelProps) => {
   const { t } = useTranslation(), theme = useTheme();
 
   const [keyItem, setKeyItem] = useState<IListKey>({ name: '', value: '' }),
-    [error, setError] = useState<string>(),
+    [error, setError] = useState<Error>(),
     [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export const ListKeyPanel = (props: IListKeyPanelProps) => {
   }, [keyName, keyValue])
 
   const handleSave = (save = false) => {
-    setError('');
+    setError(undefined);
     setLoading(true);
     var c = (index && index >= 0) ? ['LSET', keyItem.name, index, keyItem.value] : ['LPUSH', keyItem.name, keyItem.value];
     executeCommand<Array<any>>({ id: connection.id, commands: [['SELECT', db], c] })

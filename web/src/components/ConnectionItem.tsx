@@ -1,14 +1,11 @@
 import { AnimationClassNames, Depths, INavLink, INavLinkGroup, Nav, Stack } from '@fluentui/react';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Connection, openConnection } from '../services/connection.service';
-import { ErrorMessageBar } from './common/ErrorMessageBar';
-import { Loading } from './common/Loading';
+import { Connection } from '../services/connection.service';
 import { DatabaseConfiguration } from './configuration/DatabaseConfiguration';
 import { Console } from './Console';
 import { Database, IDatabase } from './Database';
 import { Info } from './info/Info';
-import { parseInfo } from './utils';
 
 export interface IConnectionItemProps {
   connection: Connection,
@@ -17,7 +14,7 @@ export interface IConnectionItemProps {
 }
 
 export const ConnectionItem = (props: IConnectionItemProps) => {
-  const { connection, info, databases } = props;
+  const { info, databases } = props;
 
   const [selectedKey, setSelectedKey] = useState<string | undefined>('serverInfo'),
     { t } = useTranslation();

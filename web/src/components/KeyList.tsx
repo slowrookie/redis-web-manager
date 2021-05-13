@@ -18,7 +18,7 @@ export const KeyList = (props: IKeyListProps) => {
   const { t } = useTranslation();
   const { connection, db, keys, onSelectedKey, onDeletedKey } = props;
 
-  const [error, setError] = useState<string>(),
+  const [error, setError] = useState<Error>(),
     [selectedKey, setSelectedKey] = useState<string>(),
     [showConfirmDialog, setShowConfirmDialog] = useState(false),
     [showContextualMenu, setShowContextualMenu] = useState(false),
@@ -26,7 +26,7 @@ export const KeyList = (props: IKeyListProps) => {
 
   const handleConfirmDelete = (e: MouseEvent, keyName: string) => {
     setShowConfirmDialog(false);
-    setError('');
+    setError(undefined);
     executeCommand<Array<any>>({ id: connection.id, commands: [['SELECT', db], ['DEL', keyName]] })
       .then((ret) => {
         if (!ret || !ret.length) return;
@@ -38,7 +38,7 @@ export const KeyList = (props: IKeyListProps) => {
 
   const handleOpenKey = (e: MouseEvent, keyName: string) => {
     setSelectedKey(keyName);
-    setError('');
+    setError(undefined);
     executeCommand<Array<any>>({ id: connection.id, commands: [['SELECT', db], ['TYPE', keyName]] })
       .then((ret) => {
         if (!ret || !ret.length) return;

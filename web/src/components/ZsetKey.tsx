@@ -33,11 +33,11 @@ export const ZsetKey = (props: IZsetKeyProps) => {
   const childRef = useRef<any>();
 
   const [keyProps, setKeyProps] = useState({ ...DefaultZsetKeyProps, keyName }),
-    [error, setError] = useState<string>(),
+    [error, setError] = useState<Error>(),
     [searchType, setSearchType] = useState('CURSOR');
 
   const load = useCallback(() => {
-    setError('');
+    setError(undefined);
     executeCommand<Array<any>>({
       id: connection.id, commands: [
         ['SELECT', db],

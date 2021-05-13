@@ -79,7 +79,7 @@ export const HashKey = (props: IHashKeyProps) => {
       })
       console.log(ret);
     })
-      .catch(err => setError(err));
+      .catch((err: Error) => { setError(err.message); });
   }, [connection.id, db, search, keyProps.keyName]);
 
   useEffect(() => {

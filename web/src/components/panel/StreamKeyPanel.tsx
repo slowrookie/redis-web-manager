@@ -38,17 +38,17 @@ export const StreamKeyPanel = (props: IStreamKeyPanelProps) => {
   const { t } = useTranslation(), theme = useTheme();
 
   const [keyItem, setKeyItem] = useState<IStreamKey>({ name: '', id: '*', value: '' }),
-    [error, setError] = useState<string>(),
+    [error, setError] = useState<Error>(),
     [loading, setLoading] = useState(false),
     [valueError, setValueError] = useState<string>();
 
   useEffect(() => {
-    setError('');
+    setError(undefined);
     setKeyItem({ name: keyName || '', id: keyId || '*', value: keyValue || '' });
   }, [keyName, keyId, keyValue]);
 
   const handleSave = (refresh = false) => {
-    setError('');
+    setError(undefined);
     setLoading(true);
 
     const values = JSON.parse(keyItem.value);

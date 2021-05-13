@@ -29,7 +29,7 @@ export const SetKeyPanel = (props: ISetKeyPanelProps) => {
   const { t } = useTranslation(), theme = useTheme();
 
   const [keyItem, setKeyItem] = useState<ISetKey>({ name: '', value: '' }),
-    [error, setError] = useState<string>(),
+    [error, setError] = useState<Error>(),
     [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export const SetKeyPanel = (props: ISetKeyPanelProps) => {
   }, [keyName, keyValue])
 
   const handleSave = (save = false) => {
-    setError('');
+    setError(undefined);
     setLoading(true);
 
     const commands = [['SELECT', db]];

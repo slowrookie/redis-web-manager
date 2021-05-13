@@ -46,7 +46,7 @@ export const StringKey = (props: IStringKeyyProps) => {
   const { t } = useTranslation();
 
   const [keyProps, setKeyProps] = useState({ ...defaultStringKey, keyName: keyName }),
-    [error, setError] = useState<string>(),
+    [error, setError] = useState<Error>(),
     [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export const StringKey = (props: IStringKeyyProps) => {
 
   const load = useCallback(() => {
     setLoading(true);
-    setError('');
+    setError(undefined);
     executeCommand<Array<any>>({
       id: connection.id, commands: [
         ['SELECT', db],
@@ -84,7 +84,7 @@ export const StringKey = (props: IStringKeyyProps) => {
   }, [load]);
 
   const handleValue = () => {
-    setError('');
+    setError(undefined);
     executeCommand({
       id: connection.id, commands: [
         ['SELECT', db],

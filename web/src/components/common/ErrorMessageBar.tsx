@@ -2,13 +2,13 @@ import { MessageBar, MessageBarType } from '@fluentui/react';
 import React, { useEffect, useState } from 'react';
 
 export interface IErrorMessageBar {
-  error: string | undefined
+  error?: Error
 }
 
 export const ErrorMessageBar = (props: IErrorMessageBar) => {
   const { error } = props;
 
-  const [_error, _setError] = useState<string>();
+  const [_error, _setError] = useState<Error | undefined>();
 
   useEffect(() => {
     _setError(error);
@@ -16,8 +16,8 @@ export const ErrorMessageBar = (props: IErrorMessageBar) => {
 
   return (<>
     {
-      _error && <MessageBar styles={{ icon: { height: 16, lineHeight: '14px' } }} messageBarType={MessageBarType.blocked} onDismiss={() => { _setError(""); }} truncated={true}>
-        {_error}
+      _error && <MessageBar styles={{ icon: { height: 16, lineHeight: '14px' } }} messageBarType={MessageBarType.blocked} onDismiss={() => { _setError(undefined); }} truncated={true}>
+        {_error.message}
       </MessageBar>
     }
   </>)

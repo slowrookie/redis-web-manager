@@ -1,84 +1,108 @@
-import { INavLink, INavLinkGroup, Nav, Stack } from '@fluentui/react';
-import { Depths } from '@fluentui/theme';
-import React, { useEffect, useState } from 'react';
+import { ActionButton, CheckboxVisibility, DetailsListLayoutMode, DetailsRow, IDetailsRowStyles, ScrollablePane, ScrollbarVisibility, SearchBox, Selection, SelectionMode, ShimmeredDetailsList, Stack, TooltipHost, useTheme } from '@fluentui/react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Connection, executeCommand } from '../../services/connection.service';
-import { Network } from './Network';
+import { ErrorMessageBar } from '../common/ErrorMessageBar';
 
 export interface IDatabaseConfigProps {
   connection: Connection
 }
 
+interface Config {
+  key: string
+  value: any
+}
+
 export const DatabaseConfiguration = (props: IDatabaseConfigProps) => {
 
-  const [configs, setConfigs] = useState<{ [index: string]: any }>(),
-    [selectedKey, setSelectedKey] = useState<string | undefined>('Network');
+  const theme = useTheme(), { t } = useTranslation();
+
+  const [configs, setConfigs] = useState<Array<Config>>([]),
+    [selectedKey, setSelectedKey] = useState<Config>(),
+    [filter, setFilter] = useState<string>("*"),
+    [loading, setLoading] = useState<boolean>(false),
+    [error, setError] = useState<Error>();
+
+  const load = useCallback(() => {
+    setLoading(true);
+    executeCommand<Array<any>>({ id: props.connection.id, commands: [['CONFIG', 'GET', filter]] })
+      .then(ret => {
+        if (!ret || !ret.length) return;
+        const length: number = ret[0].length / 2;
+        const confs: Array<Config> = [];
+        [...Array(length)].forEach((_, i) => {
+          const index = 2 * i;
+          const key = ret[0][index];
+          const value = ret[0][index + 1];
+          confs.push({ key, value })
+        });
+        setConfigs([...confs]);
+      })
+      .catch(err => setError(err))
+      .finally(() => setLoading(false));
+  }, [props.connection.id, filter]);
 
   useEffect(() => {
-    // executeCommand<Array<any>>({ id: props.connection.id, commands: [['CONFIG', 'GET', '*']] })
-    //   .then(ret => {
-    //     if (!ret || !ret.length) return;
-    //     console.log(ret)
-    //     const length: number = ret[0].length / 2;
-    //     const kv: { [index: string]: any } = {};
-    //     [...Array(length)].forEach((_, i) => {
-    //       const index = 2 * i;
-    //       kv[ret[0][index]] = ret[0][index + 1];
-    //     });
-    //     console.log(kv);
-    //     setConfigs({ ...kv })
-    //   })
-  }, []);
+    load();
+  }, [load]);
 
-  const configGroups: INavLinkGroup[] = [
-    {
-      links: [
-        { name: 'Network', key: 'Network', isExpanded: true, url: '' },
-        { name: 'General', key: 'General', url: '' },
-        { name: 'Snapshotting', key: 'Snapshotting', url: '' },
-        { name: 'Replication', key: 'REPLICATION', url: '' },
-        { name: 'Security', key: 'SECURITY', url: '' },
-        { name: 'Clients', key: 'CLIENTS', url: '' },
-        { name: 'Memory management', key: 'MEMORY MANAGEMENT', url: '' },
-        { name: 'Lazy freeing', key: 'LAZY FREEING', url: '' },
-        { name: 'Append only mode', key: 'APPEND ONLY MODE', url: '' },
-        { name: 'Lua scripting', key: 'LUA SCRIPTING', url: '' },
-        { name: 'Redis cluster', key: 'REDIS CLUSTER', url: '' },
-        { name: 'Cluster docker/nat', key: 'CLUSTER DOCKER/NAT', url: '' },
-        { name: 'Slowlog', key: 'SLOWLOG', url: '' },
-        { name: 'Lntency monitor', key: 'LNTENCY MONITOR', url: '' },
-        { name: 'Event notification', key: 'EVENT NOTIFICATION', url: '' },
-        { name: 'Defragmentation', key: 'DEFRAGMENTATION', url: '' },
-        { name: 'Advanced config', key: 'ADVANCED CONFIG', url: '' },
-      ]
+  const selection = new Selection({
+    onSelectionChanged: () => {
+      setSelectedKey(selection.getSelection()[0] as Config);
     }
-  ];
+  });
 
-  const getConfigComponent = () => {
-    switch (selectedKey) {
-      case 'Network':
-        return <Network {...configs} />
-    
-      default:
-        break;
-    }
-  }
+  return (
+    <Stack style={{ height: '100%' }} tokens={{ padding: 5, childrenGap: 5 }}>
 
-  return (<Stack horizontal tokens={{ padding: 5 }}>
-    <Nav
-      selectedKey={selectedKey}
-      styles={{
-        groupContent: { marginBottom: 0 },
-        root: { width: 180, boxShadow: Depths.depth8 },
-        link: { '&:after': { border: 0 }, lineHeight: '32px', height: 32, fontSize: 12 }
-      }}
-      groups={configGroups}
-      onLinkClick={(ev?: React.MouseEvent<HTMLElement>, item?: INavLink) => {
-        if (item?.links && item?.links.length) return;
-        setSelectedKey(item?.key);
-      }}
-    />
+      <ErrorMessageBar error={error}></ErrorMessageBar>
 
-    
-
-  </Stack>)
+      <Stack horizontal horizontalAlign="space-between" verticalAlign="center" tokens={{ childrenGap: 5 }}>
+        <Stack.Item grow={1}>
+          <SearchBox value={filter} styles={{ root: { borderColor: theme.palette.neutralQuaternaryAlt }, iconContainer: { lineHeight: '32px' } }}
+            placeholder={t('Search pattern ....')}
+            iconProps={{ iconName: 'search' }}
+            onChange={(_, nv) => { setFilter(nv || '*') }}
+          />
+        </Stack.Item>
+        <TooltipHost content={t('Rewrite')}>
+          <ActionButton iconProps={{ iconName: 'Save', style: { height: 'auto' } }}
+            onClick={() => {
+            }} />
+        </TooltipHost>
+        <TooltipHost content={t('Refresh')}>
+          <ActionButton iconProps={{ iconName: 'Refresh', style: { height: 'auto' } }} onClick={load} />
+        </TooltipHost>
+      </Stack>
+      <Stack.Item grow={1} style={{ position: 'relative' }}>
+        <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
+          <ShimmeredDetailsList
+            selection={selection}
+            compact
+            isHeaderVisible={false}
+            setKey="items"
+            items={configs}
+            columns={[
+              { key: 'key', name: 'key', fieldName: 'key', minWidth: 120, maxWidth: 250, isResizable: true },
+              { key: 'value', name: 'value', fieldName: 'value', minWidth: 100, isResizable: true }
+            ]}
+            selectionPreservedOnEmptyClick={false}
+            checkboxVisibility={CheckboxVisibility.hidden}
+            selectionMode={SelectionMode.single}
+            layoutMode={DetailsListLayoutMode.justified}
+            enableShimmer={loading}
+            onItemInvoked={(item) => { }}
+            onRenderRow={props => {
+              const detailsRowStyles: Partial<IDetailsRowStyles> = {
+                root: {
+                  backgroundColor: (props && props.itemIndex % 2 === 0) ? theme.palette.neutralLighterAlt : ''
+                }
+              };
+              return props ? <DetailsRow {...props} styles={detailsRowStyles} /> : (<></>)
+            }}
+          />
+        </ScrollablePane>
+      </Stack.Item>
+    </Stack>
+  )
 }

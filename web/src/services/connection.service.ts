@@ -1,4 +1,4 @@
-import { defaultHeaders } from "./servcie";
+import { defaultHeaders, serverErrorHandle } from "./servcie";
 export interface Connection {
   id: string,
   name: string,
@@ -20,23 +20,16 @@ export interface Command {
 }
 
 export const getConnections = (): Promise<any> => {
-  return fetch("/connections").then(response => response.json());
+  return fetch("/connections").then(serverErrorHandle);
 }
 
 export const testConnection = (connection: Connection): Promise<any> => {
-  return fetch("/connection/test", {
-    method: 'post',
-    headers: defaultHeaders,
-    body: JSON.stringify(connection)
-  });
+  return fetch("/connection/test", { method: 'post', headers: defaultHeaders, body: JSON.stringify(connection) });
 }
 
 export const saveConnection = (connection: Connection): Promise<Connection> => {
-  return fetch("/connection", {
-    method: 'post',
-    headers: defaultHeaders,
-    body: JSON.stringify(connection)
-  }).then(response => response.json());
+  return fetch("/connection", { method: 'post', headers: defaultHeaders, body: JSON.stringify(connection) })
+    .then(serverErrorHandle);
 }
 
 export const deleteConnection = (id: string): Promise<any> => {
@@ -44,7 +37,8 @@ export const deleteConnection = (id: string): Promise<any> => {
 }
 
 export const openConnection = (id: string): Promise<{ database: Array<any>, info: string }> => {
-  return fetch(`/connection/${id}/open`, { method: 'post' }).then(response => response.json());
+  return fetch(`/connection/${id}/open`, { method: 'post' })
+    .then(serverErrorHandle);
 }
 
 export const disconnectionConnection = (id: string): Promise<any> => {
@@ -52,28 +46,11 @@ export const disconnectionConnection = (id: string): Promise<any> => {
 }
 
 export const copyConnection = (connection: Connection): Promise<Connection> => {
-  return fetch(`/connection/copy`, {
-    method: 'post',
-    headers: defaultHeaders,
-    body: JSON.stringify(connection)
-  }).then(response => {
-    try {
-      return response.json()
-    } catch (e) {
-      return e;
-    }
-  });
+  return fetch(`/connection/copy`, { method: 'post', headers: defaultHeaders, body: JSON.stringify(connection) })
+    .then(serverErrorHandle);
 }
 
 export const executeCommand = <T>(command: Command): Promise<T> => {
-  return fetch(`/connection/command`, {
-    method: 'post',
-    headers: defaultHeaders,
-    body: JSON.stringify(command)
-  }).then(response => {
-    if (response.status >= 400) {
-      return response.text;
-    }
-    return response.json()
-  });
+  return fetch(`/connection/command`, { method: 'post', headers: defaultHeaders, body: JSON.stringify(command) })
+    .then(serverErrorHandle);
 }
