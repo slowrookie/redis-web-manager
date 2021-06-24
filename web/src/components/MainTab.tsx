@@ -1,12 +1,11 @@
-import { ContextualMenu, ContextualMenuItemType, Depths, DirectionalHint, Pivot, PivotItem, PrimaryButton, Stack, TooltipHost, useTheme } from '@fluentui/react';
-import React, { useEffect, useState } from 'react';
+import { ContextualMenuItemType, Depths, Icon, Pivot, PivotItem, PrimaryButton, Stack, TooltipHost, useTheme } from '@fluentui/react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supportedLanguages } from '../locales/resources';
 import { Connection } from '../services/connection.service';
 import { ConnectionItem, IConnectionItemProps } from './ConnectionItem';
 import { ConnectionList } from './ConnectionList';
 import { IDatabase } from './Database';
-
 export interface IMainTabProps {
   onChangeLanguage?: (language: string) => void
   onChangeTheme?: (theme: string) => void
@@ -27,21 +26,9 @@ const headerButtonStyles = {
   }
 }
 
-const headerMenuItemProps = {
-  styles: {
-    item: {
-      height: 28, lineHeight: '28px'
-    },
-    root: {
-      height: 28, lineHeight: '28px'
-    }
-  }
-}
-
 export const MainTab = (props: IMainTabProps) => {
   const
     [mainTab, setMainTab] = useState<IMainTab>({ connectionItems: [], selectedKey: '', showConnectionList: true }),
-    [contextmenu, setContextmenu] = useState<any>({ hidden: true, target: EventTarget || null, index: -1 }),
     { t } = useTranslation(),
     theme = useTheme();
 
@@ -51,27 +38,22 @@ export const MainTab = (props: IMainTabProps) => {
         return { ...m, selectedKey: '', showConnectionList: true }
       })
     }
-    const connectionsTabHeadersEls = mainTab.connectionItems.map((v: any, i) => {
-      const el = document.getElementById(`connection-tab-${v.id}`);
-      el?.addEventListener("contextmenu", (e: MouseEvent) => {
-        e.stopPropagation();
-        e.preventDefault();
-        setContextmenu({ hidden: false, target: e?.currentTarget, index: i });
-      });
-      return el;
-    })
-
-    return () => {
-      connectionsTabHeadersEls.forEach(el => el?.removeEventListener("contextmenu", () => { }));
-    }
   }, [mainTab.connectionItems])
 
   const handleConnectionClick = (v: Connection, info: any, databases: Array<IDatabase>) => {
     const exists = mainTab.connectionItems.filter(item => item.connection.id === v.id);
     const connections = mainTab.connectionItems;
-    !exists.length && connections.push({connection: v, info, databases});
+    !exists.length && connections.push({ connection: v, info, databases });
     setMainTab({ ...mainTab, connectionItems: [...connections], selectedKey: v.id, showConnectionList: false });
   }
+
+  const connectionItems = useCallback((mainTab: IMainTab) => {
+    return mainTab.connectionItems.map((v, i) => {
+      return (<div key={v.connection.id} style={{ display: mainTab.selectedKey === v.connection.id ? '' : 'none', height: 'calc(100vh - 42px)' }} >
+        <ConnectionItem {...v} />
+      </div>)
+    })
+  }, [mainTab])
 
   return (<>
     <Stack horizontal style={{ backgroundColor: theme.palette.themeSecondary, height: 42, boxShadow: Depths.depth8 }}>
@@ -86,8 +68,19 @@ export const MainTab = (props: IMainTabProps) => {
           selectedKey={mainTab.selectedKey}
           getTabId={itemKey => `connection-tab-${itemKey}`}
           onLinkClick={item => { setMainTab({ ...mainTab, selectedKey: item?.props.itemKey, showConnectionList: false }) }} >
-          {mainTab.connectionItems.map((v, i) => {
-            return <PivotItem headerText={v.connection.name} key={v.connection.id} itemKey={v.connection.id} />
+          {mainTab.connectionItems.map((v, index) => {
+            return <PivotItem headerText={v.connection.name} key={v.connection.id} itemKey={v.connection.id}
+              onRenderItemLink={(link, defaultRenderer: any) => (
+                <span>
+                  {defaultRenderer(link)}
+                  <Icon style={{ marginLeft: 5 }} iconName="Cancel" className="icon" onClick={(e: React.MouseEvent) => {
+                    const connections = mainTab.connectionItems.filter((_, i) => index !== i);
+                    setMainTab({ ...mainTab, connectionItems: [...connections], selectedKey: connections.length > 0 ? connections[0].connection.id : undefined, showConnectionList: !connections.length && false });
+                  }}
+                  />
+                </span>
+              )}
+            />
           })}
         </Pivot>
       </Stack.Item>
@@ -116,48 +109,18 @@ export const MainTab = (props: IMainTabProps) => {
       </TooltipHost>
     </Stack>
 
-    <ContextualMenu
-      directionalHint={DirectionalHint.bottomRightEdge}
-      isBeakVisible={true}
-      items={[
-        {
-          key: 'close', text: t('Close'), itemProps: headerMenuItemProps, onClick: (e) => {
-            const cons = mainTab.connectionItems.filter((_, index) => index !== contextmenu.index);
-            mainTab.connectionItems = cons;
-            if (cons.length) {
-              mainTab.selectedKey = cons[0].connection.id;
-            } else {
-              mainTab.showConnectionList = true;
-            }
-            setMainTab({ ...mainTab })
-          }
-        },
-        {
-          key: 'closeOtherTabs', text: t('Close other tabs'), itemProps: headerMenuItemProps, onClick: (e) => {
-            setMainTab({ ...mainTab, connectionItems: mainTab.connectionItems.filter((_, index) => index === contextmenu.index) })
-          }
-        },
-        {
-          key: 'closeAll', text: t('Close all'), itemProps: headerMenuItemProps, onClick: (e) => {
-            setMainTab({ ...mainTab, connectionItems: [], showConnectionList: true })
-          }
-        },
-      ]}
-      hidden={contextmenu.hidden}
-      target={contextmenu.target}
-      onDismiss={() => setContextmenu({ ...contextmenu, hidden: true })}
-    />
-
     <div style={{ display: mainTab.showConnectionList ? '' : 'none', height: 'calc(100vh - 42px)', overflowY: 'auto', overflowX: 'hidden' }} >
       <ConnectionList onConnectionClick={handleConnectionClick} />
     </div>
 
-    {
-      mainTab.connectionItems.length > 0 && mainTab.connectionItems.map((v, i) => {
+    {connectionItems}
+
+    {/* {
+      mainTab.connectionItems.map((v, i) => {
         return (<div key={v.connection.id} style={{ display: mainTab.selectedKey === v.connection.id ? '' : 'none', height: 'calc(100vh - 42px)' }} >
           <ConnectionItem {...v} />
         </div>)
       })
-    }
+    } */}
   </>);
 }
