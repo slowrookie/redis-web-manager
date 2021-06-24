@@ -65,11 +65,11 @@ export const DatabaseConfiguration = (props: IDatabaseConfigProps) => {
             onChange={(_, nv) => { setFilter(nv || '*') }}
           />
         </Stack.Item>
-        <TooltipHost content={t('Rewrite')}>
+        {/* <TooltipHost content={t('Rewrite')}>
           <ActionButton iconProps={{ iconName: 'Save', style: { height: 'auto' } }}
             onClick={() => {
             }} />
-        </TooltipHost>
+        </TooltipHost> */}
         <TooltipHost content={t('Refresh')}>
           <ActionButton iconProps={{ iconName: 'Refresh', style: { height: 'auto' } }} onClick={load} />
         </TooltipHost>
