@@ -32,10 +32,9 @@ jobs:
         with:
           node-version: '14'
       - run: |
-        cd ./web
-        pwd
-        npm install
-        npm run build
+          cd ./web
+          npm install
+          npm run build
       # upload
       - uses: actions/upload-artifact@v2
         with:
