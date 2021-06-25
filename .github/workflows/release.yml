@@ -39,7 +39,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: frontend-artifact
-          path: redis-web-manager/web/build
+          path: ./web/build
 
   build-golang:
     name: Test Build Latest Release
