@@ -25,15 +25,17 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # Checks-out
       - uses: actions/checkout@v2
       # use node.js
       - uses: actions/setup-node@v2
         with:
           node-version: '14'
-      - run: pwd
-      - run: cd ./web
-      - run: npm install & npm run build
+      - run: |
+        cd ./web
+        pwd
+        npm install
+        npm run build
       # upload
       - uses: actions/upload-artifact@v2
         with:
@@ -48,10 +50,13 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
     steps:
+    # checkout
     - uses: actions/checkout@v2
+    # download
     - uses: actions/download-artifact@v2
       with:
         name: frontend-artifact
+    # go build
     - uses: actions/setup-go@v1
       with:
         go-version: 1.16
