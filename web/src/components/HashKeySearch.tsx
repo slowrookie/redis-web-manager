@@ -25,7 +25,7 @@ export const HashKeySearch = (props: IHashKeySearchProps) => {
 
   const handleSearch = (ev: MouseEvent<any> | KeyboardEvent) => {
     ev.preventDefault();
-    onSearch(condition.pattern, condition.count);
+    condition.pattern && condition.count && onSearch(condition.pattern, condition.count);
     setSearchVisible(false);
   }
 
@@ -38,7 +38,7 @@ export const HashKeySearch = (props: IHashKeySearchProps) => {
       <Stack tokens={{ childrenGap: 10, padding: 10 }} style={{ minWidth: 300 }}>
 
         <TextField styles={textFieldStyles} label="MATCH" defaultValue={defaultMatchPattern} value={condition.pattern}
-          onChange={(e, v) => v && setCondition({ ...condition, pattern: v })}
+          onChange={(e, v) => setCondition({ ...condition, pattern: v || '' })}
           onKeyDown={(ev: KeyboardEvent) => {
             if (ev.key === 'Enter') {
               handleSearch(ev);
@@ -46,7 +46,7 @@ export const HashKeySearch = (props: IHashKeySearchProps) => {
           }} />
 
         <TextField styles={textFieldStyles} label="COUNT" type="number" suffix={`/ ${length}`} value={`${condition.count}`}
-          onChange={(e, v) => { v && setCondition({ ...condition, count: Number(v) }); }}
+          onChange={(e, v) => { setCondition({ ...condition, count: v ? Number(v) : 0 }); }}
           onKeyDown={(ev: KeyboardEvent) => {
             if (ev.key === 'Enter') {
               handleSearch(ev);

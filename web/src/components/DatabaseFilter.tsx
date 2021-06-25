@@ -24,7 +24,7 @@ export const DatabaseFilter = (props: IDatabaseFilterProps) => {
   };
 
   const [filterVisible, setFilterVisible] = useState(false),
-    [value, setValue] = useState<string>(defaultValue),
+    [value, setValue] = useState<string | undefined>(defaultValue),
     [count, setCount] = useState<number>(defaultCount),
     [types, setTypes] = useState<Array<{ type: string, checked: boolean }>>(Object.keys(KeyTypes).map(type => {
       return { type, checked: true }
@@ -32,14 +32,14 @@ export const DatabaseFilter = (props: IDatabaseFilterProps) => {
 
   const handleFilter = (ev: KeyboardEvent | MouseEvent<any>) => {
     ev.preventDefault();
-    onFilter(value, count, types.filter(t => t.checked).map(t => t.type));
+    value && onFilter(value, count, types.filter(t => t.checked).map(t => t.type));
     setFilterVisible(false);
   }
 
   return (<div>
     <TextField value={value}
       styles={textFieldStyles}
-      onChange={(ev, v) => v && setValue(v)}
+      onChange={(ev, v) => setValue(v)}
       onKeyDown={(ev: KeyboardEvent) => {
         if (ev.key === 'Enter') {
           handleFilter(ev);
