@@ -18,7 +18,7 @@ export const DatabaseConfiguration = (props: IDatabaseConfigProps) => {
   const theme = useTheme(), { t } = useTranslation();
 
   const [configs, setConfigs] = useState<Array<Config>>([]),
-    [selectedKey, setSelectedKey] = useState<Config>(),
+    // [selectedKey, setSelectedKey] = useState<Config>(),
     [filter, setFilter] = useState<string>("*"),
     [loading, setLoading] = useState<boolean>(false),
     [error, setError] = useState<Error>();
@@ -48,7 +48,8 @@ export const DatabaseConfiguration = (props: IDatabaseConfigProps) => {
 
   const selection = new Selection({
     onSelectionChanged: () => {
-      setSelectedKey(selection.getSelection()[0] as Config);
+      // TODO
+      // setSelectedKey(selection.getSelection()[0] as Config);
     }
   });
 
@@ -60,7 +61,7 @@ export const DatabaseConfiguration = (props: IDatabaseConfigProps) => {
       <Stack horizontal horizontalAlign="space-between" verticalAlign="center" tokens={{ childrenGap: 5 }}>
         <Stack.Item grow={1}>
           <SearchBox value={filter} styles={{ root: { borderColor: theme.palette.neutralQuaternaryAlt }, iconContainer: { lineHeight: '32px' } }}
-            placeholder={t('Search pattern ....')}
+            placeholder={`${t('Search')}....`}
             iconProps={{ iconName: 'search' }}
             onChange={(_, nv) => { setFilter(nv || '*') }}
           />
