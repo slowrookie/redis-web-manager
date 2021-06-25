@@ -55,6 +55,7 @@ jobs:
     - uses: actions/download-artifact@v2
       with:
         name: frontend-artifact
+        path: ./web/build
     # go build
     - uses: actions/setup-go@v1
       with:
