@@ -1,7 +1,9 @@
 package main
 
 import (
+	"embed"
 	"fmt"
+	"io/fs"
 	"net/http"
 	"strconv"
 
@@ -9,8 +11,42 @@ import (
 	"github.com/slowrookie/redis-web-manager/api"
 )
 
+//go:embed web/build/*
+var webFS embed.FS
+
 func main() {
 	r := gin.Default()
+
+	// static files
+	buildFiles, err := fs.Sub(webFS, "web/build")
+	if err != nil {
+		panic(nil)
+	}
+
+	r.GET("/", func(c *gin.Context) {
+		c.FileFromFS("/", http.FS(buildFiles))
+	})
+
+	r.GET("/manifest.json", func(c *gin.Context) {
+		c.FileFromFS("/manifest.json", http.FS(buildFiles))
+	})
+
+	r.GET("/favicon.ico", func(c *gin.Context) {
+		c.FileFromFS("/favicon.ico", http.FS(buildFiles))
+	})
+
+	r.GET("/logo192.png", func(c *gin.Context) {
+		c.FileFromFS("/logo192.png", http.FS(buildFiles))
+	})
+
+	r.GET("/static/*filepath", func(c *gin.Context) {
+		buildFiles, err := fs.Sub(webFS, "web/build/static")
+		if err != nil {
+			panic(nil)
+		}
+		c.FileFromFS(c.Param("filepath"), http.FS(buildFiles))
+	})
+
 	// groups
 	configGroup := r.Group("/config")
 	{
