@@ -63,4 +63,5 @@ jobs:
     - run: |
         go get -a
         go build -v
+        ls
   
