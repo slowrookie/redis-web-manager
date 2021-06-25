@@ -31,6 +31,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '14'
+      - run: pwd
       - run: cd ./web
       - run: npm install & npm run build
       # upload
@@ -41,6 +42,7 @@ jobs:
 
   build-golang:
     name: Test Build Latest Release
+    needs: build-frontend
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
