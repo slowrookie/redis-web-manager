@@ -1,9 +1,8 @@
-# .goreleaser.yml
 builds:
-  # You can have multiple builds defined as a yaml list
-  -
-  goos:
-    - linux
-    - darwin
-    - freebsd
-    - windows
+  - 
+    id: "cli"
+    binary: cli
+    goos:
+      - linux
+      - darwin
+      - windows
