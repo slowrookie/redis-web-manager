@@ -4,9 +4,6 @@ name: Release
 on:
   release:
     branches: [ release ]
-    paths-ignore: 
-      - '**/README.md'
-      - '**/*.yml'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
