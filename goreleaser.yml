@@ -1,0 +1,7 @@
+# .goreleaser.yml
+builds:
+  goos:
+    - linux
+    - darwin
+    - freebsd
+    - windows
