@@ -1,7 +1,7 @@
 builds:
   - 
-    id: "cli"
-    binary: cli
+    id: "redis-web-manager"
+    binary: RWM
     goos:
       - linux
       - darwin
