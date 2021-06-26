@@ -1,6 +1,6 @@
 name: Release
 
-# 有的新的tag就release
+# 新tag则release
 on:
   push:
     tags:
