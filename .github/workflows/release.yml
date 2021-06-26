@@ -1,17 +1,12 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Release
 
-# Controls when the workflow will run
+# 在release分支release才发版。
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
-  push:
-    branches: [ master ]
+  release:
+    branches: [ release ]
     paths-ignore: 
       - '**/README.md'
       - '**/*.yml'
-  pull_request:
-    branches: [ master ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -35,33 +30,34 @@ jobs:
           cd ./web
           npm install
           npm run build
-      # upload
-      - uses: actions/upload-artifact@v2
+      - name: Upload frontend build
+        uses: actions/upload-artifact@v2
         with:
           name: frontend-artifact
           path: ./web/build
-
-  build-golang:
-    name: Test Build Latest Release
-    needs: build-frontend
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
-    steps:
-    # checkout
-    - uses: actions/checkout@v2
-    # download
-    - uses: actions/download-artifact@v2
-      with:
-        name: frontend-artifact
-        path: ./web/build
-    # go build
-    - uses: actions/setup-go@v1
-      with:
-        go-version: 1.16
-    - run: |
-        go get -a
-        go build -v
-        ls
   
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Download frontend build
+        uses: actions/download-artifact@v2
+        with:
+          name: frontend-artifact
+          path: ./web/build
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.16
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          # either 'goreleaser' (default) or 'goreleaser-pro'
+          distribution: goreleaser
+          version: latest
+          args: release --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
