@@ -1,9 +1,10 @@
 name: Release
 
-# 在release分支release才发版。
+# 有的新的tag就release
 on:
-  release:
-    branches: [ release ]
+  push:
+    tags:
+      - '*'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
