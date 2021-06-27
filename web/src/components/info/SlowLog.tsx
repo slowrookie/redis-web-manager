@@ -1,7 +1,8 @@
-import { DetailsList, DetailsListLayoutMode, MessageBar, MessageBarType, SelectionMode, Toggle } from '@fluentui/react';
+import { DetailsList, DetailsListLayoutMode, SelectionMode, Toggle } from '@fluentui/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection, executeCommand } from '../../services/connection.service';
+import { ErrorMessageBar } from '../common/ErrorMessageBar';
 
 export interface ISlowLogProps {
     connection: Connection
@@ -11,11 +12,11 @@ export const SlowLog = (props: ISlowLogProps) => {
     const { t } = useTranslation();
 
     const [autoRefresh, setAutoRefresh] = useState(true),
-        [error, setError] = useState<string>(),
+        [error, setError] = useState<Error | undefined>(),
         [items, setItems] = useState<Array<{ time: string, duration: string, command: string, addr: string }>>([]);
 
     const slowlogList = useCallback((id) => {
-        setError('');
+        setError(undefined);
         executeCommand<Array<Array<any>>>({ id: id, commands: [['SLOWLOG', 'GET']] })
             .then((ret) => {
                 if (!ret || !ret.length) return;
@@ -46,9 +47,7 @@ export const SlowLog = (props: ISlowLogProps) => {
     }, [props.connection, autoRefresh, slowlogList])
 
     return (<>
-        {error && <MessageBar styles={{ icon: { height: 16, lineHeight: '14px' } }} messageBarType={MessageBarType.blocked} isMultiline={true} onDismiss={() => { setError(""); }} truncated={true}>
-            {error}
-        </MessageBar>}
+        <ErrorMessageBar error={error} />
         <Toggle label={t('Auto refresh')} checked={autoRefresh} onChange={() => { setAutoRefresh(!autoRefresh) }} />
         <DetailsList
             compact={true}

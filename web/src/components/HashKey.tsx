@@ -1,8 +1,9 @@
-import { ActionButton, CheckboxVisibility, DetailsListLayoutMode, DetailsRow, DialogType, IconButton, IDetailsRowStyles, MessageBar, MessageBarType, Selection, SelectionMode, ShimmeredDetailsList, Stack, Text, TooltipHost, useTheme } from '@fluentui/react';
+import { ActionButton, CheckboxVisibility, DetailsListLayoutMode, DetailsRow, DialogType, IconButton, IDetailsRowStyles, Selection, SelectionMode, ShimmeredDetailsList, Stack, Text, TooltipHost, useTheme } from '@fluentui/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection, executeCommand } from '../services/connection.service';
 import { ConfirmButton } from './common/ConfirmButton';
+import { ErrorMessageBar } from './common/ErrorMessageBar';
 import { HashKeySearch } from './HashKeySearch';
 import { KeyHeader } from './KeyHeader';
 import { HashKeyPanel } from './panel/HashKeyPanel';
@@ -40,14 +41,14 @@ export const HashKey = (props: IHashKeyProps) => {
 
   const [keyProps, setKeyProps] = useState({ ...defaultStringKeyProps, keyName }),
     [selectedValue, setSelectedValue] = useState<IHashKeyItem | null>(),
-    [error, setError] = useState<string>(),
+    [error, setError] = useState<Error | undefined>(),
     [showEditPanel, setShowEditPanel] = useState(false),
     [search, setSearch] = useState({ cursor: 0, pattern: defaultMatchPattern, count: connection.dataScanLimit }),
     [items, setItems] = useState<Array<IHashKeyItem>>([]);
 
   const load = useCallback(() => {
     if (!search.pattern || !search.count) return;
-    setError('');
+    setError(undefined);
     executeCommand<Array<any>>({
       id: connection.id, commands: [
         ['SELECT', db],
@@ -79,7 +80,7 @@ export const HashKey = (props: IHashKeyProps) => {
       })
       console.log(ret);
     })
-      .catch((err: Error) => { setError(err.message); });
+      .catch((err: Error) => { setError(err); });
   }, [connection.id, db, search, keyProps.keyName]);
 
   useEffect(() => {
@@ -127,9 +128,7 @@ export const HashKey = (props: IHashKeyProps) => {
   return (
     <Stack style={{ height: '100%' }} tokens={{ padding: 5, childrenGap: 10 }}>
       {/* error */}
-      {error && <MessageBar styles={{ icon: { height: 16, lineHeight: '14px' } }} messageBarType={MessageBarType.blocked} isMultiline={false} onDismiss={() => { setError(""); }} truncated={true}>
-        {error}
-      </MessageBar>}
+      <ErrorMessageBar error={error} />
 
       <KeyHeader {...props} keyName={keyProps.keyName} TTL={keyProps.TTL}
         onKeyNameChanged={(oldKeyName: string, keyName: string) => {

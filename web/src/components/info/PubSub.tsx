@@ -1,7 +1,8 @@
-import { DetailsList, DetailsListLayoutMode, MessageBar, MessageBarType, SelectionMode, Toggle } from '@fluentui/react';
+import { DetailsList, DetailsListLayoutMode, SelectionMode, Toggle } from '@fluentui/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection, executeCommand } from '../../services/connection.service';
+import { ErrorMessageBar } from '../common/ErrorMessageBar';
 
 export interface IPubSub {
     connection: Connection
@@ -11,11 +12,11 @@ export const PubSub = (props: IPubSub) => {
     const { t } = useTranslation();
 
     const [autoRefresh, setAutoRefresh] = useState(true),
-        [error, setError] = useState<string>(),
+        [error, setError] = useState<Error | undefined>(),
         [items, setItems] = useState<Array<{ name: string }>>([]);
 
     const pubsubList = useCallback((id) => {
-        setError('');
+        setError(undefined);
         executeCommand<Array<Array<string>>>({ id: id, commands: [['PUBSUB', 'CHANNELS']] })
             .then((ret) => {
                 if (!ret || !ret.length) return;
@@ -41,9 +42,7 @@ export const PubSub = (props: IPubSub) => {
     }, [props.connection, autoRefresh, pubsubList])
 
     return (<>
-        {error && <MessageBar styles={{ icon: { height: 16, lineHeight: '14px' } }} messageBarType={MessageBarType.blocked} isMultiline={true} onDismiss={() => { setError(""); }} truncated={true}>
-            {error}
-        </MessageBar>}
+        <ErrorMessageBar error={error} />
         <Toggle label={t('Auto refresh')} checked={autoRefresh} onChange={() => { setAutoRefresh(!autoRefresh) }} />
         <DetailsList
             compact={true}

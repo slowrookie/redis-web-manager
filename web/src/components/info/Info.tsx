@@ -1,9 +1,10 @@
-import { DetailsList, DetailsListLayoutMode, Label, MessageBar, MessageBarType, Pivot, PivotItem, SelectionMode, Stack, Text, Toggle, useTheme } from '@fluentui/react';
+import { DetailsList, DetailsListLayoutMode, Label, Pivot, PivotItem, SelectionMode, Stack, Text, Toggle, useTheme } from '@fluentui/react';
 import dayjs from 'dayjs';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Connection, executeCommand } from '../../services/connection.service';
+import { ErrorMessageBar } from '../common/ErrorMessageBar';
 import { parseInfo } from '../utils';
 import { Client } from './Client';
 import { PubSub } from './PubSub';
@@ -20,12 +21,12 @@ export const Info = (props: IInfoProps) => {
     { t } = useTranslation();
 
   const [info, setInfo] = useState<any>(props.info || {}),
-    [error, setError] = useState<string>(),
+    [error, setError] = useState<Error | undefined>(),
     [autoRefresh, setAutoRefresh] = useState(false),
     [memoryData, setMemoryData] = useState<Array<{ time: string, used_memory: number, used_memory_lua: number, used_memory_rss: number, used_memory_peak: number }>>([]);
 
   const getInfo = useCallback((id) => {
-    setError('');
+    setError(undefined);
     executeCommand<Array<string>>({ id: id, commands: [["INFO"]] }).then((ret) => {
       if (!ret || !ret.length) return;
       const retInfo = parseInfo(ret[0]);
@@ -82,9 +83,7 @@ export const Info = (props: IInfoProps) => {
         </Stack>
       </Stack>
 
-      {error && <MessageBar styles={{ icon: { height: 16, lineHeight: '14px' } }} messageBarType={MessageBarType.blocked} isMultiline={true} onDismiss={() => { setError(""); }} truncated={true}>
-        {error}
-      </MessageBar>}
+      <ErrorMessageBar error={error} />
 
       <Stack.Item grow={1}>
         <Pivot linkFormat="tabs" style={{ height: '100%' }} styles={{ link: { height: 32, lineHeight: '32px' }, itemContainer: { height: 'calc(100% - 32px)' } }}>

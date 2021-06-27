@@ -1,10 +1,10 @@
 import {
-  DefaultButton, Dialog, DialogFooter, DialogType, IconButton, MessageBar, MessageBarType,
-  PrimaryButton, Stack, TextField, TooltipHost, useTheme
+  DefaultButton, Dialog, DialogFooter, DialogType, IconButton, PrimaryButton, Stack, TextField, TooltipHost, useTheme
 } from '@fluentui/react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection, executeCommand } from '../services/connection.service';
+import { ErrorMessageBar } from './common/ErrorMessageBar';
 
 const buttonStyles = {
   root: {
@@ -53,7 +53,7 @@ export const KeyHeader = (props: IKeyHeaderProps) => {
   };
 
   const [keyHeaderProps, setKeyHeaderProps] = useState<IKeyHeader>(defaultKeyHeaderProps),
-    [error, setError] = useState(''),
+    [error, setError] = useState<Error | undefined>(),
     [hiddenConfirmDialog, setHiddenConfimDialog] = useState(true);
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export const KeyHeader = (props: IKeyHeaderProps) => {
   }, [keyName, TTL])
 
   const handleRename = () => {
-    setError('');
+    setError(undefined);
     executeCommand({
       id: connection.id, commands: [
         ['SELECT', db],
@@ -75,7 +75,7 @@ export const KeyHeader = (props: IKeyHeaderProps) => {
   }
 
   const handleTTL = () => {
-    setError('');
+    setError(undefined);
     executeCommand({
       id: connection.id, commands: [
         ['SELECT', db],
@@ -90,7 +90,7 @@ export const KeyHeader = (props: IKeyHeaderProps) => {
 
   const handleConfirm = () => {
     setHiddenConfimDialog(true);
-    setError('');
+    setError(undefined);
     executeCommand<Array<any>>({ id: connection.id, commands: [['SELECT', db], ['DEL', keyHeaderProps.initialKeyName]] })
       .then((ret) => {
         if (!ret || !ret.length) return;
@@ -143,9 +143,7 @@ export const KeyHeader = (props: IKeyHeaderProps) => {
 
     </Stack>
     {/* error */}
-    {error && <MessageBar styles={{ icon: { height: 16, lineHeight: '14px' } }} messageBarType={MessageBarType.blocked} isMultiline={false} onDismiss={() => { setError(""); }} truncated={true}>
-      {error}
-    </MessageBar>}
+    <ErrorMessageBar error={error} />
 
     {/* delete confirm dialog */}
     <Dialog styles={{ main: { minHeight: 'auto' } }} hidden={hiddenConfirmDialog} dialogContentProps={{ type: DialogType.close, title: t('Delete this key?'), subText: keyHeaderProps.initialKeyName }} onDismiss={() => setHiddenConfimDialog(true)}>

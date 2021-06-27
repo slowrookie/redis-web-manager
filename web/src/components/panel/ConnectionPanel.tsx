@@ -2,6 +2,7 @@ import { DefaultButton, MessageBar, MessageBarType, Overlay, Panel, PanelType, P
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection, saveConnection, testConnection } from '../../services/connection.service';
+import { ErrorMessageBar } from '../common/ErrorMessageBar';
 
 export interface IConnectionPanel {
   connection?: Connection
@@ -31,29 +32,31 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
 
   const [_connection, _setConnection] = useState<Connection>(defaultConnection),
     [connecting, setConnecting] = useState(false),
-    [error, setError] = useState<string>(),
+    [error, setError] = useState<Error | undefined>(),
     [success, setSuccess] = useState<string>()
     ;
 
   useEffect(() => {
-    setError("");
+    setError(undefined);
     setSuccess("");
     connection && _setConnection(connection.id ? connection : defaultConnection);
   }, [connection])
 
   const onTestConnection = () => {
-    setError("");
+    setError(undefined);
     setSuccess("");
     setConnecting(true);
     testConnection(_connection).then(() => {
       setSuccess(t("The test connection to the Redis server is successful!"))
     })
-      .catch(err => setError(err))
+      .catch((err: Error) => {
+        setError(err)
+      })
       .finally(() => setConnecting(false))
   }
 
   const OnConnection = () => {
-    setError("");
+    setError(undefined);
     setSuccess("");
     setConnecting(true);
     saveConnection(_connection).then((v) => {
@@ -146,9 +149,7 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
           </PivotItem>
         </Pivot>
 
-        {error && <MessageBar styles={{ icon: { height: 16, lineHeight: '14px' } }} messageBarType={MessageBarType.blocked} isMultiline={true} onDismiss={() => { setError("") }} truncated={true}>
-          {error}
-        </MessageBar>}
+        <ErrorMessageBar error={error} />
         {success && <MessageBar styles={{ icon: { height: 16, lineHeight: '14px' } }} messageBarType={MessageBarType.success} isMultiline={false} onDismiss={() => { setSuccess("") }}>
           {success}
         </MessageBar>}

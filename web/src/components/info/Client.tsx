@@ -1,7 +1,8 @@
-import { DetailsList, DetailsListLayoutMode, MessageBar, MessageBarType, SelectionMode, Toggle } from '@fluentui/react';
+import { DetailsList, DetailsListLayoutMode, SelectionMode, Toggle } from '@fluentui/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection, executeCommand } from '../../services/connection.service';
+import { ErrorMessageBar } from '../common/ErrorMessageBar';
 import { parseClient } from '../utils';
 
 export interface IClientProps {
@@ -13,15 +14,15 @@ export const Client = (props: IClientProps) => {
     { t } = useTranslation();
 
   const [autoRefresh, setAutoRefresh] = useState(true),
-    [error, setError] = useState<string>(),
+    [error, setError] = useState<Error | undefined>(),
     [items, setItems] = useState<Array<any>>([]);
 
   const clientList = useCallback((id) => {
-    setError('');
+    setError(undefined);
     executeCommand<Array<string>>({ id: id, commands: [['CLIENT', 'LIST']] }).then((ret) => {
-        if (!ret || !ret.length) return;
-        setItems(parseClient(ret[0]))
-      })
+      if (!ret || !ret.length) return;
+      setItems(parseClient(ret[0]))
+    })
       .catch(err => setError(err));
   }, [])
 
@@ -37,9 +38,7 @@ export const Client = (props: IClientProps) => {
   }, [connection, autoRefresh, clientList])
 
   return (<>
-    {error && <MessageBar styles={{ icon: { height: 16, lineHeight: '14px' } }} messageBarType={MessageBarType.blocked} isMultiline={true} onDismiss={() => { setError(""); }} truncated={true}>
-      {error}
-    </MessageBar>}
+    <ErrorMessageBar error={error} />
     <Toggle label={t('Auto refresh')} checked={autoRefresh} onChange={() => { setAutoRefresh(!autoRefresh) }} />
     <DetailsList
       compact={true}

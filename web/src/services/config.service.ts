@@ -1,15 +1,22 @@
-import { defaultHeaders, serverErrorHandle } from "./servcie";
+import axios from "axios";
 
 export interface Config {
-    theme: string,
-    language: string
+  theme: string,
+  language: string
 }
 
 export const getConfig = (): Promise<Config> => {
-    return fetch("/config").then(serverErrorHandle);
+  return axios.get('/config')
+    .then(ret => ret.data)
+    .catch(err => {
+      throw new Error(err?.response?.data);
+    });
 }
 
 export const setConfig = (config: Config): Promise<Config> => {
-    return fetch("/config", { method: 'post', headers: defaultHeaders, body: JSON.stringify(config) })
-        .then(serverErrorHandle);
+  return axios.post('/config', config)
+    .then(ret => ret.data)
+    .catch(err => {
+      throw new Error(err?.response?.data);
+    });
 }
