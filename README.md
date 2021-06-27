@@ -2,8 +2,8 @@
 
 # RWM (Reids web manager)
 
-[![](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/slowrookie/redis-web-manager/README)
-[![](https://github.com/slowrookie/redis-web-manager/actions/workflows/release.yml/badge.svg)](https://github.com/slowrookie/redis-web-manager/actions)
+[![](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/slowrookie/redis-web-manager/blob/master/LICENSE)
+[![](https://github.com/slowrookie/redis-web-manager/actions/workflows/release.yml/badge.svg)](https://github.com/slowrookie/redis-web-manager/actions/workflows/release.yml)
 
 
 RWM 是一款使用 React & Golang 开发的Web应用，用于管理Redis，支持多平台运行。
@@ -61,6 +61,11 @@ RWM 是一款使用 React & Golang 开发的Web应用，用于管理Redis，支�
 ## 如何贡献
 
 非常欢迎你的加入！[提一个 Issue](https://github.com/slowrookie/redis-web-manager/issues/new) 或者提交一个 Pull Request。
+
+### 贡献者
+
+感谢以下参与项目的人：
+<a href="graphs/contributors"><img src="https://opencollective.com/standard-readme/contributors.svg?width=890&button=false" /></a>
 
 ## 使用许可
 
