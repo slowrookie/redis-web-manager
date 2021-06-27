@@ -179,12 +179,12 @@ func main() {
 	// listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 	// r.Run()
 
-	listen, err := net.Listen("tcp", "localhost:8080")
+	listen, err := net.Listen("tcp", "localhost:6666")
 	if err != nil {
 		log.Fatal(err)
 	}
 	// 服务启动之后，打开系统浏览器
-	_ = browser.OpenURL("http://localhost:8080")
+	_ = browser.OpenURL("http://localhost:6666")
 	log.Fatal(http.Serve(listen, r))
 
 }
