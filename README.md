@@ -41,7 +41,7 @@ RWM 是一款使用 React & Golang 开发的Web应用，用于管理Redis，支�
 - `.gitignore` 是 `Git` 用于忽略的配置文件。
 - `.goreleaser.yml` 是 `goreleaser` 的配置文件。
  
-注意：如果在 `main.og` 文件中 `go:embed web/build/*` 错误，请先在 `web` 目录执行 `npm install & npm run build` 安装和构建前端项目.
+注意：如果在 `main.go` 文件中 `go:embed web/build/*` 错误，请先在 `web` 目录执行 `npm install & npm run build` 安装和构建前端项目.
 
 ## 相关仓库
 
