@@ -10,13 +10,12 @@ import {
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection, executeCommand } from '../services/connection.service';
-import { parseArrayToObject } from './utils';
 import { ConfirmButton } from './common/ConfirmButton';
 import { ErrorMessageBar } from './common/ErrorMessageBar';
 import { KeyHeader } from './KeyHeader';
 import { StreamKeyPanel } from './panel/StreamKeyPanel';
 import { StreamKeySearch } from './StreamKeySearch';
-
+import { parseArrayToObject } from './utils';
 
 export interface IStreamKeyProps {
   connection: Connection

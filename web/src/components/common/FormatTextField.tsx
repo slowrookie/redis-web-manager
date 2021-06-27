@@ -69,7 +69,7 @@ export const FormatTextField = (props: IFormatTextFieldProps) => {
   }, [value])
 
   return (
-    <Stack style={{ height: '100%', padding: '5px 0' }}>
+    <Stack style={{ height: '100%', padding: '5px 0' }} tokens={{childrenGap: 3}}>
 
       <Stack horizontal horizontalAlign="space-between" verticalAlign="center" tokens={{ childrenGap: 5 }}>
         <Label>{label}</Label>
