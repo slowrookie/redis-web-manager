@@ -93,17 +93,17 @@ export const HashKeyPanel = (props: IHashKeyPanelProps) => {
       <Stack style={{ height: '100%' }} tokens={{ padding: 10 }}>
         <TextField styles={{ fieldGroup: { borderColor: theme.palette.neutralQuaternaryAlt } }}
           label={t('Key name')} required disabled={disabledKeyName} value={keyItem.name} onChange={(e, v) => {
-            v && setKeyItem({ ...keyItem, name: v.trim() });
+            setKeyItem({ ...keyItem, name: v || '' });
           }} />
 
         <TextField styles={{ fieldGroup: { borderColor: theme.palette.neutralQuaternaryAlt } }}
           label={t('Filed name')} multiline rows={5} disabled={!!index && index >= 0} value={keyItem.field} onChange={(e, v) => {
-            v && setKeyItem({ ...keyItem, field: v });
+            setKeyItem({ ...keyItem, field: v || '' });
           }} />
 
         <Stack.Item grow={1}>
           <FormatTextField label={t('Field value')} multiline rows={20} value={keyItem.value} onChange={(e, v?: string) => {
-            v && setKeyItem({ ...keyItem, value: v });
+            setKeyItem({ ...keyItem, value: v || '' });
           }}></FormatTextField>
         </Stack.Item>
 

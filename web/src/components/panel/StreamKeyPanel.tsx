@@ -100,12 +100,12 @@ export const StreamKeyPanel = (props: IStreamKeyPanelProps) => {
       <Stack style={{ height: '100%' }} tokens={{ padding: 10 }}>
         <TextField styles={{ fieldGroup: { borderColor: theme.palette.neutralQuaternaryAlt } }}
           disabled={disabledKeyName} label={t('Key name')} required value={keyItem.name} onChange={(e, v) => {
-            v && setKeyItem({ ...keyItem, name: v.trim() });
+            setKeyItem({ ...keyItem, name: v || '' });
           }} />
 
         <TextField styles={{ fieldGroup: { borderColor: theme.palette.neutralQuaternaryAlt } }}
           label="ID" required value={keyItem.id} onChange={(e, v) => {
-            v && setKeyItem({ ...keyItem, id: v });
+            setKeyItem({ ...keyItem, id: v || '' });
           }} />
 
         <Stack.Item grow={1}>

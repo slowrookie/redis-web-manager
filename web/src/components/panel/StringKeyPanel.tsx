@@ -73,11 +73,11 @@ export const StringKeyPanel = (props: IStringkeyPanelProps) => {
       <Stack style={{ height: '100%' }} tokens={{ padding: 10 }}>
         <TextField styles={{ fieldGroup: { borderColor: theme.palette.neutralQuaternaryAlt } }}
           label={t('Key name')} required value={keyItem.name} onChange={(e, v) => {
-            v && setKeyItem({ ...keyItem, name: v.trim() });
+            setKeyItem({ ...keyItem, name: v || '' });
           }} />
 
         <FormatTextField label={t('Key value')} multiline rows={10} value={keyItem.value} onChange={(e, v) => {
-          v && setKeyItem({ ...keyItem, value: v });
+          setKeyItem({ ...keyItem, value: v || '' });
         }} />
 
         <ErrorMessageBar error={error}></ErrorMessageBar>

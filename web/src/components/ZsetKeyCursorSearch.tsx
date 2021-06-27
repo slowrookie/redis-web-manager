@@ -44,7 +44,7 @@ export const ZsetKeySearch = (props: IZsetKeyCursorProps) => {
       <Stack tokens={{ childrenGap: 10, padding: 10 }} style={{ minWidth: 300 }}>
 
         <TextField styles={textFieldStyles} label="MATCH" defaultValue={defaultMatchPattern} value={condition.pattern}
-          onChange={(e, v) => v && setCondition({ ...condition, pattern: v })}
+          onChange={(e, v) => setCondition({ ...condition, pattern: v || '' })}
           onKeyDown={(ev: KeyboardEvent) => {
             if (ev.key === 'Enter') {
               handleSearch(ev);
@@ -52,7 +52,7 @@ export const ZsetKeySearch = (props: IZsetKeyCursorProps) => {
           }} />
 
         <TextField styles={textFieldStyles} label="COUNT" type="number" suffix={`/ ${length}`} value={`${condition.count}`}
-          onChange={(e, v) => { v && setCondition({ ...condition, count: Number(v) }); }}
+          onChange={(e, v) => { setCondition({ ...condition, count: Number(v) }); }}
           onKeyDown={(ev: KeyboardEvent) => {
             if (ev.key === 'Enter') {
               handleSearch(ev);

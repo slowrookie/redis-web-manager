@@ -93,17 +93,17 @@ export const ZsetKeyPanel = (props: IZsetKeyPanelProps) => {
       <Stack style={{ height: '100%' }} tokens={{ padding: 10 }}>
         <TextField styles={{ fieldGroup: { borderColor: theme.palette.neutralQuaternaryAlt } }}
           label={t('Key name')} required disabled={disabledKeyName} value={keyItem.name} onChange={(e, v) => {
-            v && setKeyItem({ ...keyItem, name: v.trim() });
+            setKeyItem({ ...keyItem, name: v || '' });
           }} />
 
         <TextField styles={{ fieldGroup: { borderColor: theme.palette.neutralQuaternaryAlt } }}
           label={t('Score')} type="number" required value={keyItem.score} onChange={(e, v) => {
-            v && setKeyItem({ ...keyItem, score: v });
+            setKeyItem({ ...keyItem, score: v || '' });
           }} />
 
         <Stack.Item grow={1}>
           <FormatTextField label={t('Key value')} multiline rows={10} value={keyItem.value} onChange={(e, v) => {
-            v && setKeyItem({ ...keyItem, value: v });
+            setKeyItem({ ...keyItem, value: v || ''});
           }} />
         </Stack.Item>
 

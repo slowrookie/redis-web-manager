@@ -83,11 +83,11 @@ export const ListKeyPanel = (props: IListKeyPanelProps) => {
       <Stack style={{ height: '100%' }} tokens={{ padding: '10px 0' }}>
         <TextField styles={{ fieldGroup: { borderColor: theme.palette.neutralQuaternaryAlt } }}
           label={t('Key name')} disabled={disabledKeyName} required value={keyItem.name} onChange={(e, v) => {
-            v && setKeyItem({ ...keyItem, name: v.trim() });
+            setKeyItem({ ...keyItem, name: v || '' });
           }} />
 
         <FormatTextField label={t('Key value')} multiline rows={10} value={keyItem.value} onChange={(e, v) => {
-          v && setKeyItem({ ...keyItem, value: v });
+          setKeyItem({ ...keyItem, value: v || '' });
         }} />
 
         <ErrorMessageBar error={error}></ErrorMessageBar>

@@ -107,7 +107,7 @@ export const KeyHeader = (props: IKeyHeaderProps) => {
           styles={textFieldStyles}
           prefix={component}
           value={keyHeaderProps.keyName}
-          onChange={(e, v) => v && setKeyHeaderProps({ ...keyHeaderProps, keyName: v })}
+          onChange={(e, v) => setKeyHeaderProps({ ...keyHeaderProps, keyName: v || '' })}
           onRenderSuffix={(textFieldProps, defaultRender) => {
             return (
               <TooltipHost content={t('Rename')}>
@@ -123,7 +123,7 @@ export const KeyHeader = (props: IKeyHeaderProps) => {
         type="number"
         prefix="TTL(sec)"
         value={`${keyHeaderProps.TTL}`}
-        onChange={(e, v) => v && setKeyHeaderProps({ ...keyHeaderProps, TTL: Number(v) })}
+        onChange={(e, v) => setKeyHeaderProps({ ...keyHeaderProps, TTL: Number(v) })}
         onRenderSuffix={(textFieldProps, defaultRender) => {
           return (
             <TooltipHost content={t('Update')}>

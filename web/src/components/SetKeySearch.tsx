@@ -44,7 +44,7 @@ export const SetKeySearch = (props: ISetKeySearchProps) => {
       <Stack tokens={{ childrenGap: 10, padding: 10 }} style={{ minWidth: 300 }}>
 
         <TextField styles={textFieldStyles} label="MATCH" defaultValue={defaultMatchPattern} value={condition.pattern}
-          onChange={(e, v) => v && setCondition({ ...condition, pattern: v })}
+          onChange={(e, v) => setCondition({ ...condition, pattern: v || '' })}
           onKeyDown={(ev: KeyboardEvent) => {
             if (ev.key === 'Enter') {
               handleSearch(ev);

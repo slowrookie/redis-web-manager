@@ -104,10 +104,10 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
         <Pivot>
           <PivotItem headerText={t('Basic')}>
             <TextField label={t('Name')} placeholder={t('Connection name')} required value={_connection.name} onChange={(e, v) => {
-              v && _setConnection(c => ({ ...c, name: v }));
+              _setConnection(c => ({ ...c, name: v || '' }));
             }} />
             <TextField label={t('Address')} placeholder={t('Service address')} required value={_connection.host} onChange={(e, v) => {
-              v && _setConnection(c => ({ ...c, host: v }))
+              _setConnection(c => ({ ...c, host: v || '' }))
             }} />
             <TextField label={t('Port')} type="number" placeholder={t('Port')} min={0} max={65535} required value={`${_connection.port}`} onChange={(e, v) => {
               var nv = Number(v);
@@ -115,21 +115,21 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
               _setConnection(c => ({ ...c, port: nv }));
             }} />
             <TextField label={t('Password')} type="password" placeholder={t('(Optional) Service authentication password')} canRevealPassword={true} value={_connection.auth} onChange={(e, v) => {
-              v && _setConnection(c => ({ ...c, auth: v }))
+              _setConnection(c => ({ ...c, auth: v || '' }))
             }}
             />
             <TextField label={t('Username')} placeholder={t('(Optional) Service authentication user name Reids> 6.0')} value={_connection.username} onChange={(e, v) => {
-              v && _setConnection(c => ({ ...c, username: v }))
+              _setConnection(c => ({ ...c, username: v || '' }))
             }} />
           </PivotItem>
 
           <PivotItem headerText={t("Advanced")}>
             <Separator>{t('Key load')}</Separator>
             <TextField label={t('Default key filtering')} required value={_connection.keysPattern} onChange={(e, v) => {
-              v && _setConnection(c => ({ ...c, keysPattern: v }))
+              _setConnection(c => ({ ...c, keysPattern: v || '' }))
             }} />
             <TextField label={t('Namespace separator')} required value={_connection.namespaceSeparator} onChange={(e, v) => {
-              v && _setConnection(c => ({ ...c, namespaceSeparator: v }))
+              _setConnection(c => ({ ...c, namespaceSeparator: v || '' }))
             }} />
             <Separator>{t('Timeouts and limits')}</Separator>
             <TextField label={t('Connection timeout (ms)')} type="number" placeholder={t('Connection timeout (ms)')} required value={`${_connection.timeoutConnect}`} onChange={(e, v) => {
