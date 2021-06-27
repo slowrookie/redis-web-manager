@@ -30,7 +30,7 @@ RWM 是一款使用 React & Golang 开发的Web应用，用于管理Redis，支�
 ./RWM
 ```
 
-服务启动后会自动调用操作系统默认浏览器，并访问 `http://localhost:6666`。
+服务启动后会自动调用操作系统默认浏览器，并访问 `http://localhost:9090`。
 
 服务第一次启动后会产生两个文件，一个是`.config.json`用于存放配置信息。一个是`.connections.json`,用于保存维护的连接信息。
 
