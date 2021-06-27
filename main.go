@@ -4,10 +4,13 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
+	"log"
+	"net"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/browser"
 	"github.com/slowrookie/redis-web-manager/api"
 )
 
@@ -173,5 +176,15 @@ func main() {
 		})
 	}
 
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	// listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	// r.Run()
+
+	listen, err := net.Listen("tcp", "localhost:8080")
+	if err != nil {
+		log.Fatal(err)
+	}
+	// 服务启动之后，打开系统浏览器
+	_ = browser.OpenURL("http://localhost:8080")
+	log.Fatal(http.Serve(listen, r))
+
 }
