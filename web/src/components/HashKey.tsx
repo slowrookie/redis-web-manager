@@ -214,7 +214,7 @@ export const HashKey = (props: IHashKeyProps) => {
       </Stack>
 
       {/* edit key */}
-      {selectedValue && <HashKeyPanel {...props} isOpen={showEditPanel} keyType={component}
+      {<HashKeyPanel {...props} isOpen={showEditPanel} keyType={component}
         KeyFieldName={selectedValue?.field}
         KeyFieldValue={selectedValue?.value}
         index={selectedValue?.row}
