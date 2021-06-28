@@ -62,10 +62,6 @@ RWM 是一款使用 React & Golang 开发的Web应用，用于管理Redis，支�
 
 非常欢迎你的加入！[提一个 Issue](https://github.com/slowrookie/redis-web-manager/issues/new) 或者提交一个 Pull Request。
 
-### 贡献者
-
-感谢以下参与项目的人：
-<a href="graphs/contributors"><img src="https://opencollective.com/standard-readme/contributors.svg?width=890&button=false" /></a>
 
 ## 使用许可
 
