@@ -1,11 +1,6 @@
 builds:
   - id: "redis-web-manager"
     binary: RWM
-    ldflags:
-      - -s -w 
-      - -X VERSION={{ .Version }} 
-      - -X COMMIT={{ .Commit }}
-      - -X REPOROOT={{ .GitURL }}
     goos:
       - linux
       - darwin
