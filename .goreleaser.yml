@@ -3,9 +3,9 @@ builds:
     binary: RWM
     ldflags:
       - -s -w 
-      - -X github.com/kleveross/ormb/pkg/version.VERSION={{ .Version }} 
-      - -X github.com/kleveross/ormb/pkg/version.COMMIT={{ .Commit }}
-      - -X github.com/kleveross/ormb/pkg/version.REPOROOT={{ .GitURL }}
+      - -X VERSION={{ .Version }} 
+      - -X COMMIT={{ .Commit }}
+      - -X REPOROOT={{ .GitURL }}
     goos:
       - linux
       - darwin
