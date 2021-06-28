@@ -1,13 +1,24 @@
+before:
+  hooks:
+    - go mod tidy
 builds:
   - id: "redis-web-manager"
     binary: RWM
+    env:
+      - CGO_ENABLED=0
     goos:
       - linux
       - darwin
       - windows
+    goarch:
+      - amd64
+      - arm64
 
 dockers:
-  - image_templates:
+  - 
+    goos: linux
+    goarch: amd64
+    image_templates:
       - "docker.io/slowrookie/redis-web-manager:{{ .Tag }}"
       - "docker.io/slowrookie/redis-web-manager:latest"
     skip_push: false
