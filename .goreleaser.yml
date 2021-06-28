@@ -1,6 +1,11 @@
 builds:
   - id: "redis-web-manager"
     binary: RWM
+    ldflags:
+      - -s -w 
+      - -X github.com/kleveross/ormb/pkg/version.VERSION={{ .Version }} 
+      - -X github.com/kleveross/ormb/pkg/version.COMMIT={{ .Commit }}
+      - -X github.com/kleveross/ormb/pkg/version.REPOROOT={{ .GitURL }}
     goos:
       - linux
       - darwin
@@ -8,6 +13,7 @@ builds:
 
 dockers:
   - image_templates:
-      - "slowrookie/redis-web-manager:{{ .Tag }}"
+      - "docker.io/slowrookie/redis-web-manager:{{ .Tag }}"
+      - "gcr.io/slowrookie/redis-web-manager:{{ .Tag }}"
     skip_push: false
     dockerfile: Dockerfile
