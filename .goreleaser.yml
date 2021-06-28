@@ -9,4 +9,5 @@ builds:
 dockers:
   - image_templates:
       - "slowrookie/redis-web-manager:{{ .Tag }}"
+    skip_push: false
     dockerfile: Dockerfile
