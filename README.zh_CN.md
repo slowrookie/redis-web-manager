@@ -1,12 +1,13 @@
 <!-- https://github.com/RichardLitt/standard-readme -->
 
+<img align="right" width="100" src="https://user-images.githubusercontent.com/1582077/123831470-f2ce4d80-d936-11eb-96e3-65f50db079b3.png">
+
 # RWM (Redis web manager)
 
 [![](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/slowrookie/redis-web-manager/blob/master/LICENSE)
 [![](https://github.com/slowrookie/redis-web-manager/actions/workflows/release.yml/badge.svg)](https://github.com/slowrookie/redis-web-manager/actions/workflows/release.yml)
 [![Docker Hub](https://img.shields.io/docker/pulls/slowrookie/redis-web-manager.svg)](https://hub.docker.com/r/slowrookie/redis-web-manager)
 
-![Logo](./logo.svg)
 
 简体中文 | [English](README.md)
 
@@ -23,7 +24,8 @@ RWM 是一款使用 React & Golang 开发的Web应用，用于管理Redis，支�
   - [使用许可](#使用许可)
 
 ## 项目截图
-![项目截图](./screenshot.zh_CN.png)
+![项目截图](https://user-images.githubusercontent.com/1582077/123832004-79832a80-d937-11eb-8ae4-9bbc06f17bdf.png)
+
 
 ## 下载与安装
 
