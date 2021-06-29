@@ -12,7 +12,7 @@ English | [简体中文](README.zh_CN.md)
 RWM is a web application developed with React & Golang, used to manage Redis, and supports multi-platform operation.
 ## Introduction
   - [Project Screenshot](#Project-screenshot)
-  - [Download & Install](#Download-&-install)
+  - [Download & Install](#Download--install)
   - [Useage](#Useage)
   - [Project Structure](#Project-structure)
   - [Related Efforts](#Related-efforts)
