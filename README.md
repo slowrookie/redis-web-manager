@@ -22,13 +22,25 @@ RWM 是一款使用 React & Golang 开发的Web应用，用于管理Redis，支�
 
 ## 下载与安装
 
-项目使用 [Github Actions](https://github.com/slowrookie/redis-web-manager/actions) 编译发布，直接在 [Release](https://github.com/slowrookie/redis-web-manager/releases) 下载对应操作系统版本的压缩包，解压后即可运行。
+`Windows`, `Linux`, `MacOS`：
+  [下载地址](https://github.com/slowrookie/redis-web-manager/releases)
+
+`Docker`: 
+  ```sh 
+    docker push slowrookie/redis-web-manager:latest 
+  ````
 
 ## 使用说明
 
-解压后执行执行 `RWM` 或者 `RWM.exe` 文件。
+`Windows`, `Linux`, `MacOS`：
+`*.tar.gz`文件解压后执行执行 `RWM` 或者 `RWM.exe` 文件。
+
 ```sh
 ./RWM
+```
+### `Docker`
+```sh
+docker run --rm -d  -p 9090:9090/tcp slowrookie/redis-web-manager:latest
 ```
 
 服务启动后会自动调用操作系统默认浏览器，并访问 `http://localhost:9090`。
