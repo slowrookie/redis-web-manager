@@ -40,7 +40,7 @@ jobs:
           restore-keys: |
             ${{ runner.OS }}-node-
             ${{ runner.OS }}-
-        run: |
+      - run: |
           cd ./web
           npm install
           npm run build
