@@ -6,11 +6,11 @@ export interface Config {
 }
 
 export interface About {
-  Version: string
-	Commit: string
-	Date: string
-	BuiltBy: string
-	Environment: string
+  version: string
+	commit: string
+	date: string
+	builtBy: string
+	environment: string
 }
 
 export const getConfig = (): Promise<Config> => {

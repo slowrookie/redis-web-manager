@@ -23,5 +23,5 @@ dockers:
     image_templates:
       - "docker.io/slowrookie/redis-web-manager:{{ .Tag }}"
       - "docker.io/slowrookie/redis-web-manager:latest"
-    # skip_push: false
+    skip_push: auto
     dockerfile: Dockerfile

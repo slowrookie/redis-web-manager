@@ -71,23 +71,23 @@ export const AppSettings = (props: IAppSettings) => {
       <Stack>
         <Stack horizontal horizontalAlign="space-between">
           <Text>Version: </Text>
-          <Text>{aboutData?.Version}</Text>
+          <Text>{aboutData?.version}</Text>
         </Stack>
         <Stack horizontal horizontalAlign="space-between">
           <Text>Commit: </Text>
-          <Text>{aboutData?.Commit}</Text>
+          <Text>{aboutData?.commit}</Text>
         </Stack>
         <Stack horizontal horizontalAlign="space-between">
           <Text>Date: </Text>
-          <Text>{aboutData?.Date}</Text>
+          <Text>{aboutData?.date}</Text>
         </Stack>
         <Stack horizontal horizontalAlign="space-between">
           <Text>BuiltBy: </Text>
-          <Text>{aboutData?.BuiltBy}</Text>
+          <Text>{aboutData?.builtBy}</Text>
         </Stack>
         <Stack horizontal horizontalAlign="space-between">
           <Text>Environment: </Text>
-          <Text>{aboutData?.Environment}</Text>
+          <Text>{aboutData?.environment}</Text>
         </Stack>
       </Stack>
     </Dialog>

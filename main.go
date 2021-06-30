@@ -15,10 +15,10 @@ import (
 )
 
 var (
-	Version  = "Development"
-	Commit   = "Development"
-	Date     = "Now"
-	BuiltBy  = "Development"
+	version  = "Development"
+	commit   = "Development"
+	date     = "Now"
+	builtBy  = "Development"
 	GIN_MODE = gin.DebugMode
 )
 
@@ -61,11 +61,11 @@ func main() {
 
 	r.GET("/about", func(c *gin.Context) {
 		var about = make(map[string]string)
-		about["Version"] = Version
-		about["Commit"] = Commit
-		about["Date"] = Date
-		about["BuiltBy"] = BuiltBy
-		about["Environment"] = GIN_MODE
+		about["version"] = version
+		about["commit"] = commit
+		about["date"] = date
+		about["builtBy"] = builtBy
+		about["environment"] = GIN_MODE
 		c.JSON(http.StatusOK, about)
 	})
 
