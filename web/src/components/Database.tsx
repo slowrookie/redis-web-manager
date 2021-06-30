@@ -8,6 +8,7 @@ import { ErrorMessageBar } from './common/ErrorMessageBar';
 import { DatabaseFilter } from './DatabaseFilter';
 import { HashKey } from './HashKey';
 import { KeyList } from './KeyList';
+import { KeyTreeview } from './KeyTreeview';
 import { ListKey } from './ListKey';
 import { HashKeyPanel } from './panel/HashKeyPanel';
 import { ListKeyPanel } from './panel/ListKeyPanel';
@@ -214,9 +215,14 @@ export const Database = (props: IDatabaseProps) => {
           {error && <ErrorMessageBar error={error} />}
           {/* keys */}
           <Stack.Item grow={1} style={{ overflow: 'auto' }}>
-            <KeyList {...props} db={search.db} keys={keys}
+            {/* <KeyList {...props} db={search.db} keys={keys}
               onSelectedKey={handleSelectedKey}
               onDeletedKey={handleDeletedKey} />
+              */}
+              <KeyTreeview  {...props} db={search.db} keys={keys} 
+              onSelectedKey={handleSelectedKey}
+              onDeletedKey={handleDeletedKey}
+              />
           </Stack.Item>
           {/* load more */}
           <div style={{ borderBottom: `1px solid ${theme.palette.neutralLight}` }}></div>
