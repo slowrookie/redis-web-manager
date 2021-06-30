@@ -6,6 +6,8 @@ builds:
     binary: RWM
     env:
       - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser -X main.GIN_MODE=release
     goos:
       - linux
       - darwin

@@ -14,10 +14,19 @@ import (
 	"github.com/slowrookie/redis-web-manager/api"
 )
 
+var (
+	Version  = "Development"
+	Commit   = "Development"
+	Date     = "Now"
+	BuiltBy  = "Development"
+	GIN_MODE = gin.DebugMode
+)
+
 //go:embed web/build/*
 var webFS embed.FS
 
 func main() {
+	gin.SetMode(GIN_MODE)
 	r := gin.Default()
 
 	// static files
@@ -48,6 +57,16 @@ func main() {
 			panic(nil)
 		}
 		c.FileFromFS(c.Param("filepath"), http.FS(buildFiles))
+	})
+
+	r.GET("/about", func(c *gin.Context) {
+		var about = make(map[string]string)
+		about["Version"] = Version
+		about["Commit"] = Commit
+		about["Date"] = Date
+		about["BuiltBy"] = BuiltBy
+		about["Environment"] = GIN_MODE
+		c.JSON(http.StatusOK, about)
 	})
 
 	// groups

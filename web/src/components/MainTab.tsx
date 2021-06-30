@@ -1,8 +1,7 @@
-import { ContextualMenuItemType, Depths, Icon, Pivot, PivotItem, PrimaryButton, Stack, TooltipHost, useTheme } from '@fluentui/react';
+import { Depths, Icon, Pivot, PivotItem, PrimaryButton, Stack, TooltipHost, useTheme } from '@fluentui/react';
 import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { supportedLanguages } from '../locales/resources';
 import { Connection } from '../services/connection.service';
+import { AppSettings } from './AppSettings';
 import { ConnectionItem, IConnectionItemProps } from './ConnectionItem';
 import { ConnectionList } from './ConnectionList';
 import { IDatabase } from './Database';
@@ -29,7 +28,6 @@ const headerButtonStyles = {
 export const MainTab = (props: IMainTabProps) => {
   const
     [mainTab, setMainTab] = useState<IMainTab>({ connectionItems: [], selectedKey: '', showConnectionList: true }),
-    { t } = useTranslation(),
     theme = useTheme();
 
   useEffect(() => {
@@ -59,8 +57,8 @@ export const MainTab = (props: IMainTabProps) => {
           linkFormat='tabs'
           selectedKey={mainTab.selectedKey}
           getTabId={itemKey => `connection-tab-${itemKey}`}
-          onLinkClick={item => { 
-            setMainTab({ ...mainTab, selectedKey: item?.props.itemKey, showConnectionList: false }) 
+          onLinkClick={item => {
+            setMainTab({ ...mainTab, selectedKey: item?.props.itemKey, showConnectionList: false })
           }} >
           {mainTab.connectionItems.map((v, index) => {
             return <PivotItem headerText={v.connection.name} key={v.connection.id} itemKey={v.connection.id}
@@ -81,30 +79,9 @@ export const MainTab = (props: IMainTabProps) => {
           })}
         </Pivot>
       </Stack.Item>
-      
+
       {/* settings */}
-      <TooltipHost content={t('More')}>
-        <PrimaryButton iconProps={{ iconName: 'settings', style: { height: 'auto' } }} styles={headerButtonStyles} menuProps={{
-          items: [
-            { key: 'divider_1', itemType: ContextualMenuItemType.Divider },
-            {
-              key: 'colorSolid', text: t('Theme'), iconProps: { iconName: 'ColorSolid', style: { lineHeight: '14px' } }, subMenuProps: {
-                items: [
-                  { key: 'darkTheme', text: t('Theme-Dark'), title: t('Theme-Dark'), onClick: () => props.onChangeTheme && props.onChangeTheme('dark') },
-                  { key: 'lightTheme', text: t('Theme-Light'), title: t('Theme-Light'), onClick: () => props.onChangeTheme && props.onChangeTheme('light') },
-                ],
-              },
-            },
-            {
-              key: 'localeLanguage', text: t('Lanaguage'), iconProps: { iconName: 'LocaleLanguage', style: { lineHeight: '14px' } }, subMenuProps: {
-                items: Object.keys(supportedLanguages).map(v => {
-                  return { key: v, text: supportedLanguages[v], onClick: () => props.onChangeLanguage && props.onChangeLanguage(v) }
-                }),
-              },
-            },
-          ]
-        }} onRenderMenuIcon={() => <></>} />
-      </TooltipHost>
+      <AppSettings {...props} />
     </Stack>
 
     <div style={{ display: mainTab.showConnectionList ? '' : 'none', height: 'calc(100vh - 42px)', overflowY: 'auto', overflowX: 'hidden' }} >
