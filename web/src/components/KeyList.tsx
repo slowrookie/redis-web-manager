@@ -61,6 +61,8 @@ export const KeyList = (props: IKeyListProps) => {
   ]
 
   return (<>
+    {/* error */}
+    <ErrorMessageBar error={error}></ErrorMessageBar>
     {/* {list} */}
     <List items={[...keys]} onRenderCell={(item, i) => {
       if (!item) return (<></>);
@@ -83,8 +85,7 @@ export const KeyList = (props: IKeyListProps) => {
         </Stack>
       </>)
     }} />
-    {/* error */}
-    <ErrorMessageBar error={error}></ErrorMessageBar>
+
     <ContextualMenu
       directionalHint={DirectionalHint.rightCenter}
       isBeakVisible={true}
