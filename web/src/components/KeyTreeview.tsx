@@ -1,8 +1,8 @@
-import { useTheme, GroupedList, IGroup, DetailsRow, IToggleStyles, SelectionMode, IColumn } from '@fluentui/react';
+import { IColumn, IGroup, useTheme } from '@fluentui/react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ErrorMessageBar } from './common/ErrorMessageBar';
 import { Connection } from '../services/connection.service';
+import { ErrorMessageBar } from './common/ErrorMessageBar';
 
 export interface IKeyGroupedListProps {
   connection: Connection
@@ -13,9 +13,9 @@ export interface IKeyGroupedListProps {
 }
 
 interface IKeyTreeviewNode {
-  key: string,
+  path?: string,
+  key?: string,
   children?: Array<IKeyTreeviewNode>,
-  level: number
 }
 
 const columns: Array<IColumn> = [{ key: 'name', name: "name", fieldName: "name", minWidth: 80 }];
@@ -31,26 +31,46 @@ export const KeyTreeview = (props: IKeyGroupedListProps) => {
   const [error, setError] = useState<Error>(),
     [selectedKey, setSelectedKey] = useState<string>();
 
+
+  const merge = (existsNode: IKeyTreeviewNode, node: IKeyTreeviewNode) => {
+
+  }
+
   useEffect(() => {
     const tree: IKeyTreeviewNode[] = [];
+    console.log(keys);
     const keyArray = keys.map(k => k.split(connection.namespaceSeparator));
     console.log(keyArray);
 
-    keyArray.forEach(k => {
-      if (k.length === 1) {
-        tree.push({ key: k[0], level: 0 })
-        return;
+    let keyTree: Array<any> = [];
+    keyArray.forEach((k, kIndex) => {
+      let keyNode: any = {};
+      for (let index = k.length - 1; index > 0; index--) {
+          if (index === k.length - 1) {
+            keyNode[k[index]] = {key: keys[kIndex]};
+          } else {
+            keyNode[k[index]] = keyNode
+          }
       }
-      // ???
-      k.forEach((ksp, index) => {
-        if (tree.find(v => v.key === ksp)) {
-
-        } else {
-
-        }
-      })
+      keyTree.push(keyNode);
     })
-    console.log(tree);
+
+    console.log(keyTree);
+    
+
+    // keyArray.forEach((k, kIndex) => {
+    //   let node: IKeyTreeviewNode = {};
+    //   for (let index = 0; index < k.length; index++) {
+    //     if (index == 0) {
+    //       node = { key: keys[kIndex] };
+    //     } else {
+    //       node = { path: k.filter((_, i) => i < (k.length - index)).join(connection.namespaceSeparator), children: [node] };
+    //     }
+    //   }
+    //   tree.push(node);
+    // })
+    // console.log(tree);
+
   }, [keys])
 
   return (<>
