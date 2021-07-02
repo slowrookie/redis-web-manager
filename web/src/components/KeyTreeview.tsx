@@ -39,30 +39,40 @@ export const KeyTreeview = (props: IKeyGroupedListProps) => {
       }
       keyTreeArray.push(keyNode);
     })
-    setKeyTree(keyTreeArray.reduce((p, c) => _.defaultsDeep(p, c), []));
+    setKeyTree(keyTreeArray.reduce((p, c) => _.defaultsDeep(p, c), {}));
   }, [keys])
 
+  const treeView = (treeObj: any, deep: number) => {
+    console.log(treeObj);
 
-  const treeView = (treeObj: Array<any>, deep: number) => {
-    console.log(treeObj, treeObj instanceof Array);
-
-    return <List items={[...treeObj]} onRenderCell={(item, i) => {
-
-      console.log("xxxx", item);
-
+    return <List items={Object.keys(treeObj)} onRenderCell={(item, i) => {
       if (!item) return (<></>);
       return (<>
-        <Stack horizontal verticalAlign="center" style={{ background: item === selectedKey ? theme.palette.neutralLight : '' }}>
-          <Stack.Item styles={{ root: { width: 5 * deep } }}></Stack.Item>
+        {item === 'key' && <Stack horizontal verticalAlign="center" style={{ background: item === selectedKey ? theme.palette.neutralLight : '' }}>
+          <Stack.Item styles={{ root: { width: 10 * deep } }}><span /></Stack.Item>
           <Stack.Item grow={1}>
             <ActionButton
               iconProps={{ iconName: 'permissions', style: { height: 'auto', color: theme.palette.yellow } }}
               style={{ width: '100%', height: 28 }}
               onClick={() => { }}
-              text={treeObj[item].key} />
+              text={treeObj.key} />
           </Stack.Item>
-        </Stack>
-      </>)
+        </Stack>}
+
+        {/* group */}
+        {item !== 'key' && <Stack horizontal verticalAlign="center" style={{ background: item === selectedKey ? theme.palette.neutralLight : '' }}>
+          <Stack.Item styles={{ root: { width: 10 * deep } }}><span /></Stack.Item>
+          <Stack.Item grow={1}>
+            <ActionButton
+              iconProps={{ iconName: 'permissions', style: { height: 'auto', color: theme.palette.yellow } }}
+              style={{ width: '100%', height: 28 }}
+              onClick={() => { }}
+              text={item} />
+          </Stack.Item>
+        </Stack>}
+
+        {treeObj[item] && _.isObject(treeObj[item]) && treeView(treeObj[item], deep + 1)}
+      </>);
     }} />
   }
 
