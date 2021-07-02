@@ -1,4 +1,4 @@
-import { List, useTheme, Stack, ActionButton, GroupedList, Icon } from '@fluentui/react';
+import { List, useTheme, Stack, ActionButton, GroupedList, Icon, Nav, INavLinkGroup, INavLink } from '@fluentui/react';
 import * as _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -19,7 +19,8 @@ export const KeyTreeview = (props: IKeyGroupedListProps) => {
   const theme = useTheme(),
     { t } = useTranslation(),
     { connection, db, keys, onSelectedKey, onDeletedKey } = props,
-    [keyTree, setKeyTree] = useState<Array<any>>([]);
+    [keyTree, setKeyTree] = useState<Array<any>>([]),
+    [navLinkGroups, setNavLinkGroups] = useState<INavLinkGroup[]>([]);
   ;
 
   const [error, setError] = useState<Error>(),
@@ -58,14 +59,32 @@ export const KeyTreeview = (props: IKeyGroupedListProps) => {
       })
     }
 
+    const convertToNavGroup = (obj: any, path: string): Array<any> => {
+      return _.map(obj, (value: any, key: string) => {
+        if (_.isString(value)) {
+          return { key: `${path}${value}`, name: value };
+        } else {
+          if (!!value['key'] && Object.keys(value).length === 1) {
+            return { key: `${path}${value['key']}`, name: value['key'] };
+          }
+          const links = convertToNavGroup(value, `${path}${key}-`);
+          return { key: `${path}${key}`, name: `${key} (${links.length})`, links };
+        }
+      })
+    }
+
     setKeyTree(convertToRcTree(keyTreeObject, ""));
+
+    console.log(convertToNavGroup(keyTreeObject, ""));
+
+    setNavLinkGroups([{ links: convertToNavGroup(keyTreeObject, "") }]);
   }, [keys])
 
   return (<>
     {/* error */}
     <ErrorMessageBar error={error} />
     {/* {tree} */}
-    {
+    {/* {
       <Tree defaultExpandAll={false} treeData={keyTree} showLine showIcon={false} switcherIcon={(obj) => {
         if (obj.isLeaf) {
           return <Icon iconName={"permissions"} />;
@@ -75,7 +94,26 @@ export const KeyTreeview = (props: IKeyGroupedListProps) => {
       }}
       // onSelect={this.onSelect}
       />
-    }
+    } */}
+
+    <Nav
+      styles={{
+        link: { 
+          height: 24
+        },
+        chevronButton: {
+          height: 24,
+          lineHeight: 24
+        },
+        chevronIcon: {
+          height: 24,
+          lineHeight: 24
+        }
+      }}
+      // onLinkClick={() => { }}
+      // selectedKey={undefined}
+      groups={navLinkGroups}
+    />
 
   </>)
 }
