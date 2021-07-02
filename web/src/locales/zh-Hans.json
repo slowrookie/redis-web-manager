@@ -10,6 +10,7 @@
     "Theme-Dark": "深色主题",
     "Theme-Light": "亮色主题",
     "Lanaguage": "语言",
+    "About": "关于",
     "The test connection to the Redis server is successful!": "测试连接 Redis 服务成功！",
     "The connection to the Redis server is successful!": "连接 Reids 服务器成功！",
     "Connection settings": "连接设置",

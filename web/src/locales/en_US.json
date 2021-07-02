@@ -10,6 +10,7 @@
     "Theme-Dark": "Dark Theme",
     "Theme-Light": "Light Theme",
     "Lanaguage": "Lanaguage",
+    "About": "About",
     "The test connection to the Redis server is successful!": "The test connection to the Redis server is successful!",
     "The connection to the Redis server is successful!": "The connection to the Redis server is successful!",
     "Connection settings": "Connection settings",

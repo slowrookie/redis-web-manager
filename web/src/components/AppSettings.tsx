@@ -56,7 +56,7 @@ export const AppSettings = (props: IAppSettings) => {
               }),
             },
           },
-          { key: 'divider_1', itemType: ContextualMenuItemType.Divider },
+          { key: 'divider_about', itemType: ContextualMenuItemType.Divider },
           {
             key: 'about', id: 'settingAbout', text: t('About'), iconProps: { iconName: 'Info', style: { lineHeight: '14px' } }, onClick: () => {
               setAboutDialogHidden(false);

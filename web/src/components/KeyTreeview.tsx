@@ -1,9 +1,11 @@
-import { List, useTheme, Stack, ActionButton } from '@fluentui/react';
+import { List, useTheme, Stack, ActionButton, GroupedList, Icon } from '@fluentui/react';
 import * as _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection } from '../services/connection.service';
 import { ErrorMessageBar } from './common/ErrorMessageBar';
+import Tree, { TreeNode } from 'rc-tree';
+import 'rc-tree/assets/index.css';
 
 export interface IKeyGroupedListProps {
   connection: Connection
@@ -17,7 +19,7 @@ export const KeyTreeview = (props: IKeyGroupedListProps) => {
   const theme = useTheme(),
     { t } = useTranslation(),
     { connection, db, keys, onSelectedKey, onDeletedKey } = props,
-    [keyTree, setKeyTree] = useState<any>({});
+    [keyTree, setKeyTree] = useState<Array<any>>([]);
   ;
 
   const [error, setError] = useState<Error>(),
@@ -27,59 +29,53 @@ export const KeyTreeview = (props: IKeyGroupedListProps) => {
     const keyArray = keys.map(k => k.split(connection.namespaceSeparator));
     let keyTreeArray: Array<any> = [];
     keyArray.forEach((k, kIndex) => {
-      let keyNode: any = {};
+      let currentNode: any = {};
       for (let index = k.length - 1; index >= 0; index--) {
         if (index === k.length - 1) {
-          keyNode[k[index]] = { key: keys[kIndex] };
+          currentNode[k[index]] = { key: keys[kIndex] };
         } else {
           let parent: any = {}
-          parent[k[index]] = { ...keyNode }
-          keyNode = parent;
+          parent[k[index]] = { ...currentNode }
+          currentNode = parent;
         }
       }
-      keyTreeArray.push(keyNode);
+      keyTreeArray.push(currentNode);
     })
-    setKeyTree(keyTreeArray.reduce((p, c) => _.defaultsDeep(p, c), {}));
+
+    const keyTreeObject = keyTreeArray.reduce((p, c) => _.defaultsDeep(p, c), {});
+
+    const convertToRcTree = (obj: any, path: string): Array<any> => {
+      return _.map(obj, (value: any, key: string) => {
+        if (_.isString(value)) {
+          return { key: `${path}${value}`, title: value };
+        } else {
+          if (!!value['key'] && Object.keys(value).length === 1) {
+            return { key: `${path}${value['key']}`, title: value['key'] };
+          }
+          const children = convertToRcTree(value, `${path}${key}-`);
+          return { key: `${path}${key}`, title: `${key} (${children.length})`, children };
+        }
+      })
+    }
+
+    setKeyTree(convertToRcTree(keyTreeObject, ""));
   }, [keys])
-
-  const treeView = (treeObj: any, deep: number) => {
-    console.log(treeObj);
-
-    return <List items={Object.keys(treeObj)} onRenderCell={(item, i) => {
-      if (!item) return (<></>);
-      return (<>
-        {item === 'key' && <Stack horizontal verticalAlign="center" style={{ background: item === selectedKey ? theme.palette.neutralLight : '' }}>
-          <Stack.Item styles={{ root: { width: 10 * deep } }}><span /></Stack.Item>
-          <Stack.Item grow={1}>
-            <ActionButton
-              iconProps={{ iconName: 'permissions', style: { height: 'auto', color: theme.palette.yellow } }}
-              style={{ width: '100%', height: 28 }}
-              onClick={() => { }}
-              text={treeObj.key} />
-          </Stack.Item>
-        </Stack>}
-
-        {/* group */}
-        {item !== 'key' && <Stack horizontal verticalAlign="center" style={{ background: item === selectedKey ? theme.palette.neutralLight : '' }}>
-          <Stack.Item styles={{ root: { width: 10 * deep } }}><span /></Stack.Item>
-          <Stack.Item grow={1}>
-            <ActionButton
-              iconProps={{ iconName: 'permissions', style: { height: 'auto', color: theme.palette.yellow } }}
-              style={{ width: '100%', height: 28 }}
-              onClick={() => { }}
-              text={item} />
-          </Stack.Item>
-        </Stack>}
-
-        {treeObj[item] && _.isObject(treeObj[item]) && treeView(treeObj[item], deep + 1)}
-      </>);
-    }} />
-  }
 
   return (<>
     {/* error */}
     <ErrorMessageBar error={error} />
     {/* {tree} */}
-    {treeView(keyTree, 0)}
+    {
+      <Tree defaultExpandAll={false} treeData={keyTree} showLine showIcon={false} switcherIcon={(obj) => {
+        if (obj.isLeaf) {
+          return <Icon iconName={"permissions"} />;
+        }
+        return "";
+        // return obj.expanded ? <Icon iconName={"chevrondown"} /> : <Icon iconName={"chevronright"} />
+      }}
+      // onSelect={this.onSelect}
+      />
+    }
+
   </>)
 }
