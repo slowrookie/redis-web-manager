@@ -52,10 +52,8 @@ export const FormatTextField = (props: IFormatTextFieldProps) => {
   }
 
   const handleValueChange = (e: FormEvent, v?: string) => {
-    if (v) {
-      onChange(e, v);
-      getLength(v);
-    }
+    onChange(e, v);
+    getLength(v || '');
   }
 
   const getLength = (v: string) => {

@@ -2,13 +2,11 @@ import { DefaultButton, Dropdown, IconButton, IContextualMenuProps, IDropdownOpt
 import { default as React, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection, executeCommand } from '../services/connection.service';
-import { ComponentType, KeyTypes } from './utils';
 import { DragSlider } from './common/DragSlider';
 import { ErrorMessageBar } from './common/ErrorMessageBar';
 import { DatabaseFilter } from './DatabaseFilter';
 import { HashKey } from './HashKey';
 import { KeyList } from './KeyList';
-import { KeyTreeview } from './KeyTreeview';
 import { ListKey } from './ListKey';
 import { HashKeyPanel } from './panel/HashKeyPanel';
 import { ListKeyPanel } from './panel/ListKeyPanel';
@@ -19,6 +17,7 @@ import { ZsetKeyPanel } from './panel/ZsetKeyPanel';
 import { SetKey } from './SetKey';
 import { StreamKey } from './StreamKey';
 import { StringKey } from './StringKey';
+import { ComponentType, KeyTypes } from './utils';
 import { ZsetKey } from './ZsetKey';
 
 export interface IDatabase {
@@ -208,21 +207,23 @@ export const Database = (props: IDatabaseProps) => {
           </Stack>
 
           {/* filter */}
-          <DatabaseFilter id={`filter-${connection.id}-${search.db}`} defaultValue={connection.keysPattern} defaultCount={connection.dataScanLimit} onFilter={handleFilter} />
+          <DatabaseFilter 
+            id={`filter-${connection.id}-${search.db}`} 
+            keys={keys} 
+            defaultValue={connection.keysPattern} 
+            defaultCount={connection.dataScanLimit}
+            namespaceSeparator = {connection.namespaceSeparator}
+            onFilter={handleFilter} />
           <div style={{ borderBottom: `1px solid ${theme.palette.neutralLight}` }}></div>
 
           {/* error */}
           {error && <ErrorMessageBar error={error} />}
           {/* keys */}
           <Stack.Item grow={1} style={{ overflow: 'auto' }}>
-            {/* <KeyList {...props} db={search.db} keys={keys}
+            <KeyList {...props} db={search.db} keys={keys}
               onSelectedKey={handleSelectedKey}
               onDeletedKey={handleDeletedKey} />
-              */}
-              <KeyTreeview  {...props} db={search.db} keys={keys} 
-              onSelectedKey={handleSelectedKey}
-              onDeletedKey={handleDeletedKey}
-              />
+             
           </Stack.Item>
           {/* load more */}
           <div style={{ borderBottom: `1px solid ${theme.palette.neutralLight}` }}></div>

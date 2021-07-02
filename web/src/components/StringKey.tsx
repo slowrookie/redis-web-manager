@@ -122,7 +122,7 @@ export const StringKey = (props: IStringKeyyProps) => {
 
       <Stack.Item grow={1}>
         <FormatTextField label={t('Value')} multiline value={keyProps.value} length={keyProps.length}
-          onChange={(e, v) => setKeyProps({ ...keyProps, value: v || '*' })}
+          onChange={(e, v) => setKeyProps({ ...keyProps, value: v || '' })}
           actions={textFieldActions()}
         ></FormatTextField>
       </Stack.Item>
