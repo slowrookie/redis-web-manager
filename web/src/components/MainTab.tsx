@@ -49,7 +49,7 @@ export const MainTab = (props: IMainTabProps) => {
     <Stack horizontal style={{ backgroundColor: theme.palette.themeSecondary, height: 42, boxShadow: Depths.depth8 }}>
       {/* home */}
       <TooltipHost content={'连接管理'}>
-        <PrimaryButton iconProps={{ iconName: 'home' }} styles={headerButtonStyles} onClick={() => setMainTab({ ...mainTab, selectedKey: '', showConnectionList: true })} />
+        <PrimaryButton iconProps={{ iconName: 'ProductList' }} styles={headerButtonStyles} onClick={() => setMainTab({ ...mainTab, selectedKey: '', showConnectionList: true })} />
       </TooltipHost>
       {/* tabs */}
       <Stack.Item grow={1}>

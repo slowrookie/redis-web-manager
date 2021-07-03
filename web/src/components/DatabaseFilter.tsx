@@ -88,7 +88,7 @@ export const DatabaseFilter = (props: IDatabaseFilterProps) => {
           onChange={(_, o) => {
             setValue(o?.key);
           }}
-          label="Groups" />
+          label={t('Groups')} />
       </Stack>
     </Callout>}
 

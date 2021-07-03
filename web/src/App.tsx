@@ -1,5 +1,5 @@
 import { registerIcons, Theme, ThemeProvider } from '@fluentui/react';
-import { AscendingIcon, Blocked2Icon, CancelIcon, CheckMarkIcon, ChevronDownIcon, ChevronDownSmallIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpSmallIcon, CircleAdditionIcon, CircleAdditionSolidIcon, CircleRingIcon, ClearIcon, ClipboardListIcon, ColorSolidIcon, CompletedIcon, CopyIcon, DatabaseIcon, DeleteIcon, DescendingIcon, DoubleChevronDownIcon, DoubleChevronUpIcon, EditIcon, EmbedIcon, ErrorBadgeIcon, FilterIcon, FilterSolidIcon, FunnelChartIcon, GroupListIcon, HideIcon, HomeIcon, InfoIcon, InstallationIcon, LocaleLanguageIcon, MapLayersIcon, MoreIcon, MoreVerticalIcon, PermissionsIcon, PlugConnectedIcon, PlugDisconnectedIcon, PublishContentIcon, QueryListIcon, RedEyeIcon, RefreshIcon, RemoveFromShoppingListIcon, RevToggleKeyIcon, SaveIcon, SearchDataIcon, SearchIcon, SettingsIcon, SkypeCircleCheckIcon, StatusCircleCheckmarkIcon, StatusCircleErrorXIcon, StatusErrorFullIcon, SyncIcon, ViewIcon } from '@fluentui/react-icons';
+import { AscendingIcon, Blocked2Icon, ServerProcessesIcon, CodeIcon, ProductListIcon, DataManagementSettingsIcon, CancelIcon, CheckMarkIcon, ChevronDownIcon, ChevronDownSmallIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpSmallIcon, CircleAdditionIcon, CircleAdditionSolidIcon, CircleRingIcon, ClearIcon, ClipboardListIcon, ColorSolidIcon, CompletedIcon, CopyIcon, DatabaseIcon, DeleteIcon, DescendingIcon, DoubleChevronDownIcon, DoubleChevronUpIcon, EditIcon, EmbedIcon, ErrorBadgeIcon, FilterIcon, FilterSolidIcon, FunnelChartIcon, GroupListIcon, HideIcon, HomeIcon, InfoIcon, InstallationIcon, LocaleLanguageIcon, MapLayersIcon, MoreIcon, MoreVerticalIcon, PermissionsIcon, PlugConnectedIcon, PlugDisconnectedIcon, PublishContentIcon, QueryListIcon, RedEyeIcon, RefreshIcon, RemoveFromShoppingListIcon, RevToggleKeyIcon, SaveIcon, SearchDataIcon, SearchIcon, SettingsIcon, SkypeCircleCheckIcon, StatusCircleCheckmarkIcon, StatusCircleErrorXIcon, StatusErrorFullIcon, SyncIcon, ViewIcon } from '@fluentui/react-icons';
 import React, { useEffect, useState } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import './App.css';
@@ -68,7 +68,11 @@ registerIcons({
     search: <SearchIcon />,
     searchdata: <SearchDataIcon />,
     syncicon: <SyncIcon />,
-    info: <InfoIcon />
+    info: <InfoIcon />,
+    ServerProcesses: <ServerProcessesIcon />,
+    DataManagementSettings: <DataManagementSettingsIcon />,
+    Code: <CodeIcon />,
+    ProductList: <ProductListIcon />
   }
 })
 
@@ -118,7 +122,7 @@ function App() {
   }
 
   return (<>
-    <ThemeProvider theme={theme} style={{ height: '100%' }}>
+    <ThemeProvider theme={theme} style={{ height: '100%'}}>
       <I18nextProvider i18n={i18n}>
         {/* loading */}
         <Loading loading={loading} />
