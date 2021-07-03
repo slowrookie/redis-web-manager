@@ -1,4 +1,4 @@
-import { ContextualMenuItemType, Dialog, PrimaryButton, Stack, Text, TooltipHost } from '@fluentui/react';
+import { ContextualMenuItemType, Dialog, DialogType, PrimaryButton, Stack, Text, TooltipHost } from '@fluentui/react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supportedLanguages } from '../locales/resources';
@@ -67,7 +67,14 @@ export const AppSettings = (props: IAppSettings) => {
     </TooltipHost>
 
     {/* about dialog  */}
-    <Dialog hidden={aboutDialogHidden} onDismiss={() => { setAboutDialogHidden(!aboutDialogHidden) }} dialogContentProps={{ title: "Redis Web Manager" }} modalProps={{ isBlocking: true }}>
+    <Dialog 
+      minWidth={450}
+      hidden={aboutDialogHidden}
+      onDismiss={() => { setAboutDialogHidden(!aboutDialogHidden) }}
+      dialogContentProps={{
+        title: "Redis Web Manager"
+      }}
+      modalProps={{ isBlocking: true }}>
       <Stack>
         <Stack horizontal horizontalAlign="space-between">
           <Text>Version: </Text>
