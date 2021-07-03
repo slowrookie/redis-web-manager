@@ -1,4 +1,4 @@
-import { ContextualMenuItemType, Dialog, DialogType, PrimaryButton, Stack, Text, TooltipHost } from '@fluentui/react';
+import { ContextualMenuItemType, Dialog, PrimaryButton, Stack, Text, TooltipHost } from '@fluentui/react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supportedLanguages } from '../locales/resources';
@@ -67,7 +67,7 @@ export const AppSettings = (props: IAppSettings) => {
     </TooltipHost>
 
     {/* about dialog  */}
-    <Dialog 
+    <Dialog
       minWidth={450}
       hidden={aboutDialogHidden}
       onDismiss={() => { setAboutDialogHidden(!aboutDialogHidden) }}

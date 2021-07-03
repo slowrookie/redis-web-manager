@@ -75,6 +75,6 @@ export const executeCommand = <T>(command: Command): Promise<T> => {
   return axios.post('/connection/command', command)
     .then(ret => ret.data)
     .catch(err => {
-      throw new Error(err?.response?.data);
+      throw new Error(err?.response?.data || 'The service cannot be accessed, please check the network and service');
     });
 }
