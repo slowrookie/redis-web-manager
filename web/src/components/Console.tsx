@@ -134,7 +134,7 @@ export const Console = (props: IConsoleProps) => {
 
         <ErrorMessageBar error={error} />
 
-        <Stack.Item grow={1} style={{ padding: 5, overflow: 'auto', backgroundColor: 'black', color: 'white', fontSize: 12 }}>
+        <Stack.Item grow={1} style={{ padding: 5, overflow: 'auto', backgroundColor: theme.palette.neutralLighterAlt, color: theme.palette.neutralPrimary, fontSize: 12 }}>
           {lines && lines.map((line, i) => <Stack key={i} horizontal verticalAlign="center" tokens={{ childrenGap: 10 }}>
 
             {line.type === "I" && (<>
