@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -200,6 +201,7 @@ func (c *Connection) client(connection Connection) *redis.Client {
 		Password:    connection.Auth,
 		ReadTimeout: time.Duration(connection.TimeoutExecute) * time.Millisecond,
 		DialTimeout: time.Duration(connection.TimeoutConnect) * time.Millisecond,
+		TLSConfig:   &tls.Config{},
 	})
 }
 
