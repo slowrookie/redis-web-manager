@@ -1,4 +1,4 @@
-import { ContextualMenu, DirectionalHint, IContextualMenuItem, Stack, Target, useTheme } from '@fluentui/react';
+import { ContextualMenu, DirectionalHint, IContextualMenuItem, Stack, Target, useTheme, TextField } from '@fluentui/react';
 import React, { ChangeEvent, CSSProperties, KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection, executeCommand } from '../services/connection.service';
@@ -141,7 +141,10 @@ export const Console = (props: IConsoleProps) => {
               <span style={{ color: theme.palette.themePrimary }}>{`${props.connection.name} : ${line.db} >`}</span>
               <Stack.Item grow={1}>
                 {line.disabled ? (<span style={inputStyle}>{line.command}</span>) :
-                  (<input style={inputStyle} autoFocus onKeyPress={handleKeyPress} onChange={handleChange}></input>)}
+                  (
+                    <TextField styles={{root: {height: 24}, fieldGroup: {height: 24}}} autoFocus underlined onKeyPress={handleKeyPress} onChange={handleChange} />
+                  // <input style={inputStyle} autoFocus onKeyPress={handleKeyPress} onChange={handleChange}></input>
+                  )}
               </Stack.Item>
             </>)}
 
