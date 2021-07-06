@@ -67,7 +67,14 @@ export const AppSettings = (props: IAppSettings) => {
     </TooltipHost>
 
     {/* about dialog  */}
-    <Dialog hidden={aboutDialogHidden} onDismiss={() => { setAboutDialogHidden(!aboutDialogHidden) }} dialogContentProps={{ title: "Redis Web Manager" }} modalProps={{ isBlocking: true }}>
+    <Dialog
+      minWidth={450}
+      hidden={aboutDialogHidden}
+      onDismiss={() => { setAboutDialogHidden(!aboutDialogHidden) }}
+      dialogContentProps={{
+        title: "Redis Web Manager"
+      }}
+      modalProps={{ isBlocking: true }}>
       <Stack>
         <Stack horizontal horizontalAlign="space-between">
           <Text>Version: </Text>

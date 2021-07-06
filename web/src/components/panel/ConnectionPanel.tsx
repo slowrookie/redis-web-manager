@@ -1,4 +1,4 @@
-import { DefaultButton, MessageBar, MessageBarType, Overlay, Panel, PanelType, Pivot, PivotItem, PrimaryButton, Separator, Spinner, SpinnerSize, Stack, TextField } from '@fluentui/react';
+import { DefaultButton, MessageBar, MessageBarType, Overlay, Panel, PanelType, Pivot, PivotItem, PrimaryButton, Separator, Spinner, SpinnerSize, Stack, TextField, Toggle } from '@fluentui/react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection, saveConnection, testConnection } from '../../services/connection.service';
@@ -68,6 +68,63 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
       .finally(() => setConnecting(false));
   }
 
+  const basic = (
+    <PivotItem headerText={t('Basic')}>
+      <TextField label={t('Name')} placeholder={t('Connection name')} required value={_connection.name} onChange={(e, v) => {
+        _setConnection(c => ({ ...c, name: v || '' }));
+      }} />
+      <TextField label={t('Address')} placeholder={t('Service address')} required value={_connection.host} onChange={(e, v) => {
+        _setConnection(c => ({ ...c, host: v || '' }))
+      }} />
+      <TextField label={t('Port')} type="number" placeholder={t('Port')} min={0} max={65535} required value={`${_connection.port}`} onChange={(e, v) => {
+        var nv = Number(v);
+        if (nv > 65535) { nv = 65535 };
+        _setConnection(c => ({ ...c, port: nv }));
+      }} />
+      <TextField label={t('Password')} type="password" placeholder={t('(Optional) Service authentication password')} canRevealPassword={true} value={_connection.auth} onChange={(e, v) => {
+        _setConnection(c => ({ ...c, auth: v || '' }))
+      }}
+      />
+      <TextField label={t('Username')} placeholder={t('(Optional) Service authentication user name Reids> 6.0')} value={_connection.username} onChange={(e, v) => {
+        _setConnection(c => ({ ...c, username: v || '' }))
+      }} />
+    </PivotItem>
+  )
+
+  const security = (
+    <PivotItem headerText={t("Security")}>
+      <Toggle inlineLabel label="SSL / TLS" />
+      <Toggle inlineLabel label="SSH 通道" />
+    </PivotItem>
+  )
+
+  const advanced = (
+    <PivotItem headerText={t("Advanced")}>
+      <Separator>{t('Key load')}</Separator>
+      <TextField label={t('Default key filtering')} required value={_connection.keysPattern} onChange={(e, v) => {
+        _setConnection(c => ({ ...c, keysPattern: v || '' }))
+      }} />
+      <TextField label={t('Namespace separator')} required value={_connection.namespaceSeparator} onChange={(e, v) => {
+        _setConnection(c => ({ ...c, namespaceSeparator: v || '' }))
+      }} />
+      <Separator>{t('Timeouts and limits')}</Separator>
+      <TextField label={t('Connection timeout (ms)')} type="number" placeholder={t('Connection timeout (ms)')} required value={`${_connection.timeoutConnect}`} onChange={(e, v) => {
+        if (Number(v) < 0) return;
+        _setConnection(c => ({ ...c, timeoutConnect: Number(v) }));
+      }} />
+      <TextField label={t('Execution timeout (ms)')} type="number" placeholder={t('Execution timeout (ms)')} required value={`${_connection.timeoutExecute}`} onChange={(e, v) => {
+        if (Number(v) < 0) return;
+        _setConnection(c => ({ ...c, timeoutExecute: Number(v) }));
+      }} />
+      <TextField label={t('Database display limit')} type="number" placeholder={t('Database display limit')} required value={`${_connection.dbScanLimit}`} onChange={(e, v) => {
+        _setConnection(c => ({ ...c, dbScanLimit: Number(v) }))
+      }} />
+      <TextField label={t('Data scan limit')} type="number" placeholder={t('Data scan limit')} required value={`${_connection.dataScanLimit}`} onChange={(e, v) => {
+        _setConnection(c => ({ ...c, dataScanLimit: Number(v) }))
+      }} />
+    </PivotItem>
+  )
+
   return (
     <Panel
       isOpen={isOpen}
@@ -102,51 +159,9 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
 
       <Stack tokens={{ childrenGap: 10, padding: 10 }}>
         <Pivot>
-          <PivotItem headerText={t('Basic')}>
-            <TextField label={t('Name')} placeholder={t('Connection name')} required value={_connection.name} onChange={(e, v) => {
-              _setConnection(c => ({ ...c, name: v || '' }));
-            }} />
-            <TextField label={t('Address')} placeholder={t('Service address')} required value={_connection.host} onChange={(e, v) => {
-              _setConnection(c => ({ ...c, host: v || '' }))
-            }} />
-            <TextField label={t('Port')} type="number" placeholder={t('Port')} min={0} max={65535} required value={`${_connection.port}`} onChange={(e, v) => {
-              var nv = Number(v);
-              if (nv > 65535) { nv = 65535 };
-              _setConnection(c => ({ ...c, port: nv }));
-            }} />
-            <TextField label={t('Password')} type="password" placeholder={t('(Optional) Service authentication password')} canRevealPassword={true} value={_connection.auth} onChange={(e, v) => {
-              _setConnection(c => ({ ...c, auth: v || '' }))
-            }}
-            />
-            <TextField label={t('Username')} placeholder={t('(Optional) Service authentication user name Reids> 6.0')} value={_connection.username} onChange={(e, v) => {
-              _setConnection(c => ({ ...c, username: v || '' }))
-            }} />
-          </PivotItem>
-
-          <PivotItem headerText={t("Advanced")}>
-            <Separator>{t('Key load')}</Separator>
-            <TextField label={t('Default key filtering')} required value={_connection.keysPattern} onChange={(e, v) => {
-              _setConnection(c => ({ ...c, keysPattern: v || '' }))
-            }} />
-            <TextField label={t('Namespace separator')} required value={_connection.namespaceSeparator} onChange={(e, v) => {
-              _setConnection(c => ({ ...c, namespaceSeparator: v || '' }))
-            }} />
-            <Separator>{t('Timeouts and limits')}</Separator>
-            <TextField label={t('Connection timeout (ms)')} type="number" placeholder={t('Connection timeout (ms)')} required value={`${_connection.timeoutConnect}`} onChange={(e, v) => {
-              if (Number(v) < 0) return;
-              _setConnection(c => ({ ...c, timeoutConnect: Number(v) }));
-            }} />
-            <TextField label={t('Execution timeout (ms)')} type="number" placeholder={t('Execution timeout (ms)')} required value={`${_connection.timeoutExecute}`} onChange={(e, v) => {
-              if (Number(v) < 0) return;
-              _setConnection(c => ({ ...c, timeoutExecute: Number(v) }));
-            }} />
-            <TextField label={t('Database display limit')} type="number" placeholder={t('Database display limit')} required value={`${_connection.dbScanLimit}`} onChange={(e, v) => {
-              _setConnection(c => ({ ...c, dbScanLimit: Number(v) }))
-            }} />
-            <TextField label={t('Data scan limit')} type="number" placeholder={t('Data scan limit')} required value={`${_connection.dataScanLimit}`} onChange={(e, v) => {
-              _setConnection(c => ({ ...c, dataScanLimit: Number(v) }))
-            }} />
-          </PivotItem>
+          {basic}
+          {security}
+          {advanced}
         </Pivot>
 
         <ErrorMessageBar error={error} />
