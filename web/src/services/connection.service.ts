@@ -12,6 +12,12 @@ export interface Connection {
   timeoutExecute: number,
   dbScanLimit: number,
   dataScanLimit: number,
+  tls: {
+    enable: boolean
+    cert?: string
+    key?: string
+    ca?: string
+  }
 }
 
 export interface Command {
@@ -49,10 +55,10 @@ export const deleteConnection = (id: string): Promise<any> => {
 
 export const openConnection = (id: string): Promise<{ database: Array<any>, info: string }> => {
   return axios.post(`/connection/${id}/open`)
-  .then(ret => ret.data)
-  .catch(err => {
-    throw new Error(err?.response?.data);
-  });
+    .then(ret => ret.data)
+    .catch(err => {
+      throw new Error(err?.response?.data);
+    });
 }
 
 export const disconnectionConnection = (id: string): Promise<any> => {

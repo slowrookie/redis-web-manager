@@ -6,11 +6,13 @@ const GLOBALERROR = "GLOBAL_ERROR"
 // CONNECTIONS .
 const CONNECTIONS = "CONNECTIONS"
 
+const ROOT_PATH = "./rwm_data"
+
 // ConnectionsFilePath .
-const ConnectionsFilePath = "./.connections.json"
+const ConnectionsFilePath = "./rwm_data/connections.json"
 
 // ConfigFilePath .
-const ConfigFilePath = "./.config.json"
+const ConfigFilePath = "./rwm_data/config.json"
 
 // LogFilePath .
-const LogFilePath = ".redis-desktop-manager.log"
+const LogFilePath = "./rwm_data/redis-desktop-manager.log"

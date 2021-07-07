@@ -3,6 +3,7 @@
 
 go.sum
 
+/rwm_data
 .connections.json
 .config.json
 

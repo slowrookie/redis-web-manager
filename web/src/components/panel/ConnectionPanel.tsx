@@ -1,6 +1,7 @@
-import { DefaultButton, MessageBar, MessageBarType, Overlay, Panel, PanelType, Pivot, PivotItem, PrimaryButton, Separator, Spinner, SpinnerSize, Stack, TextField, Toggle } from '@fluentui/react';
-import React, { useEffect, useState } from 'react';
+import { DefaultButton, MessageBar, MessageBarType, Overlay, Panel, PanelType, Pivot, PivotItem, PrimaryButton, Separator, Spinner, SpinnerSize, Stack, TextField, Toggle, IconButton, ITextFieldProps } from '@fluentui/react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Label } from 'recharts';
 import { Connection, saveConnection, testConnection } from '../../services/connection.service';
 import { ErrorMessageBar } from '../common/ErrorMessageBar';
 
@@ -23,8 +24,37 @@ const defaultConnection: Connection = {
   timeoutConnect: 20000,
   timeoutExecute: 60000,
   dbScanLimit: 20,
-  dataScanLimit: 2000
+  dataScanLimit: 2000,
+  tls: {
+    enable: false
+  }
 }
+
+const ReadFileTextFiled = (props: ITextFieldProps) => {
+  const fileChosenRef = useRef<any>();
+
+  return <TextField {...props} onRenderLabel={(fieldProps, defaultRender: any) => {
+    return (
+      <Stack horizontal>
+        {defaultRender(fieldProps)}
+        <Stack.Item grow={1}><span></span></Stack.Item>
+        <input type="file" style={{ display: 'none' }} ref={fileChosenRef} onChange={(e) => {
+          if (!e.target.files) return;
+          let file = e.target.files[0];
+          const fileReader = new FileReader()
+          fileReader.readAsText(file);
+          fileReader.onloadend = () => {
+            props.onChange && props.onChange(e, fileReader.result?.toString());
+          }
+        }} />
+        <IconButton iconProps={{ iconName: 'Upload' }} onClick={() => {
+          fileChosenRef.current.click();
+        }}></IconButton>
+      </Stack>
+    )
+  }} />
+}
+
 
 export const ConnectionPanel = (props: IConnectionPanel) => {
   const { t } = useTranslation();
@@ -33,7 +63,8 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
   const [_connection, _setConnection] = useState<Connection>(defaultConnection),
     [connecting, setConnecting] = useState(false),
     [error, setError] = useState<Error | undefined>(),
-    [success, setSuccess] = useState<string>()
+    [success, setSuccess] = useState<string>(),
+    [toggleTls, setToggleTls] = useState<boolean>(false)
     ;
 
   useEffect(() => {
@@ -93,7 +124,28 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
 
   const security = (
     <PivotItem headerText={t("Security")}>
-      <Toggle inlineLabel label="SSL / TLS" />
+      <Toggle inlineLabel label="SSL / TLS" checked={toggleTls} onChange={(e, checked: boolean | undefined) => { setToggleTls(!toggleTls) }} />
+      {toggleTls && (<Stack tokens={{ childrenGap: 10 }}>
+
+        <ReadFileTextFiled label="Cert" multiline rows={3} value={_connection.tls.cert} onChange={(e, v) => {
+          if (!toggleTls) return;
+          _connection.tls.cert = v;
+          _setConnection({ ..._connection });
+        }} />
+
+        <ReadFileTextFiled label="Key" multiline rows={3} value={_connection.tls.key} onChange={(e, v) => {
+          if (!toggleTls) return;
+          _connection.tls.key = v;
+          _setConnection({ ..._connection });
+        }} />
+
+        <ReadFileTextFiled label="CA" multiline rows={3} value={_connection.tls.ca} onChange={(e, v) => {
+          if (!toggleTls) return;
+          _connection.tls.ca = v;
+          _setConnection({ ..._connection });
+        }} />
+
+      </Stack>)}
       <Toggle inlineLabel label="SSH 通道" />
     </PivotItem>
   )

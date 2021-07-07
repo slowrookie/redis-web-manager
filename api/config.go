@@ -15,6 +15,10 @@ type Config struct {
 var DefaultConfig = &Config{}
 
 func (c *Config) Get() (Config, error) {
+	err := os.MkdirAll(ROOT_PATH, os.ModePerm)
+	if nil != err {
+		return *c, err
+	}
 	jsonFile, err := os.OpenFile(ConfigFilePath, os.O_RDWR|os.O_CREATE, 0755)
 	if nil != err {
 		return *c, err

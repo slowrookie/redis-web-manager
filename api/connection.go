@@ -3,7 +3,6 @@ package api
 import (
 	"bytes"
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -28,6 +27,14 @@ type Connection struct {
 	TimeoutExecute     int64  `json:"timeoutExecute"`
 	DbScanLimit        int32  `json:"dbScanLimit"`
 	DataScanLimit      int32  `json:"dataScanLimit"`
+	Tls                tls    `json:"tls"`
+}
+
+type tls struct {
+	Enable bool   `json:"enable"`
+	Cert   string `json:"cert"`
+	Key    string `json:"key"`
+	Ca     string `json:"ca"`
 }
 
 // Command .
@@ -196,16 +203,21 @@ func (c *Connection) findByID(id string) *Connection {
 }
 
 func (c *Connection) client(connection Connection) *redis.Client {
+	// tls.LoadX509KeyPair()
 	return redis.NewClient(&redis.Options{
 		Addr:        fmt.Sprintf("%s:%d", connection.Host, connection.Port),
 		Password:    connection.Auth,
 		ReadTimeout: time.Duration(connection.TimeoutExecute) * time.Millisecond,
 		DialTimeout: time.Duration(connection.TimeoutConnect) * time.Millisecond,
-		TLSConfig:   &tls.Config{},
+		// TLSConfig:   &tls.Config{},
 	})
 }
 
 func (c *Connection) loadConnections() error {
+	err := os.MkdirAll(ROOT_PATH, os.ModePerm)
+	if nil != err {
+		return err
+	}
 	jsonFile, err := os.OpenFile(ConnectionsFilePath, os.O_RDWR|os.O_CREATE, 0755)
 	if nil != err {
 		return err
