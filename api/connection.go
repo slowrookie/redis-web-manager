@@ -3,6 +3,8 @@ package api
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -27,10 +29,10 @@ type Connection struct {
 	TimeoutExecute     int64  `json:"timeoutExecute"`
 	DbScanLimit        int32  `json:"dbScanLimit"`
 	DataScanLimit      int32  `json:"dataScanLimit"`
-	Tls                tls    `json:"tls"`
+	Tls                Tls    `json:"tls"`
 }
 
-type tls struct {
+type Tls struct {
 	Enable bool   `json:"enable"`
 	Cert   string `json:"cert"`
 	Key    string `json:"key"`
@@ -60,8 +62,11 @@ func (c *Connection) Connections() ([]Connection, error) {
 
 // Test .
 func (c *Connection) Test() error {
-	client := c.client(*c)
-	_, err := client.Ping(context.Background()).Result()
+	client, err := c.client(*c)
+	if nil != err {
+		return err
+	}
+	_, err = client.Ping(context.Background()).Result()
 	if nil != err {
 		return err
 	}
@@ -82,7 +87,10 @@ func (c *Connection) New() (Connection, error) {
 		}
 	}
 
-	client := c.client(*c)
+	client, err := c.client(*c)
+	if nil != err {
+		return *c, err
+	}
 
 	// write file
 	if err := c.writeConnections(); nil != err {
@@ -118,8 +126,12 @@ func (c *Connection) Open(id string) (map[string]interface{}, error) {
 	if _, exists := Clients[id]; exists {
 		client = Clients[id]
 	} else {
-		client = c.client(*c.findByID(id))
-		Clients[id] = client
+		_client, err := c.client(*c.findByID(id))
+		if nil != err {
+			return nil, err
+		}
+		Clients[id] = _client
+		client = _client
 	}
 	ctx := context.Background()
 	databases, err := client.ConfigGet(ctx, "databases").Result()
@@ -169,7 +181,10 @@ func (c *Connection) Command(cmd Command) ([]interface{}, error) {
 	if _, exists := Clients[cmd.ID]; exists {
 		client = Clients[cmd.ID]
 	} else {
-		client = c.client(*c.findByID(cmd.ID))
+		client, err := c.client(*c.findByID(cmd.ID))
+		if nil != err {
+			return nil, err
+		}
 		Clients[cmd.ID] = client
 	}
 	ctx := context.Background()
@@ -202,15 +217,34 @@ func (c *Connection) findByID(id string) *Connection {
 	return nil
 }
 
-func (c *Connection) client(connection Connection) *redis.Client {
-	// tls.LoadX509KeyPair()
-	return redis.NewClient(&redis.Options{
+func (c *Connection) client(connection Connection) (*redis.Client, error) {
+	// options
+	options := redis.Options{
 		Addr:        fmt.Sprintf("%s:%d", connection.Host, connection.Port),
 		Password:    connection.Auth,
 		ReadTimeout: time.Duration(connection.TimeoutExecute) * time.Millisecond,
 		DialTimeout: time.Duration(connection.TimeoutConnect) * time.Millisecond,
-		// TLSConfig:   &tls.Config{},
-	})
+	}
+
+	// tls enable
+	if c.Tls.Enable {
+		cer, err := tls.X509KeyPair([]byte(c.Tls.Cert), []byte(c.Tls.Key))
+		if nil != err {
+			return nil, err
+		}
+		tls := tls.Config{
+			Certificates:       []tls.Certificate{cer},
+			InsecureSkipVerify: true,
+		}
+		if len(c.Tls.Ca) > 0 {
+			caCertPool := x509.NewCertPool()
+			caCertPool.AppendCertsFromPEM([]byte(c.Tls.Ca))
+			tls.RootCAs = caCertPool
+		}
+		options.TLSConfig = &tls
+	}
+
+	return redis.NewClient(&options), nil
 }
 
 func (c *Connection) loadConnections() error {

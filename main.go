@@ -202,7 +202,9 @@ func main() {
 		log.Fatal(err)
 	}
 	// 服务启动之后，打开系统浏览器
-	_ = browser.OpenURL("http://127.0.0.1:9090")
+	if GIN_MODE != gin.DebugMode {
+		_ = browser.OpenURL("http://127.0.0.1:9090")
+	}
 	log.Fatal(http.Serve(listen, r))
 
 }

@@ -1,7 +1,6 @@
-import { DefaultButton, MessageBar, MessageBarType, Overlay, Panel, PanelType, Pivot, PivotItem, PrimaryButton, Separator, Spinner, SpinnerSize, Stack, TextField, Toggle, IconButton, ITextFieldProps } from '@fluentui/react';
+import { DefaultButton, CommandBarButton, ITextFieldProps, MessageBar, MessageBarType, Overlay, Panel, PanelType, Pivot, PivotItem, PrimaryButton, Separator, Spinner, SpinnerSize, Stack, TextField, Toggle } from '@fluentui/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Label } from 'recharts';
 import { Connection, saveConnection, testConnection } from '../../services/connection.service';
 import { ErrorMessageBar } from '../common/ErrorMessageBar';
 
@@ -31,6 +30,7 @@ const defaultConnection: Connection = {
 }
 
 const ReadFileTextFiled = (props: ITextFieldProps) => {
+  const { t } = useTranslation();
   const fileChosenRef = useRef<any>();
 
   return <TextField {...props} onRenderLabel={(fieldProps, defaultRender: any) => {
@@ -42,14 +42,14 @@ const ReadFileTextFiled = (props: ITextFieldProps) => {
           if (!e.target.files) return;
           let file = e.target.files[0];
           const fileReader = new FileReader()
-          fileReader.readAsText(file);
           fileReader.onloadend = () => {
             props.onChange && props.onChange(e, fileReader.result?.toString());
           }
+          fileReader.readAsText(file);
         }} />
-        <IconButton iconProps={{ iconName: 'Upload' }} onClick={() => {
+        <CommandBarButton iconProps={{ iconName: 'Upload' }} text={t('Upload')} onClick={() => {
           fileChosenRef.current.click();
-        }}></IconButton>
+        }}></CommandBarButton>
       </Stack>
     )
   }} />
@@ -63,8 +63,7 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
   const [_connection, _setConnection] = useState<Connection>(defaultConnection),
     [connecting, setConnecting] = useState(false),
     [error, setError] = useState<Error | undefined>(),
-    [success, setSuccess] = useState<string>(),
-    [toggleTls, setToggleTls] = useState<boolean>(false)
+    [success, setSuccess] = useState<string>()
     ;
 
   useEffect(() => {
@@ -124,26 +123,32 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
 
   const security = (
     <PivotItem headerText={t("Security")}>
-      <Toggle inlineLabel label="SSL / TLS" checked={toggleTls} onChange={(e, checked: boolean | undefined) => { setToggleTls(!toggleTls) }} />
-      {toggleTls && (<Stack tokens={{ childrenGap: 10 }}>
+      <Toggle inlineLabel label="SSL / TLS" checked={_connection.tls.enable}
+        onChange={(e, checked: boolean | undefined) => {
+          _connection.tls.enable = !!checked;
+          _setConnection({ ..._connection })
+        }} />
+      {_connection.tls.enable && (<Stack tokens={{ childrenGap: 10 }}>
 
-        <ReadFileTextFiled label="Cert" multiline rows={3} value={_connection.tls.cert} onChange={(e, v) => {
-          if (!toggleTls) return;
+        <ReadFileTextFiled label="Cert" multiline rows={3} value={_connection.tls.cert} required onChange={(e, v) => {
           _connection.tls.cert = v;
           _setConnection({ ..._connection });
-        }} />
+        }} placeholder="-----BEGIN CERTIFICATE-----
+        MIIEEDCCAfigAwIBAgIUXAg7+ejbaulXINeL9RuhJ9Qa8zkwDQYJKoZIhvcNAQEL
+        BQAwNTETMBEGA1UECgwKUmVkaXMgVGVzdDEeMBwGA1UEAwwVQ2VydGlma"/>
 
-        <ReadFileTextFiled label="Key" multiline rows={3} value={_connection.tls.key} onChange={(e, v) => {
-          if (!toggleTls) return;
+        <ReadFileTextFiled label="Key" multiline rows={3} value={_connection.tls.key} required onChange={(e, v) => {
           _connection.tls.key = v;
           _setConnection({ ..._connection });
-        }} />
+        }} placeholder="-----BEGIN RSA PRIVATE KEY-----
+        MIIEowIBAAKCAQEA1Ypl1H65Fs6x4nD0inPqpxSSW2RDWJDD5z5k8knZLr+aKXOW" />
 
         <ReadFileTextFiled label="CA" multiline rows={3} value={_connection.tls.ca} onChange={(e, v) => {
-          if (!toggleTls) return;
           _connection.tls.ca = v;
           _setConnection({ ..._connection });
-        }} />
+        }} placeholder="-----BEGIN CERTIFICATE-----
+        MIIFSzCCAzOgAwIBAgIUD0gAuzJzzUCPs05IHM70fIQEo/cwDQYJKoZIhvcNAQEL
+        BQAwNTETMBEGA1UECgwKUmVkaXMgVGVzdDEeMBwGA1UEAwwVQ2VydGlma" />
 
       </Stack>)}
       <Toggle inlineLabel label="SSH 通道" />
@@ -186,7 +191,8 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
       onDismiss={() => setIsOpen(false)}
       headerText={t('Connection settings')}
       onRenderFooterContent={() => {
-        const disabled = !(_connection.name && _connection.host && _connection.port);
+        const disabled = !(_connection.name && _connection.host && _connection.port) || 
+          (_connection.tls.enable && (!_connection.tls.cert || !_connection.tls.key));
         return (
           <Stack tokens={{ childrenGap: 10 }} horizontal horizontalAlign="space-evenly">
             <PrimaryButton

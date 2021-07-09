@@ -14,7 +14,7 @@ const textOverflow: CSSProperties = {
 }
 
 export interface IConnectionListProps {
-  onConnectionClick: (connection: Connection, info: {}, databases: Array<{db: number, dbsize: number}>) => void
+  onConnectionClick: (connection: Connection, info: {}, databases: Array<{ db: number, dbsize: number }>) => void
 }
 
 export const ConnectionList = (props: IConnectionListProps) => {
@@ -47,8 +47,8 @@ export const ConnectionList = (props: IConnectionListProps) => {
   const handleConnectionClick = (connection: Connection) => {
     openConnection(connection.id).then(ret => {
       console.log(ret);
-      var info: any = parseInfo(ret.info);
-      var databases = ([...Array(Number(ret.database[1]))].map((_, i) => {
+      let info: any = parseInfo(ret.info);
+      let databases = ([...Array(ret.database.length ? Number(ret.database[1]) : 1)].map((_, i) => {
         var reg = /[1-9][0-9]*/
         var keys = (info.Keyspace && info.Keyspace[`db${i}`] && info.Keyspace[`db${i}`].match(reg)[0]) || 0;
         return { db: i, dbsize: keys };
