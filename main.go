@@ -90,8 +90,10 @@ func main() {
 		})
 	}
 	// connections
+	// init connections
+	api.LoadConnections()
 	r.GET("/connections", func(c *gin.Context) {
-		connections, err := api.DefaultConnection.Connections()
+		connections, err := api.Connections()
 		if nil != err {
 			c.String(http.StatusInternalServerError, fmt.Sprintf("error: %s", err))
 			return
@@ -120,21 +122,20 @@ func main() {
 			c.JSON(http.StatusOK, ret)
 		})
 		connectioniGroup.DELETE("/:id", func(c *gin.Context) {
-			if err := api.DefaultConnection.Delete(c.Param("id")); nil != err {
+			if err := api.FindConnectionByID(c.Param("id")).Delete(); nil != err {
 				c.String(http.StatusInternalServerError, fmt.Sprintf("error: %s", err))
 				return
 			}
 		})
 		connectioniGroup.POST("/:id/open", func(c *gin.Context) {
-			ret, err := api.DefaultConnection.Open(c.Param("id"))
+			err := api.FindConnectionByID(c.Param("id")).Open()
 			if nil != err {
 				c.String(http.StatusInternalServerError, fmt.Sprintf("error: %s", err))
 				return
 			}
-			c.JSON(http.StatusOK, ret)
 		})
 		connectioniGroup.POST("/:id/disconnection", func(c *gin.Context) {
-			if err := api.DefaultConnection.Disconnection(c.Param("id")); nil != err {
+			if err := api.FindConnectionByID(c.Param("id")).Disconnection(); nil != err {
 				c.String(http.StatusInternalServerError, fmt.Sprintf("error: %s", err))
 				return
 			}
@@ -152,7 +153,7 @@ func main() {
 		connectioniGroup.POST("/command", func(c *gin.Context) {
 			cmd := &api.Command{}
 			c.Bind(cmd)
-			ret, err := api.DefaultConnection.Command(*cmd)
+			ret, err := api.FindConnectionByID(cmd.ID).Command(*cmd)
 			if nil != err {
 				c.String(http.StatusInternalServerError, fmt.Sprintf("error: %s", err))
 				return

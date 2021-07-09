@@ -5,7 +5,6 @@ import { Connection, copyConnection, deleteConnection, getConnections, openConne
 import { ErrorMessageBar } from './common/ErrorMessageBar';
 import { Loading } from './common/Loading';
 import { ConnectionPanel } from './panel/ConnectionPanel';
-import { parseInfo } from './utils';
 
 const textOverflow: CSSProperties = {
   whiteSpace: 'nowrap',
@@ -14,7 +13,7 @@ const textOverflow: CSSProperties = {
 }
 
 export interface IConnectionListProps {
-  onConnectionClick: (connection: Connection, info: {}, databases: Array<{ db: number, dbsize: number }>) => void
+  onConnectionClick: (connection: Connection) => void
 }
 
 export const ConnectionList = (props: IConnectionListProps) => {
@@ -45,15 +44,9 @@ export const ConnectionList = (props: IConnectionListProps) => {
   }
 
   const handleConnectionClick = (connection: Connection) => {
+    setLoading(true);
     openConnection(connection.id).then(ret => {
-      console.log(ret);
-      let info: any = parseInfo(ret.info);
-      let databases = ([...Array(ret.database.length ? Number(ret.database[1]) : 1)].map((_, i) => {
-        var reg = /[1-9][0-9]*/
-        var keys = (info.Keyspace && info.Keyspace[`db${i}`] && info.Keyspace[`db${i}`].match(reg)[0]) || 0;
-        return { db: i, dbsize: keys };
-      }));
-      onConnectionClick && onConnectionClick(connection, info, databases);
+      onConnectionClick && onConnectionClick(connection);
     })
       .catch(err => setError(err))
       .finally(() => { setLoading(false) });

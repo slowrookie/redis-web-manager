@@ -1,16 +1,16 @@
 import { AnimationClassNames, Depths, DirectionalHint, IButtonStyles, IconButton, Stack, TooltipHost, useTheme } from '@fluentui/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Connection } from '../services/connection.service';
+import { Connection, executeCommand } from '../services/connection.service';
+import { ErrorMessageBar } from './common/ErrorMessageBar';
 import { DatabaseConfiguration } from './configuration/DatabaseConfiguration';
 import { Console } from './Console';
 import { Database, IDatabase } from './Database';
 import { Info } from './info/Info';
+import { parseInfo } from './utils';
 
 export interface IConnectionItemProps {
   connection: Connection,
-  info: any,
-  databases: Array<IDatabase>
 }
 
 const buttonStyles: IButtonStyles = {
@@ -18,19 +18,41 @@ const buttonStyles: IButtonStyles = {
 }
 
 export const ConnectionItem = (props: IConnectionItemProps) => {
-  const { info, databases } = props;
+
+  const { connection } = props;
 
   const [selectedKey, setSelectedKey] = useState<string | undefined>('serverInfo'),
+    [info, setInfo] = useState<any>(),
+    [databases, setDatabases] = useState<Array<IDatabase>>([]),
+    [error, setError] = useState<Error>(),
     { t } = useTranslation(),
     theme = useTheme();
+
+  useEffect(() => {
+    executeCommand({ id: connection.id, commands: [['CONFIG', 'GET','DATABASES'], ['INFO']] })
+    .then((ret: any) => {
+      let info: any = parseInfo(ret[1]);
+      let databases = ([...Array(ret[0].length ? Number(ret[0][1]) : 1)].map((_, i) => {
+        var reg = /[1-9][0-9]*/
+        var keys = (info.Keyspace && info.Keyspace[`db${i}`] && info.Keyspace[`db${i}`].match(reg)[0]) || 0;
+        return { db: i, dbsize: keys };
+      }));
+      setInfo(info);
+      setDatabases(databases);
+      console.log(ret);
+    })
+    .catch(err => setError(err))
+    // .finally(() => { setLoading(false) });
+  }, [connection])
 
   const selectedStyle = (key: string) => {
     return selectedKey === key ? { borderRight: `2px solid ${theme.palette.themePrimary}` } : { borderRight: '0px' };
   }
 
-  return (
+  return (<>
+    <ErrorMessageBar error={error}></ErrorMessageBar>
     <Stack horizontal style={{ height: '100%', position: 'relative' }}>
-
+      
       <Stack style={{ height: '100%', boxShadow: Depths.depth8 }}>
         {/* server info */}
         <TooltipHost content={t('Server Info')} directionalHint={DirectionalHint.rightCenter}>
@@ -87,5 +109,5 @@ export const ConnectionItem = (props: IConnectionItemProps) => {
       </Stack.Item>
 
     </Stack>
-  )
+  </>)
 }

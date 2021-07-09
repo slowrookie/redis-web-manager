@@ -4,7 +4,6 @@ import { Connection } from '../services/connection.service';
 import { AppSettings } from './AppSettings';
 import { ConnectionItem, IConnectionItemProps } from './ConnectionItem';
 import { ConnectionList } from './ConnectionList';
-import { IDatabase } from './Database';
 export interface IMainTabProps {
   onChangeLanguage?: (language: string) => void
   onChangeTheme?: (theme: string) => void
@@ -38,10 +37,10 @@ export const MainTab = (props: IMainTabProps) => {
     }
   }, [mainTab.connectionItems])
 
-  const handleConnectionClick = (v: Connection, info: any, databases: Array<IDatabase>) => {
+  const handleConnectionClick = (v: Connection) => {
     const exists = mainTab.connectionItems.filter(item => item.connection.id === v.id);
     const connections = mainTab.connectionItems;
-    !exists.length && connections.push({ connection: v, info, databases });
+    !exists.length && connections.push({ connection: v});
     setMainTab({ ...mainTab, connectionItems: [...connections], selectedKey: v.id, showConnectionList: false });
   }
 

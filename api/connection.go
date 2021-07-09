@@ -45,24 +45,14 @@ type Command struct {
 	Commands [][]interface{} `json:"commands"`
 }
 
-var DefaultConnection = &Connection{}
-
 // Clients .
 var Clients = make(map[string]*redis.Client)
 
 var connections = make([]Connection, 0, 10)
 
-// Connections get all connections
-func (c *Connection) Connections() ([]Connection, error) {
-	if err := c.loadConnections(); nil != err {
-		return connections, err
-	}
-	return connections, nil
-}
-
 // Test .
 func (c *Connection) Test() error {
-	client, err := c.client(*c)
+	client, err := c.client()
 	if nil != err {
 		return err
 	}
@@ -87,13 +77,13 @@ func (c *Connection) New() (Connection, error) {
 		}
 	}
 
-	client, err := c.client(*c)
+	client, err := c.client()
 	if nil != err {
 		return *c, err
 	}
 
 	// write file
-	if err := c.writeConnections(); nil != err {
+	if err := WriteConnections(); nil != err {
 		return *c, err
 	}
 
@@ -102,57 +92,49 @@ func (c *Connection) New() (Connection, error) {
 }
 
 // Delete .
-func (c *Connection) Delete(id string) error {
+func (c *Connection) Delete() error {
 	for i := 0; i < len(connections); i++ {
-		if connections[i].ID == id {
+		if connections[i].ID == c.ID {
 			connections = append(connections[:i], connections[i+1:]...)
-			if _, exists := Clients[id]; exists {
-				Clients[id].Close()
-				delete(Clients, id)
+			if _, exists := Clients[c.ID]; exists {
+				Clients[c.ID].Close()
+				delete(Clients, c.ID)
 			}
 			break
 		}
 	}
 
-	if err := c.writeConnections(); nil != err {
+	if err := WriteConnections(); nil != err {
 		return err
 	}
 	return nil
 }
 
 // Open .
-func (c *Connection) Open(id string) (map[string]interface{}, error) {
+func (c *Connection) Open() error {
 	var client *redis.Client
-	if _, exists := Clients[id]; exists {
-		client = Clients[id]
+	if _, exists := Clients[c.ID]; exists {
+		client = Clients[c.ID]
 	} else {
-		_client, err := c.client(*c.findByID(id))
+		_client, err := c.client()
 		if nil != err {
-			return nil, err
+			return err
 		}
-		Clients[id] = _client
+		Clients[c.ID] = _client
 		client = _client
 	}
-	ctx := context.Background()
-	databases, err := client.ConfigGet(ctx, "databases").Result()
+	_, err := client.Ping(context.Background()).Result()
 	if nil != err {
-		return nil, err
+		return err
 	}
-	info, err := client.Info(ctx).Result()
-	if nil != err {
-		return nil, err
-	}
-	var ret = make(map[string]interface{})
-	ret["database"] = databases
-	ret["info"] = info
-	return ret, nil
+	return nil
 }
 
 // Disconnection .
-func (c *Connection) Disconnection(id string) error {
-	if _, exists := Clients[id]; exists {
-		err := Clients[id].Close()
-		delete(Clients, id)
+func (c *Connection) Disconnection() error {
+	if _, exists := Clients[c.ID]; exists {
+		err := Clients[c.ID].Close()
+		delete(Clients, c.ID)
 		if nil != err {
 			return err
 		}
@@ -164,7 +146,7 @@ func (c *Connection) Disconnection(id string) error {
 func (c *Connection) Copy() (Connection, error) {
 	c.ID = strconv.FormatInt(time.Now().UnixNano(), 10)
 	connections = append(connections, *c)
-	if err := c.writeConnections(); nil != err {
+	if err := WriteConnections(); nil != err {
 		return *c, err
 	}
 	return *c, nil
@@ -181,7 +163,7 @@ func (c *Connection) Command(cmd Command) ([]interface{}, error) {
 	if _, exists := Clients[cmd.ID]; exists {
 		client = Clients[cmd.ID]
 	} else {
-		client, err := c.client(*c.findByID(cmd.ID))
+		client, err := c.client()
 		if nil != err {
 			return nil, err
 		}
@@ -208,22 +190,13 @@ func (c *Connection) Command(cmd Command) ([]interface{}, error) {
 	return rets, nil
 }
 
-func (c *Connection) findByID(id string) *Connection {
-	for i := 0; i < len(connections); i++ {
-		if connections[i].ID == id {
-			return &connections[i]
-		}
-	}
-	return nil
-}
-
-func (c *Connection) client(connection Connection) (*redis.Client, error) {
+func (c *Connection) client() (*redis.Client, error) {
 	// options
 	options := redis.Options{
-		Addr:        fmt.Sprintf("%s:%d", connection.Host, connection.Port),
-		Password:    connection.Auth,
-		ReadTimeout: time.Duration(connection.TimeoutExecute) * time.Millisecond,
-		DialTimeout: time.Duration(connection.TimeoutConnect) * time.Millisecond,
+		Addr:        fmt.Sprintf("%s:%d", c.Host, c.Port),
+		Password:    c.Auth,
+		ReadTimeout: time.Duration(c.TimeoutExecute) * time.Millisecond,
+		DialTimeout: time.Duration(c.TimeoutConnect) * time.Millisecond,
 	}
 
 	// tls enable
@@ -247,7 +220,24 @@ func (c *Connection) client(connection Connection) (*redis.Client, error) {
 	return redis.NewClient(&options), nil
 }
 
-func (c *Connection) loadConnections() error {
+func FindConnectionByID(id string) *Connection {
+	for i := 0; i < len(connections); i++ {
+		if connections[i].ID == id {
+			return &connections[i]
+		}
+	}
+	return nil
+}
+
+// Connections get all connections
+func Connections() ([]Connection, error) {
+	if err := LoadConnections(); nil != err {
+		return connections, err
+	}
+	return connections, nil
+}
+
+func LoadConnections() error {
 	err := os.MkdirAll(ROOT_PATH, os.ModePerm)
 	if nil != err {
 		return err
@@ -271,7 +261,7 @@ func (c *Connection) loadConnections() error {
 	return nil
 }
 
-func (c *Connection) writeConnections() error {
+func WriteConnections() error {
 	jsonFile, err := os.OpenFile(ConnectionsFilePath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0755)
 	if nil != err {
 		return err
