@@ -15,4 +15,4 @@ const ConnectionsFilePath = "./rwm_data/connections.json"
 const ConfigFilePath = "./rwm_data/config.json"
 
 // LogFilePath .
-const LogFilePath = "./rwm_data/redis-desktop-manager.log"
+const LogFilePath = "./rwm_data/rdm.log"

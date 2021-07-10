@@ -3,10 +3,12 @@ package main
 import (
 	"embed"
 	"fmt"
+	"io"
 	"io/fs"
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -27,6 +29,12 @@ var webFS embed.FS
 
 func main() {
 	gin.SetMode(GIN_MODE)
+
+	// log
+	os.MkdirAll(api.ROOT_PATH, os.ModePerm)
+	logfile, _ := os.Create(api.LogFilePath)
+	gin.DefaultWriter = io.MultiWriter(logfile, os.Stdout)
+
 	r := gin.Default()
 
 	// static files
