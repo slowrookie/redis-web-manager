@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection, executeCommand } from '../services/connection.service';
 import { ErrorMessageBar } from './common/ErrorMessageBar';
+import { Loading } from './common/Loading';
 import { DatabaseConfiguration } from './configuration/DatabaseConfiguration';
 import { Console } from './Console';
 import { Database, IDatabase } from './Database';
@@ -25,24 +26,26 @@ export const ConnectionItem = (props: IConnectionItemProps) => {
     [info, setInfo] = useState<any>(),
     [databases, setDatabases] = useState<Array<IDatabase>>([]),
     [error, setError] = useState<Error>(),
+    [loading, setLoading] = useState<boolean>(false),
     { t } = useTranslation(),
     theme = useTheme();
 
   useEffect(() => {
-    executeCommand({ id: connection.id, commands: [['CONFIG', 'GET','DATABASES'], ['INFO']] })
-    .then((ret: any) => {
-      let info: any = parseInfo(ret[1]);
-      let databases = ([...Array(ret[0].length ? Number(ret[0][1]) : 1)].map((_, i) => {
-        var reg = /[1-9][0-9]*/
-        var keys = (info.Keyspace && info.Keyspace[`db${i}`] && info.Keyspace[`db${i}`].match(reg)[0]) || 0;
-        return { db: i, dbsize: keys };
-      }));
-      setInfo(info);
-      setDatabases(databases);
-      console.log(ret);
-    })
-    .catch(err => setError(err))
-    // .finally(() => { setLoading(false) });
+    setLoading(true);
+    executeCommand({ id: connection.id, commands: [['CONFIG', 'GET', 'DATABASES'], ['INFO']] })
+      .then((ret: any) => {
+        let info: any = parseInfo(ret[1]);
+        let databases = ([...Array(ret[0].length ? Number(ret[0][1]) : 1)].map((_, i) => {
+          var reg = /[1-9][0-9]*/
+          var keys = (info.Keyspace && info.Keyspace[`db${i}`] && info.Keyspace[`db${i}`].match(reg)[0]) || 0;
+          return { db: i, dbsize: keys };
+        }));
+        setInfo(info);
+        setDatabases(databases);
+        console.log(ret);
+      })
+      .catch(err => setError(err))
+      .finally(() => { setLoading(false) });
   }, [connection])
 
   const selectedStyle = (key: string) => {
@@ -51,8 +54,9 @@ export const ConnectionItem = (props: IConnectionItemProps) => {
 
   return (<>
     <ErrorMessageBar error={error}></ErrorMessageBar>
+    <Loading loading={loading} />
     <Stack horizontal style={{ height: '100%', position: 'relative' }}>
-      
+
       <Stack style={{ height: '100%', boxShadow: Depths.depth8 }}>
         {/* server info */}
         <TooltipHost content={t('Server Info')} directionalHint={DirectionalHint.rightCenter}>
@@ -83,28 +87,19 @@ export const ConnectionItem = (props: IConnectionItemProps) => {
 
       </Stack>
 
-
-      <Stack.Item grow={1}
-        className={selectedKey ? AnimationClassNames.fadeIn100 : AnimationClassNames.fadeOut100}
-        style={{ display: selectedKey === 'serverInfo' ? 'block' : 'none' }}>
+      <Stack.Item grow={1} style={{ display: selectedKey === 'serverInfo' ? 'block' : 'none' }}>
         {info && <Info {...props} info={info} />}
       </Stack.Item>
 
-      <Stack.Item grow={1}
-        className={selectedKey ? AnimationClassNames.fadeIn100 : AnimationClassNames.fadeOut100}
-        style={{ display: selectedKey === 'database' ? 'block' : 'none' }}>
+      <Stack.Item grow={1} style={{ display: selectedKey === 'database' ? 'block' : 'none' }}>
         {databases.length && <Database {...props} databases={databases} />}
       </Stack.Item>
 
-      <Stack.Item grow={1}
-        className={selectedKey ? AnimationClassNames.fadeIn100 : AnimationClassNames.fadeOut100}
-        style={{ display: selectedKey === 'cli' ? 'block' : 'none' }}>
+      <Stack.Item grow={1} style={{ display: selectedKey === 'cli' ? 'block' : 'none' }}>
         <Console {...props} />
       </Stack.Item>
 
-      <Stack.Item grow={1}
-        className={selectedKey ? AnimationClassNames.fadeIn100 : AnimationClassNames.fadeOut100}
-        style={{ display: selectedKey === 'databaseConfig' ? 'block' : 'none' }}>
+      <Stack.Item grow={1} style={{ display: selectedKey === 'databaseConfig' ? 'block' : 'none' }}>
         <DatabaseConfiguration {...props} />
       </Stack.Item>
 
