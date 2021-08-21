@@ -1,4 +1,4 @@
-import { DefaultButton, Depths, IButtonStyles, Icon, Pivot, PivotItem, PrimaryButton, Stack, TooltipHost } from '@fluentui/react';
+import { DefaultButton, Depths, IButtonStyles, Icon, Pivot, PivotItem, Stack, TooltipHost } from '@fluentui/react';
 import React, { useEffect, useState } from 'react';
 import { Connection } from '../services/connection.service';
 import { AppSettings } from './AppSettings';
