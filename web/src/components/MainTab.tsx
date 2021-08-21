@@ -1,4 +1,4 @@
-import { Depths, Icon, Pivot, PivotItem, PrimaryButton, Stack, TooltipHost, useTheme } from '@fluentui/react';
+import { DefaultButton, Depths, IButtonStyles, Icon, Pivot, PivotItem, PrimaryButton, Stack, TooltipHost } from '@fluentui/react';
 import React, { useEffect, useState } from 'react';
 import { Connection } from '../services/connection.service';
 import { AppSettings } from './AppSettings';
@@ -15,19 +15,19 @@ interface IMainTab {
   showConnectionList: boolean,
 }
 
-const headerButtonStyles = {
+const headerButtonStyles: IButtonStyles = {
   root: {
     minWidth: 'auto',
     borderRadius: 0,
     padding: '0 8px',
-    height: 42
+    height: 42,
+    border: 0
   }
 }
 
 export const MainTab = (props: IMainTabProps) => {
   const
-    [mainTab, setMainTab] = useState<IMainTab>({ connectionItems: [], selectedKey: '', showConnectionList: true }),
-    theme = useTheme();
+    [mainTab, setMainTab] = useState<IMainTab>({ connectionItems: [], selectedKey: '', showConnectionList: true });
 
   useEffect(() => {
     if (!mainTab.connectionItems.length) {
@@ -40,27 +40,29 @@ export const MainTab = (props: IMainTabProps) => {
   const handleConnectionClick = (v: Connection) => {
     const exists = mainTab.connectionItems.filter(item => item.connection.id === v.id);
     const connections = mainTab.connectionItems;
-    !exists.length && connections.push({ connection: v});
+    !exists.length && connections.push({ connection: v });
     setMainTab({ ...mainTab, connectionItems: [...connections], selectedKey: v.id, showConnectionList: false });
   }
 
   return (<>
-    <Stack horizontal style={{ backgroundColor: theme.palette.themeSecondary, height: 42, boxShadow: Depths.depth8 }}>
+    <Stack horizontal style={{  height: 42, boxShadow: Depths.depth8 }}>
       {/* home */}
       <TooltipHost content={'连接管理'}>
-        <PrimaryButton iconProps={{ iconName: 'ProductList' }} styles={headerButtonStyles} onClick={() => setMainTab({ ...mainTab, selectedKey: '', showConnectionList: true })} />
+        <DefaultButton 
+          iconProps={{ iconName: 'ProductList' }} 
+          styles={headerButtonStyles} 
+          onClick={() => setMainTab({ ...mainTab, selectedKey: '', showConnectionList: true })} />
       </TooltipHost>
       {/* tabs */}
       <Stack.Item grow={1}>
-        <Pivot overflowBehavior='menu' headersOnly={true} styles={{ link: { height: 42, lineHeight: '42px', background: 'transparent' } }}
-          linkFormat='tabs'
+        <Pivot overflowBehavior='menu' headersOnly styles={{ link: { height: 42, lineHeight: '42px' } }}
+          linkFormat='links'
           selectedKey={mainTab.selectedKey}
-          getTabId={itemKey => `connection-tab-${itemKey}`}
           onLinkClick={item => {
             setMainTab({ ...mainTab, selectedKey: item?.props.itemKey, showConnectionList: false })
           }} >
           {mainTab.connectionItems.map((v, index) => {
-            return <PivotItem headerText={v.connection.name} key={v.connection.id} itemKey={v.connection.id}
+            return <PivotItem alwaysRender={true} headerText={v.connection.name} key={v.connection.id} itemKey={v.connection.id}
               onRenderItemLink={(link, defaultRenderer: any) => (
                 <span>
                   {defaultRenderer(link)}

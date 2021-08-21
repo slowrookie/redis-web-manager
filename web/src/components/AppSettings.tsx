@@ -1,4 +1,4 @@
-import { ContextualMenuItemType, Dialog, PrimaryButton, Stack, Text, TooltipHost } from '@fluentui/react';
+import { ContextualMenuItemType, DefaultButton, Dialog, IButtonStyles, Stack, Text, TooltipHost } from '@fluentui/react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supportedLanguages } from '../locales/resources';
@@ -9,12 +9,13 @@ export interface IAppSettings {
   onChangeTheme?: (theme: string) => void
 }
 
-const headerButtonStyles = {
+const headerButtonStyles: IButtonStyles = {
   root: {
     minWidth: 'auto',
     borderRadius: 0,
     padding: '0 8px',
-    height: 42
+    height: 42,
+    border: 0
   }
 }
 
@@ -38,32 +39,33 @@ export const AppSettings = (props: IAppSettings) => {
   return (<>
     {/* settings */}
     <TooltipHost content={t('More')}>
-      <PrimaryButton iconProps={{ iconName: 'settings', style: { height: 'auto' } }} styles={headerButtonStyles} menuProps={{
-        items: [
-          { key: 'divider_1', itemType: ContextualMenuItemType.Divider },
-          {
-            key: 'colorSolid', text: t('Theme'), iconProps: { iconName: 'ColorSolid', style: { lineHeight: '14px' } }, subMenuProps: {
-              items: [
-                { key: 'darkTheme', text: t('Theme-Dark'), title: t('Theme-Dark'), onClick: () => props.onChangeTheme && props.onChangeTheme('dark') },
-                { key: 'lightTheme', text: t('Theme-Light'), title: t('Theme-Light'), onClick: () => props.onChangeTheme && props.onChangeTheme('light') },
-              ],
+      <DefaultButton
+        iconProps={{ iconName: 'settings', style: { height: 'auto' } }} styles={headerButtonStyles} menuProps={{
+          items: [
+            { key: 'divider_1', itemType: ContextualMenuItemType.Divider },
+            {
+              key: 'colorSolid', text: t('Theme'), iconProps: { iconName: 'ColorSolid', style: { lineHeight: '14px' } }, subMenuProps: {
+                items: [
+                  { key: 'darkTheme', text: t('Theme-Dark'), title: t('Theme-Dark'), onClick: () => props.onChangeTheme && props.onChangeTheme('dark') },
+                  { key: 'lightTheme', text: t('Theme-Light'), title: t('Theme-Light'), onClick: () => props.onChangeTheme && props.onChangeTheme('light') },
+                ],
+              },
             },
-          },
-          {
-            key: 'localeLanguage', text: t('Lanaguage'), iconProps: { iconName: 'LocaleLanguage', style: { lineHeight: '14px' } }, subMenuProps: {
-              items: Object.keys(supportedLanguages).map(v => {
-                return { key: v, text: supportedLanguages[v], onClick: () => props.onChangeLanguage && props.onChangeLanguage(v) }
-              }),
+            {
+              key: 'localeLanguage', text: t('Lanaguage'), iconProps: { iconName: 'LocaleLanguage', style: { lineHeight: '14px' } }, subMenuProps: {
+                items: Object.keys(supportedLanguages).map(v => {
+                  return { key: v, text: supportedLanguages[v], onClick: () => props.onChangeLanguage && props.onChangeLanguage(v) }
+                }),
+              },
             },
-          },
-          { key: 'divider_about', itemType: ContextualMenuItemType.Divider },
-          {
-            key: 'about', id: 'settingAbout', text: t('About'), iconProps: { iconName: 'Info', style: { lineHeight: '14px' } }, onClick: () => {
-              setAboutDialogHidden(false);
-            }
-          },
-        ]
-      }} onRenderMenuIcon={() => <></>} />
+            { key: 'divider_about', itemType: ContextualMenuItemType.Divider },
+            {
+              key: 'about', id: 'settingAbout', text: t('About'), iconProps: { iconName: 'Info', style: { lineHeight: '14px' } }, onClick: () => {
+                setAboutDialogHidden(false);
+              }
+            },
+          ]
+        }} onRenderMenuIcon={() => <></>} />
     </TooltipHost>
 
     {/* about dialog  */}

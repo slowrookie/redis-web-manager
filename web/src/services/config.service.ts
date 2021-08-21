@@ -31,8 +31,5 @@ export const setConfig = (config: Config): Promise<Config> => {
 
 export const about = (): Promise<About> => {
   return axios.get('/about')
-    .then(ret => ret.data)
-    .catch(err => {
-      throw new Error(err?.response?.data);
-    });
+    .then(ret => ret.data);
 }

@@ -88,7 +88,7 @@ export const Info = (props: IInfoProps) => {
       <Stack.Item grow={1}>
         <Pivot linkFormat="tabs" style={{ height: '100%' }} styles={{ link: { height: 32, lineHeight: '32px' }, itemContainer: { height: 'calc(100% - 32px)' } }}>
 
-          <PivotItem style={{ height: '100%' }} itemKey="memory" headerText={t('Memory usage')}>
+          <PivotItem alwaysRender style={{ height: '100%' }} itemKey="memory" headerText={t('Memory usage')}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={memoryData} margin={{ top: 20, right: 10 }}>
                 <CartesianGrid strokeDasharray="4 4" />
@@ -104,13 +104,13 @@ export const Info = (props: IInfoProps) => {
             </ResponsiveContainer>
           </PivotItem>
 
-          <PivotItem key="info" itemKey="info" headerText={t('Service Info')}>
+          <PivotItem alwaysRender key="info" itemKey="info" headerText={t('Service Info')}>
             <Pivot style={{ paddingTop: 10 }} styles={{ link: { height: 24, lineHeight: '24px' } }}>
               {info && Object.keys(info).map(v => {
                 var items = Object.keys(info[v]).map(i => {
                   return { key: i, name: i, value: info[v][i] }
                 }) || [];
-                return (<PivotItem key={v} headerText={v}>
+                return (<PivotItem alwaysRender key={v} headerText={v}>
                   <DetailsList
                     isHeaderVisible={false}
                     compact={true}
@@ -126,13 +126,13 @@ export const Info = (props: IInfoProps) => {
               })}
             </Pivot>
           </PivotItem>
-          <PivotItem itemKey="slowlog" headerText={t('Slow log')}>
+          <PivotItem alwaysRender itemKey="slowlog" headerText={t('Slow log')}>
             <SlowLog connection={props.connection}></SlowLog>
           </PivotItem>
-          <PivotItem itemKey="clients" headerText={t('Clients')}>
+          <PivotItem alwaysRender itemKey="clients" headerText={t('Clients')}>
             <Client connection={props.connection} />
           </PivotItem>
-          <PivotItem itemKey="pub/sub" headerText={t('Push/subscribe channel')}>
+          <PivotItem alwaysRender itemKey="pub/sub" headerText={t('Push/subscribe channel')}>
             <PubSub connection={props.connection}></PubSub>
           </PivotItem>
         </Pivot>

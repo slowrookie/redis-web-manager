@@ -1,4 +1,4 @@
-import { AnimationClassNames, Depths, DirectionalHint, IButtonStyles, IconButton, Stack, TooltipHost, useTheme } from '@fluentui/react';
+import { Depths, DirectionalHint, IButtonStyles, IconButton, Stack, TooltipHost, useTheme } from '@fluentui/react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection, executeCommand } from '../services/connection.service';
