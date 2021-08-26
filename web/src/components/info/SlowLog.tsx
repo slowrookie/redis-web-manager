@@ -11,7 +11,7 @@ export interface ISlowLogProps {
 export const SlowLog = (props: ISlowLogProps) => {
     const { t } = useTranslation();
 
-    const [autoRefresh, setAutoRefresh] = useState(true),
+    const [autoRefresh, setAutoRefresh] = useState(false),
         [error, setError] = useState<Error | undefined>(),
         [items, setItems] = useState<Array<{ time: string, duration: string, command: string, addr: string }>>([]);
 

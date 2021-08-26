@@ -45,7 +45,6 @@ export const Console = (props: IConsoleProps) => {
   const theme = useTheme();
   const { t } = useTranslation();
   const inputStyle: CSSProperties = {
-    backgroundColor: 'transparent',
     border: 'none',
     outline: 'none',
     color: theme.palette.themePrimary,
@@ -134,7 +133,7 @@ export const Console = (props: IConsoleProps) => {
 
         <ErrorMessageBar error={error} />
 
-        <Stack.Item grow={1} style={{ padding: 5, overflow: 'auto', backgroundColor: theme.palette.neutralLighterAlt, color: theme.palette.neutralPrimary, fontSize: 12 }}>
+        <Stack.Item grow={1} style={{ padding: 5, overflow: 'auto', color: theme.palette.neutralPrimary, fontSize: 12 }}>
           {lines && lines.map((line, i) => <Stack key={i} horizontal verticalAlign="center" tokens={{ childrenGap: 10 }}>
 
             {line.type === "I" && (<>

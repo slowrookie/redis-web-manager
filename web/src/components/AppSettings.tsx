@@ -1,5 +1,5 @@
-import { ContextualMenuItemType, DefaultButton, Dialog, IButtonStyles, Stack, Text, TooltipHost } from '@fluentui/react';
-import React, { useEffect, useState } from 'react';
+import { ContextualMenu, ContextualMenuItemType, Dialog, Icon, Image, Stack, Text } from '@fluentui/react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supportedLanguages } from '../locales/resources';
 import { About, about } from '../services/config.service';
@@ -9,21 +9,13 @@ export interface IAppSettings {
   onChangeTheme?: (theme: string) => void
 }
 
-const headerButtonStyles: IButtonStyles = {
-  root: {
-    minWidth: 'auto',
-    borderRadius: 0,
-    padding: '0 8px',
-    height: 42,
-    border: 0
-  }
-}
-
 export const AppSettings = (props: IAppSettings) => {
 
   const { t } = useTranslation(),
     [aboutData, setAboutData] = useState<About>(),
-    [aboutDialogHidden, setAboutDialogHidden] = useState(true);
+    [aboutDialogHidden, setAboutDialogHidden] = useState(true),
+    [showContextualMenu, setShowContextualMenu] = useState(false),
+    linkRef = useRef(null);
 
   useEffect(() => {
     about().then((ret) => {
@@ -38,68 +30,85 @@ export const AppSettings = (props: IAppSettings) => {
 
   return (<>
     {/* settings */}
-    <TooltipHost content={t('More')}>
-      <DefaultButton
-        iconProps={{ iconName: 'settings', style: { height: 'auto' } }} styles={headerButtonStyles} menuProps={{
-          items: [
-            { key: 'divider_1', itemType: ContextualMenuItemType.Divider },
-            {
-              key: 'colorSolid', text: t('Theme'), iconProps: { iconName: 'ColorSolid', style: { lineHeight: '14px' } }, subMenuProps: {
-                items: [
-                  { key: 'darkTheme', text: t('Theme-Dark'), title: t('Theme-Dark'), onClick: () => props.onChangeTheme && props.onChangeTheme('dark') },
-                  { key: 'lightTheme', text: t('Theme-Light'), title: t('Theme-Light'), onClick: () => props.onChangeTheme && props.onChangeTheme('light') },
-                ],
-              },
-            },
-            {
-              key: 'localeLanguage', text: t('Lanaguage'), iconProps: { iconName: 'LocaleLanguage', style: { lineHeight: '14px' } }, subMenuProps: {
-                items: Object.keys(supportedLanguages).map(v => {
-                  return { key: v, text: supportedLanguages[v], onClick: () => props.onChangeLanguage && props.onChangeLanguage(v) }
-                }),
-              },
-            },
-            { key: 'divider_about', itemType: ContextualMenuItemType.Divider },
-            {
-              key: 'about', id: 'settingAbout', text: t('About'), iconProps: { iconName: 'Info', style: { lineHeight: '14px' } }, onClick: () => {
-                setAboutDialogHidden(false);
-              }
-            },
-          ]
-        }} onRenderMenuIcon={() => <></>} />
-    </TooltipHost>
+    <div ref={linkRef} onClick={(e: React.MouseEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
+      setShowContextualMenu(true);
+    }}>
+      <Icon iconName="ChevronDown" className="icon" />
 
-    {/* about dialog  */}
-    <Dialog
-      minWidth={450}
-      hidden={aboutDialogHidden}
-      onDismiss={() => { setAboutDialogHidden(!aboutDialogHidden) }}
-      dialogContentProps={{
-        title: "Redis Web Manager"
-      }}
-      modalProps={{ isBlocking: true }}>
-      <Stack>
-        <Stack horizontal horizontalAlign="space-between">
-          <Text>Version: </Text>
-          <Text>{aboutData?.version}</Text>
+      <ContextualMenu
+        items={[
+          { key: 'divider_1', itemType: ContextualMenuItemType.Divider },
+          {
+            key: 'colorSolid', text: t('Theme'), iconProps: { iconName: 'ColorSolid', style: { lineHeight: '14px' } }, subMenuProps: {
+              items: [
+                { key: 'darkTheme', text: t('Theme-Dark'), title: t('Theme-Dark'), onClick: () => props.onChangeTheme && props.onChangeTheme('dark') },
+                { key: 'lightTheme', text: t('Theme-Light'), title: t('Theme-Light'), onClick: () => props.onChangeTheme && props.onChangeTheme('light') },
+              ],
+            },
+          },
+          {
+            key: 'localeLanguage', text: t('Lanaguage'), iconProps: { iconName: 'LocaleLanguage', style: { lineHeight: '14px' } }, subMenuProps: {
+              items: Object.keys(supportedLanguages).map(v => {
+                return { key: v, text: supportedLanguages[v], onClick: () => props.onChangeLanguage && props.onChangeLanguage(v) }
+              }),
+            },
+          },
+          { key: 'divider_about', itemType: ContextualMenuItemType.Divider },
+          {
+            key: 'about', id: 'settingAbout', text: t('About'), iconProps: { iconName: 'Info', style: { lineHeight: '14px' } }, onClick: () => {
+              setAboutDialogHidden(false);
+            }
+          },
+        ]}
+        hidden={!showContextualMenu}
+        target={linkRef}
+        onItemClick={() => { setShowContextualMenu(false) }}
+        onDismiss={() => { setShowContextualMenu(false) }}
+      />
+
+      {/* about dialog  */}
+      <Dialog
+        minWidth={450}
+        hidden={aboutDialogHidden}
+        onDismiss={() => { setAboutDialogHidden(!aboutDialogHidden) }}
+        dialogContentProps={{
+          title: "Redis Web Manager"
+        }}
+        modalProps={{ isBlocking: true }}>
+        <Stack tokens={{ childrenGap: 5 }}>
+          <Stack horizontal horizontalAlign="space-between">
+            <Text>Version: </Text>
+            <Text>{aboutData?.version}</Text>
+          </Stack>
+          <Stack horizontal horizontalAlign="space-between">
+            <Text>Commit: </Text>
+            <Text>{aboutData?.commit}</Text>
+          </Stack>
+          <Stack horizontal horizontalAlign="space-between">
+            <Text>Date: </Text>
+            <Text>{aboutData?.date}</Text>
+          </Stack>
+          <Stack horizontal horizontalAlign="space-between">
+            <Text>BuiltBy: </Text>
+            <Text>{aboutData?.builtBy}</Text>
+          </Stack>
+          <Stack horizontal horizontalAlign="space-between">
+            <Text>Environment: </Text>
+            <Text>{aboutData?.environment}</Text>
+          </Stack>
+          <Stack horizontal horizontalAlign="center" tokens={{ childrenGap: 10 }}>
+            <a href="https://github.com/slowrookie/redis-web-manager" target="_blank" rel="noreferrer">
+              <Image src="https://img.shields.io/github/license/slowrookie/redis-web-manager?logo=github" />
+            </a>
+            <a href="https://github.com/slowrookie/redis-web-manager" target="_blank" rel="noreferrer">
+              <Image src="https://img.shields.io/github/stars/slowrookie/redis-web-manager?logo=github" />
+            </a>
+          </Stack>
         </Stack>
-        <Stack horizontal horizontalAlign="space-between">
-          <Text>Commit: </Text>
-          <Text>{aboutData?.commit}</Text>
-        </Stack>
-        <Stack horizontal horizontalAlign="space-between">
-          <Text>Date: </Text>
-          <Text>{aboutData?.date}</Text>
-        </Stack>
-        <Stack horizontal horizontalAlign="space-between">
-          <Text>BuiltBy: </Text>
-          <Text>{aboutData?.builtBy}</Text>
-        </Stack>
-        <Stack horizontal horizontalAlign="space-between">
-          <Text>Environment: </Text>
-          <Text>{aboutData?.environment}</Text>
-        </Stack>
-      </Stack>
-    </Dialog>
+      </Dialog>
+    </div>
   </>)
 
 }

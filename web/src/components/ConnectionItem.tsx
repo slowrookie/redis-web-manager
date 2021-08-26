@@ -49,7 +49,7 @@ export const ConnectionItem = (props: IConnectionItemProps) => {
   }, [connection])
 
   const selectedStyle = (key: string) => {
-    return selectedKey === key ? { borderRight: `2px solid ${theme.palette.themePrimary}` } : { borderRight: '0px' };
+    return selectedKey === key ? { borderLeft: `2px solid ${theme.palette.themePrimary}` } : { borderLeft: '0px' };
   }
 
   return (<>

@@ -57,7 +57,7 @@ export const ConnectionList = (props: IConnectionListProps) => {
 
     <Loading loading={loading} />
 
-    <Stack horizontal wrap tokens={{ childrenGap: '10 10', padding: 10 }} horizontalAlign='center' >
+    <Stack horizontal wrap tokens={{ childrenGap: '10 10', padding: 10 }} horizontalAlign='center'>
 
       <DocumentCard key={"add"} type={DocumentCardType.compact} styles={{ root: { width: 320 } }} onClick={() => {
         setShowEditPanel(true);

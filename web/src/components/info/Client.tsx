@@ -13,7 +13,7 @@ export const Client = (props: IClientProps) => {
   const { connection } = props,
     { t } = useTranslation();
 
-  const [autoRefresh, setAutoRefresh] = useState(true),
+  const [autoRefresh, setAutoRefresh] = useState(false),
     [error, setError] = useState<Error | undefined>(),
     [items, setItems] = useState<Array<any>>([]);
 

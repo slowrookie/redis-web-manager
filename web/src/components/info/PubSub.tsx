@@ -11,7 +11,7 @@ export interface IPubSub {
 export const PubSub = (props: IPubSub) => {
     const { t } = useTranslation();
 
-    const [autoRefresh, setAutoRefresh] = useState(true),
+    const [autoRefresh, setAutoRefresh] = useState(false),
         [error, setError] = useState<Error | undefined>(),
         [items, setItems] = useState<Array<{ name: string }>>([]);
 

@@ -221,8 +221,7 @@ export const Database = (props: IDatabaseProps) => {
           {/* keys */}
           <Stack.Item grow={1} style={{ overflow: 'auto' }}>
             <KeyList {...props} db={search.db} keys={keys}
-              onSelectedKey={handleSelectedKey}
-              onDeletedKey={handleDeletedKey} />
+              onSelectedKey={handleSelectedKey} />
              
           </Stack.Item>
           {/* load more */}
