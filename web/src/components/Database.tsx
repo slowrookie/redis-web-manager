@@ -8,6 +8,8 @@ import { DatabaseFilter } from './DatabaseFilter';
 import { HashKey } from './HashKey';
 import { KeyList } from './KeyList';
 import { ListKey } from './ListKey';
+import NoKeySelected from './NoKeySelected';
+import NotFoundKey from './NotFoundKey';
 import { HashKeyPanel } from './panel/HashKeyPanel';
 import { ListKeyPanel } from './panel/ListKeyPanel';
 import { SetKeyPanel } from './panel/SetKeyPanel';
@@ -149,6 +151,14 @@ export const Database = (props: IDatabaseProps) => {
   }
 
   const keyComponent = () => {
+    if (!showKeyPanel.type && !showKeyPanel.keyName) {
+      return <NoKeySelected />
+    }
+
+    if (!showKeyPanel.type) {
+      return <NotFoundKey message={`Key ${showKeyPanel.keyName} not found`}/>
+    }
+
     const componentProps = {
       ...props,
       db: search.db,
@@ -207,12 +217,12 @@ export const Database = (props: IDatabaseProps) => {
           </Stack>
 
           {/* filter */}
-          <DatabaseFilter 
-            id={`filter-${connection.id}-${search.db}`} 
-            keys={keys} 
-            defaultValue={connection.keysPattern} 
+          <DatabaseFilter
+            id={`filter-${connection.id}-${search.db}`}
+            keys={keys}
+            defaultValue={connection.keysPattern}
             defaultCount={connection.dataScanLimit}
-            namespaceSeparator = {connection.namespaceSeparator}
+            namespaceSeparator={connection.namespaceSeparator}
             onFilter={handleFilter} />
           <div style={{ borderBottom: `1px solid ${theme.palette.neutralLight}` }}></div>
 
@@ -222,7 +232,7 @@ export const Database = (props: IDatabaseProps) => {
           <Stack.Item grow={1} style={{ overflow: 'auto' }}>
             <KeyList {...props} db={search.db} keys={keys}
               onSelectedKey={handleSelectedKey} />
-             
+
           </Stack.Item>
           {/* load more */}
           <div style={{ borderBottom: `1px solid ${theme.palette.neutralLight}` }}></div>
@@ -247,6 +257,6 @@ export const Database = (props: IDatabaseProps) => {
     </Stack>
 
     {/* add key */}
-    { keyEditPanel()}
+    {keyEditPanel()}
   </>)
 }

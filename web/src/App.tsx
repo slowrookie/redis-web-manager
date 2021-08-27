@@ -1,5 +1,5 @@
 import { registerIcons, Theme, ThemeProvider } from '@fluentui/react';
-import { AscendingIcon, Blocked2Icon, ServerProcessesIcon, CodeIcon, UploadIcon, ProductListIcon, DataManagementSettingsIcon, CancelIcon, CheckMarkIcon, ChevronDownIcon, ChevronDownSmallIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpSmallIcon, CircleAdditionIcon, CircleAdditionSolidIcon, CircleRingIcon, ClearIcon, ClipboardListIcon, ColorSolidIcon, CompletedIcon, CopyIcon, DatabaseIcon, DeleteIcon, DescendingIcon, DoubleChevronDownIcon, DoubleChevronUpIcon, EditIcon, EmbedIcon, ErrorBadgeIcon, FilterIcon, FilterSolidIcon, FunnelChartIcon, GroupListIcon, HideIcon, HomeIcon, InfoIcon, InstallationIcon, LocaleLanguageIcon, MapLayersIcon, MoreIcon, MoreVerticalIcon, PermissionsIcon, PlugConnectedIcon, PlugDisconnectedIcon, PublishContentIcon, QueryListIcon, RedEyeIcon, RefreshIcon, RemoveFromShoppingListIcon, RevToggleKeyIcon, SaveIcon, SearchDataIcon, SearchIcon, SettingsIcon, SkypeCircleCheckIcon, StatusCircleCheckmarkIcon, StatusCircleErrorXIcon, StatusErrorFullIcon, SyncIcon, ViewIcon } from '@fluentui/react-icons';
+import { AscendingIcon, Blocked2Icon, CancelIcon, CheckMarkIcon, ChevronDownIcon, ChevronDownSmallIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpSmallIcon, CircleAdditionIcon, CircleAdditionSolidIcon, CircleRingIcon, ClearIcon, ClipboardListIcon, CodeIcon, ColorSolidIcon, CompletedIcon, CopyIcon, DatabaseIcon, DataManagementSettingsIcon, DeleteIcon, DescendingIcon, DoubleChevronDownIcon, DoubleChevronUpIcon, EditIcon, EmbedIcon, Emoji2Icon, ErrorBadgeIcon, FilterIcon, FilterSolidIcon, FunnelChartIcon, GroupListIcon, HideIcon, HomeIcon, InfoIcon, InstallationIcon, LocaleLanguageIcon, LocationIcon, MapLayersIcon, MoreIcon, MoreVerticalIcon, PermissionsIcon, PlugConnectedIcon, PlugDisconnectedIcon, ProductListIcon, PublishContentIcon, QueryListIcon, RedEyeIcon, RefreshIcon, RemoveFromShoppingListIcon, RevToggleKeyIcon, SadIcon, SaveIcon, SearchDataIcon, SearchIcon, ServerProcessesIcon, SettingsIcon, SkypeCircleCheckIcon, StatusCircleCheckmarkIcon, StatusCircleErrorXIcon, StatusErrorFullIcon, SyncIcon, UploadIcon, ViewIcon } from '@fluentui/react-icons';
 import React, { useEffect, useState } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import './App.css';
@@ -73,13 +73,16 @@ registerIcons({
     DataManagementSettings: <DataManagementSettingsIcon />,
     Code: <CodeIcon />,
     ProductList: <ProductListIcon />,
-    Upload: <UploadIcon />
+    Upload: <UploadIcon />,
+    Sad: <SadIcon />,
+    Emoji2: <Emoji2Icon />,
+    Location: <LocationIcon />
   }
 })
 
 
 function App() {
-  const [_config, _setConfig] = useState<Config>({ theme: 'light', language: 'en_US' }),
+  const [_config, _setConfig] = useState<Config>({ theme: 'light', language: 'en_US', port: 8080 }),
     [theme, setTheme] = useState<Theme>(themes.light),
     [error, setError] = useState<Error>(),
     [loading, setLoading] = useState<boolean>(true);
@@ -102,20 +105,24 @@ function App() {
   }, [_config.language])
 
   const handleChangeTheme = (theme: string) => {
-    _setConfig({ ..._config, theme });
     changeConfig({ ..._config, theme });
     setTheme(themes[theme]);
   }
 
   const handleChnageLanguage = (language: string) => {
-    _setConfig({ ..._config, language });
     changeConfig({ ..._config, language });
+  }
+
+  const handleChangePort = (port: number) => {
+    changeConfig({ ..._config, port })
   }
 
   const changeConfig = (conf: Config) => {
     setLoading(true);
     setConfig(conf)
-      .then()
+      .then(ret => {
+        _setConfig(ret)
+      })
       .catch(setError)
       .finally(() => {
         setLoading(false);
@@ -123,14 +130,18 @@ function App() {
   }
 
   return (<>
-    <ThemeProvider theme={theme} style={{ height: '100%'}}>
+    <ThemeProvider theme={theme} style={{ height: '100%' }}>
       <I18nextProvider i18n={i18n}>
         {/* loading */}
         <Loading loading={loading} />
         {/* error */}
         <ErrorMessageBar error={error}></ErrorMessageBar>
         {/* mainTab */}
-        <MainTab onChangeLanguage={handleChnageLanguage} onChangeTheme={handleChangeTheme}></MainTab>
+        <MainTab config={_config}
+          onChangeLanguage={handleChnageLanguage}
+          onChangeTheme={handleChangeTheme}
+          onChangePort={handleChangePort}
+        ></MainTab>
       </I18nextProvider>
     </ThemeProvider>
   </>);

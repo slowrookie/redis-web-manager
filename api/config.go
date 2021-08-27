@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
+	"net"
 	"os"
 )
 
 type Config struct {
 	Theme    string `json:"theme"`
 	Language string `json:"language"`
+	Port     uint   `json:"port"`
 }
 
 var DefaultConfig = &Config{}
@@ -35,6 +37,9 @@ func (c *Config) Get() (Config, error) {
 			return *c, err
 		}
 	}
+	if c.Port == 0 {
+		c.Port = 8080
+	}
 	return *c, nil
 }
 
@@ -58,5 +63,16 @@ func (c *Config) Set() error {
 	if nil != err {
 		return err
 	}
+	return nil
+}
+
+func (c *Config) CheckPort(port string) error {
+	ln, err := net.Listen("tcp", ":"+port)
+
+	if err != nil {
+		return err
+	}
+
+	defer ln.Close()
 	return nil
 }

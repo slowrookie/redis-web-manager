@@ -4,7 +4,6 @@
     "Database": "数据库",
     "CLI": "命令",
     "Configuration": "配置",
-    "More": "更多",
     "Load more": "加载更多",
     "Theme": "颜色主题",
     "Theme-Dark": "深色主题",
@@ -100,5 +99,9 @@
     "Search": "搜索",
     "Groups": "分组",
     "Upload": "上传",
-    "Security": "安全"
+    "Security": "安全",
+    "Welcome to discussions!": "欢迎讨论！",
+    "Change port": "更改端口",
+    "After the port is changed, it needs to be restarted to take effect": "端口更改后需重启才能生效",
+    "Port valid error": "端口校验失败"
 }

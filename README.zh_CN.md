@@ -1,6 +1,6 @@
 <!-- https://github.com/RichardLitt/standard-readme -->
 
-<img align="right" width="100" src="https://user-images.githubusercontent.com/1582077/123831470-f2ce4d80-d936-11eb-96e3-65f50db079b3.png">
+<img align="right" width="100" src="https://user-images.githubusercontent.com/1582077/131063491-58e25690-6180-4e2b-9c8e-801649b2423e.png">
 
 # RWM (Redis web manager)
 
@@ -24,7 +24,7 @@ RWM 是一款使用 React & Golang 开发的Web应用，用于管理Redis，支�
   - [使用许可](#使用许可)
 
 ## 项目截图
-![项目截图](https://user-images.githubusercontent.com/1582077/125068606-3ddf2200-e0e8-11eb-946e-3f902d3afd99.png)
+![项目截图](https://user-images.githubusercontent.com/1582077/131060729-54eeef49-9a16-4f72-8ca7-2dee2ba9a33e.jpg)
 
 
 ## 下载与安装

@@ -1,12 +1,15 @@
 import { Depths, Icon, Pivot, PivotItem, Stack } from '@fluentui/react';
 import React, { useEffect, useState } from 'react';
 import { Connection } from '../services/connection.service';
-import { AppSettings } from './AppSettings';
+import { AppSettings } from './settings/AppSettings';
 import { ConnectionItem, IConnectionItemProps } from './ConnectionItem';
 import { ConnectionList } from './ConnectionList';
+import { Config } from '../services/config.service';
 export interface IMainTabProps {
   onChangeLanguage?: (language: string) => void
   onChangeTheme?: (theme: string) => void
+  onChangePort?: (port: number) => void
+  config: Config
 }
 
 interface IMainTab {

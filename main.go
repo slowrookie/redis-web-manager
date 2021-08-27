@@ -43,6 +43,12 @@ func main() {
 		panic(nil)
 	}
 
+	// config
+	conf, err := api.DefaultConfig.Get()
+	if err != nil {
+		panic(nil)
+	}
+
 	r.GET("/", func(c *gin.Context) {
 		c.FileFromFS("/", http.FS(buildFiles))
 	})
@@ -77,7 +83,7 @@ func main() {
 		c.JSON(http.StatusOK, about)
 	})
 
-	// groups
+	// config
 	configGroup := r.Group("/config")
 	{
 		configGroup.GET("/", func(c *gin.Context) {
@@ -91,6 +97,14 @@ func main() {
 		configGroup.POST("/", func(c *gin.Context) {
 			c.Bind(api.DefaultConfig)
 			if err := api.DefaultConfig.Set(); nil != err {
+				c.String(http.StatusInternalServerError, fmt.Sprintf("error: %s", err))
+				return
+			}
+			c.JSON(http.StatusOK, api.DefaultConfig)
+		})
+		configGroup.GET("/port/check", func(c *gin.Context) {
+			port := c.Query("port")
+			if err := api.DefaultConfig.CheckPort(port); nil != err {
 				c.String(http.StatusInternalServerError, fmt.Sprintf("error: %s", err))
 				return
 			}
@@ -206,13 +220,14 @@ func main() {
 
 	// listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 	// r.Run()
-	listen, err := net.Listen("tcp", "0.0.0.0:8080")
+	port := strconv.FormatUint(uint64(conf.Port), 10)
+	listen, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%s", port))
 	if err != nil {
 		log.Fatal(err)
 	}
 	// 服务启动之后，打开系统浏览器
 	if GIN_MODE != gin.DebugMode {
-		_ = browser.OpenURL("http://127.0.0.1:8080")
+		_ = browser.OpenURL(fmt.Sprintf("http://127.0.0.1:%s", port))
 	}
 	log.Fatal(http.Serve(listen, r))
 

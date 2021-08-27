@@ -4,7 +4,6 @@
     "Database": "Database",
     "CLI": "CLI",
     "Configuration": "Configuration",
-    "More": "More",
     "Load more": "Load more",
     "Theme": "Theme",
     "Theme-Dark": "Dark Theme",
@@ -100,5 +99,9 @@
     "Search": "Search",
     "Groups": "Groups",
     "Upload": "Upload",
-    "Security": "Security"
+    "Security": "Security",
+    "Welcome to discussions!": "Welcome to discussions!",
+    "Change port": "Change port",
+    "After the port is changed, it needs to be restarted to take effect": "After the port is changed, it needs to be restarted to take effect",
+    "Port valid error": "Port valid error"
 }

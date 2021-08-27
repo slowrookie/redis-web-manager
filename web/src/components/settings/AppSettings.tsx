@@ -1,33 +1,25 @@
-import { ContextualMenu, ContextualMenuItemType, Dialog, Icon, Image, Stack, Text } from '@fluentui/react';
-import React, { useEffect, useRef, useState } from 'react';
+import { ContextualMenu, ContextualMenuItemType, Icon } from '@fluentui/react';
+import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { supportedLanguages } from '../locales/resources';
-import { About, about } from '../services/config.service';
-import logo from '../logo.svg';
+import { supportedLanguages } from '../../locales/resources';
+import { Config } from '../../services/config.service';
+import { AboutDialog } from './AboutDialog';
+import { PortDialog } from './PortDialog';
 
 export interface IAppSettings {
   onChangeLanguage?: (language: string) => void
   onChangeTheme?: (theme: string) => void
+  onChangePort?: (port: number) => void
+  config: Config
 }
 
 export const AppSettings = (props: IAppSettings) => {
 
   const { t } = useTranslation(),
-    [aboutData, setAboutData] = useState<About>(),
     [aboutDialogHidden, setAboutDialogHidden] = useState(true),
+    [portDialogHidden, setPortDialogHidden] = useState(true),
     [showContextualMenu, setShowContextualMenu] = useState(false),
     linkRef = useRef(null);
-
-  useEffect(() => {
-    about().then((ret) => {
-      if (!ret) return;
-      setAboutData(ret)
-    })
-      .finally(() => {
-
-      })
-  }, []);
-
 
   return (<>
     {/* settings */}
@@ -56,6 +48,12 @@ export const AppSettings = (props: IAppSettings) => {
               }),
             },
           },
+          { key: 'divider_port', itemType: ContextualMenuItemType.Divider },
+          {
+            key: 'port', id: 'settingPort', text: t("Change port"), iconProps: { iconName: 'Location', style: { lineHeight: '14px' } }, onClick: () => {
+              setPortDialogHidden(false);
+            }
+          },
           { key: 'divider_about', itemType: ContextualMenuItemType.Divider },
           {
             key: 'about', id: 'settingAbout', text: t('About'), iconProps: { iconName: 'Info', style: { lineHeight: '14px' } }, onClick: () => {
@@ -70,46 +68,14 @@ export const AppSettings = (props: IAppSettings) => {
       />
 
       {/* about dialog  */}
-      <Dialog
-        minWidth={450}
-        hidden={aboutDialogHidden}
-        onDismiss={() => { setAboutDialogHidden(!aboutDialogHidden) }}
-        dialogContentProps={{
-          title: "Redis Web Manager"
-        }}
-        modalProps={{ isBlocking: true }}>
-        <Stack horizontal tokens={{childrenGap: 20}}>
-          <Stack horizontalAlign="center" tokens={{childrenGap: 5}}>
-            <Image src={logo} width={80} />
-            <a href="https://github.com/slowrookie/redis-web-manager" target="_blank" rel="noreferrer">
-              <Image src="https://img.shields.io/github/stars/slowrookie/redis-web-manager?logo=github" />
-            </a>
-          </Stack>
+      <AboutDialog hidden={aboutDialogHidden} onDismiss={() => setAboutDialogHidden(true)} />
 
-          <Stack grow={1} tokens={{ childrenGap: 5 }}>
-            <Stack horizontal horizontalAlign="space-between">
-              <Text>Version: </Text>
-              <Text>{aboutData?.version}</Text>
-            </Stack>
-            <Stack horizontal horizontalAlign="space-between">
-              <Text>Commit: </Text>
-              <Text>{aboutData?.commit}</Text>
-            </Stack>
-            <Stack horizontal horizontalAlign="space-between">
-              <Text>Date: </Text>
-              <Text>{aboutData?.date}</Text>
-            </Stack>
-            <Stack horizontal horizontalAlign="space-between">
-              <Text>BuiltBy: </Text>
-              <Text>{aboutData?.builtBy}</Text>
-            </Stack>
-            <Stack horizontal horizontalAlign="space-between">
-              <Text>Environment: </Text>
-              <Text>{aboutData?.environment}</Text>
-            </Stack>
-          </Stack>
-        </Stack>
-      </Dialog>
+      {/* prot dialog */}
+      <PortDialog 
+        hidden={portDialogHidden} 
+        onDismiss={() => setPortDialogHidden(true)} 
+        port={props.config.port}
+        onChangePort={(port: number) => {props.onChangePort && props.onChangePort(port)} } />
     </div>
   </>)
 
