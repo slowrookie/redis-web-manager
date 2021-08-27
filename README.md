@@ -47,10 +47,10 @@ After decompressing the downloaded file (`*.tar.gz`), execute the `RWM` or `RWM.
 
 `Docker`:
 ```sh
-docker run --rm -d  -p 9090:9090/tcp slowrookie/redis-web-manager:latest
+docker run --rm -d  -p 8080:8080/tcp slowrookie/redis-web-manager:latest
 ```
 
-After the service starts, it will automatically call the default browser of the operating system and visit `http://127.0.0.1:9090`。
+After the service starts, it will automatically call the default browser of the operating system and visit `http://127.0.0.1:8080`。
 
 After the service is started for the first time, two files will be generated, one is `.config.json` to store configuration information. One is `.connections.json`, which is used to save the maintenance connection information.
 
