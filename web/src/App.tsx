@@ -82,7 +82,7 @@ registerIcons({
 
 
 function App() {
-  const [_config, _setConfig] = useState<Config>({ theme: 'light', language: 'en_US', port: 8080 }),
+  const [_config, _setConfig] = useState<Config>({ theme: 'light', language: navigator.language, port: 8080 }),
     [theme, setTheme] = useState<Theme>(themes.light),
     [error, setError] = useState<Error>(),
     [loading, setLoading] = useState<boolean>(true);

@@ -39,24 +39,24 @@ export const AboutDialog = (props: IAboutDialogProps) => {
 
         <Stack grow={1} tokens={{ childrenGap: 5 }}>
           <Stack horizontal horizontalAlign="space-between">
-            <Text>Version: </Text>
-            <Text>{aboutData?.version}</Text>
+            <Text variant="small">Version: </Text>
+            <Text variant="small">{aboutData?.version}</Text>
           </Stack>
           <Stack horizontal horizontalAlign="space-between">
-            <Text>Commit: </Text>
-            <Text>{aboutData?.commit}</Text>
+            <Text variant="small">Commit: </Text>
+            <Text variant="small">{aboutData?.commit}</Text>
           </Stack>
           <Stack horizontal horizontalAlign="space-between">
-            <Text>Date: </Text>
-            <Text>{aboutData?.date}</Text>
+            <Text variant="small">Date: </Text>
+            <Text variant="small">{aboutData?.date}</Text>
           </Stack>
           <Stack horizontal horizontalAlign="space-between">
-            <Text>BuiltBy: </Text>
-            <Text>{aboutData?.builtBy}</Text>
+            <Text variant="small">BuiltBy: </Text>
+            <Text variant="small">{aboutData?.builtBy}</Text>
           </Stack>
           <Stack horizontal horizontalAlign="space-between">
-            <Text>Environment: </Text>
-            <Text>{aboutData?.environment}</Text>
+            <Text variant="small">Environment: </Text>
+            <Text variant="small">{aboutData?.environment}</Text>
           </Stack>
         </Stack>
       </Stack>

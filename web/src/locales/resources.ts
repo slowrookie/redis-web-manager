@@ -9,9 +9,12 @@ export const resources = {
     zh_Hans: {
         translation: zh_hans
     },
+    "zh-CN": {
+        translation: zh_hans
+    },
     zh_hant: {
         translation: zh_hant
-    }
+    },
 }
 
 export const supportedLanguages: {[index: string]: string} = {
