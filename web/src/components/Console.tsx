@@ -141,13 +141,15 @@ export const Console = (props: IConsoleProps) => {
               <Stack.Item grow={1}>
                 {line.disabled ? (<span style={inputStyle}>{line.command}</span>) :
                   (
-                    <TextField styles={{root: {height: 24}, fieldGroup: {height: 24}}} autoFocus underlined onKeyPress={handleKeyPress} onChange={handleChange} />
-                  // <input style={inputStyle} autoFocus onKeyPress={handleKeyPress} onChange={handleChange}></input>
+                    <TextField styles={{ root: { height: 24 }, fieldGroup: { height: 24 } }} autoFocus underlined onKeyPress={handleKeyPress} onChange={handleChange} />
+                    // <input style={inputStyle} autoFocus onKeyPress={handleKeyPress} onChange={handleChange}></input>
                   )}
               </Stack.Item>
             </>)}
 
-            {line.type === "O" && <div><pre style={{ margin: 5 }}>{line.ret}</pre></div>}
+            {line.type === "O" && <div style={{ width: 'calc(100vh -50px)', overflow: 'auto' }}>
+              <pre style={{ margin: 5, whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>{line.ret}</pre>
+            </div>}
 
           </Stack>)}
         </Stack.Item>

@@ -14,7 +14,7 @@ const buttonStyles = {
   }
 }
 
-export interface IStringKeyyProps {
+export interface IStringKeyProps {
   connection: Connection
   db: number
   component: string,
@@ -26,9 +26,9 @@ export interface IStringKeyyProps {
 export interface IStringKey {
   keyName: string
   TTL: number
+  length: number
   value: string
   initialValue: string
-  length: number
 }
 
 const defaultStringKey: IStringKey = {
@@ -39,7 +39,10 @@ const defaultStringKey: IStringKey = {
   length: 0
 }
 
-export const StringKey = (props: IStringKeyyProps) => {
+// 2M
+const MAX_LENGTH = 2 * 1024 * 1000;
+
+export const StringKey = (props: IStringKeyProps) => {
 
   const { keyName, connection, db, onKeyNameChanged } = props;
 
@@ -47,11 +50,31 @@ export const StringKey = (props: IStringKeyyProps) => {
 
   const [keyProps, setKeyProps] = useState({ ...defaultStringKey, keyName: keyName }),
     [error, setError] = useState<Error>(),
-    [loading, setLoading] = useState(false);
+    [loading, setLoading] = useState(false),
+    [bigKey, setBigKey] = useState(false);
 
   useEffect(() => {
     setKeyProps({ ...defaultStringKey, keyName })
   }, [keyName])
+
+
+  // load value
+  const loadValue = useCallback(() => {
+    executeCommand<Array<any>>({
+      id: connection.id, commands: [
+        ['SELECT', db],
+        ['GET', keyProps.keyName],
+      ]
+    }).then((ret) => {
+      setKeyProps(v => {
+        v.value = ret[1];
+        v.initialValue = ret[1];
+        return {...v};
+      })
+    })
+      .catch(err => setError(err))
+      .finally(() => setLoading(false));
+  }, [connection.id, db, keyProps.keyName])
 
   const load = useCallback(() => {
     setLoading(true);
@@ -60,8 +83,7 @@ export const StringKey = (props: IStringKeyyProps) => {
       id: connection.id, commands: [
         ['SELECT', db],
         ['TTL', keyProps.keyName],
-        ['GET', keyProps.keyName],
-        ['STRLEN', keyProps.keyName]
+        ['STRLEN', keyProps.keyName],
       ]
     }).then((ret) => {
       if (!ret || !ret.length) return;
@@ -69,15 +91,20 @@ export const StringKey = (props: IStringKeyyProps) => {
       setKeyProps({
         keyName: keyProps.keyName,
         TTL: ret[1],
-        value: ret[2],
-        initialValue: ret[2],
-        length: ret[3]
+        length: ret[2],
+        value: '',
+        initialValue: '',
       });
+      if (Number(ret[2]) > MAX_LENGTH) {
+        setBigKey(true)
+      } else {
+        loadValue();
+      }
     })
       .catch(err => setError(err))
       .finally(() => setLoading(false));
 
-  }, [connection.id, db, keyProps.keyName]);
+  }, [connection.id, db, keyProps.keyName, loadValue]);
 
   useEffect(() => {
     load();
@@ -121,7 +148,7 @@ export const StringKey = (props: IStringKeyyProps) => {
         onRefresh={() => load()} />
 
       <Stack.Item grow={1}>
-        <FormatTextField label={t('Value')} multiline value={keyProps.value} length={keyProps.length}
+        <FormatTextField label={t('Value')} disabled={bigKey} multiline value={keyProps.value} length={keyProps.length}
           onChange={(e, v) => setKeyProps({ ...keyProps, value: v || '' })}
           actions={textFieldActions()}
         ></FormatTextField>
