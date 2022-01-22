@@ -112,18 +112,14 @@ func (c *Connection) Delete() error {
 
 // Open .
 func (c *Connection) Open() error {
-	var client *redis.Client
-	if _, exists := Clients[c.ID]; exists {
-		client = Clients[c.ID]
-	} else {
-		_client, err := c.client()
+	if _, exists := Clients[c.ID]; !exists {
+		client, err := c.client()
 		if nil != err {
 			return err
 		}
-		Clients[c.ID] = _client
-		client = _client
+		Clients[c.ID] = client
 	}
-	_, err := client.Ping(context.Background()).Result()
+	_, err := Clients[c.ID].Ping(context.Background()).Result()
 	if nil != err {
 		return err
 	}
@@ -159,18 +155,16 @@ func (c *Connection) Command(cmd Command) ([]interface{}, error) {
 		return nil, nil
 	}
 
-	var client *redis.Client
-	if _, exists := Clients[cmd.ID]; exists {
-		client = Clients[cmd.ID]
-	} else {
+	if _, exists := Clients[cmd.ID]; !exists {
 		client, err := c.client()
 		if nil != err {
 			return nil, err
 		}
 		Clients[cmd.ID] = client
 	}
+
 	ctx := context.Background()
-	pipe := client.Pipeline()
+	pipe := Clients[cmd.ID].Pipeline()
 	retCmds := make([]*redis.Cmd, size)
 	rets := make([]interface{}, size)
 
@@ -259,6 +253,7 @@ func LoadConnections() error {
 		}
 	}
 	return nil
+
 }
 
 func WriteConnections() error {

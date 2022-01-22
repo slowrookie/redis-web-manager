@@ -1,51 +1,28 @@
-import axios from "axios";
+import { defaultWebSocket } from "./WebSocketService";
 
 export const convertLength = (params: { data: string }): Promise<String> => {
-  return axios.post('/convert/length', params)
-    .then(ret => ret.data)
-    .catch(err => {
-      throw new Error(err?.response?.data);
-    });
+  return defaultWebSocket.request({method: 'Convert.Length', params});
 }
 
 export const convertToHex = (params: { data: string }): Promise<String> => {
-  return axios.post('/convert/toHex', params)
-    .then(ret => ret.data)
-    .catch(err => {
-      throw new Error(err?.response?.data);
-    });
+  return defaultWebSocket.request({method: 'Convert.ToHex', params});
 }
 
 export const convertToJson = (params: { data: string }): Promise<String> => {
-  return axios.post('/convert/toJson', params)
-    .then(ret => ret.data)
-    .catch(err => {
-      throw new Error(err?.response?.data);
-    });
+  return defaultWebSocket.request({method: 'Convert.ToJson', params});
 }
 
 export const convertBase64ToText = (params: { data: string }): Promise<String> => {
-  return axios.post('/convert/base64ToText', params)
-    .then(ret => ret.data)
-    .catch(err => {
-      throw new Error(err?.response?.data);
-    });
+  return defaultWebSocket.request({method: 'Convert.Base64ToText', params});
 }
 
 export const convertBase64ToJson = (params: { data: string }): Promise<String> => {
-  return axios.post('/convert/base64ToJson', params)
-    .then(ret => ret.data)
-    .catch(err => {
-      throw new Error(err?.response?.data);
-    });
+  return defaultWebSocket.request({method: 'Convert.Base64ToJson', params});
 }
 
+
 export const convertToBinary = (params: { data: string }): Promise<String> => {
-  return axios.post('/convert/toBinary', params)
-    .then(ret => ret.data)
-    .catch(err => {
-      throw new Error(err?.response?.data);
-    });
+  return defaultWebSocket.request({method: 'Convert.ToBinary', params});
 }
 
 export const convert: { [index: string]: (params: any) => Promise<any> } = {

@@ -1,4 +1,4 @@
-import axios from "axios";
+import { defaultWebSocket } from "./WebSocketService";
 
 export interface Config {
   theme: string,
@@ -15,29 +15,17 @@ export interface About {
 }
 
 export const getConfig = (): Promise<Config> => {
-  return axios.get('/config/')
-    .then(ret => ret.data)
-    .catch(err => {
-      throw new Error(err?.response?.data);
-    });
+  return defaultWebSocket.request({method: 'Config'});
 }
 
 export const setConfig = (config: Config): Promise<Config> => {
-  return axios.post('/config', config)
-    .then(ret => ret.data)
-    .catch(err => {
-      throw new Error(err?.response?.data);
-    });
+  return defaultWebSocket.request({method: 'Config.Set', params: config});
 }
 
 export const about = (): Promise<About> => {
-  return axios.get('/about')
-    .then(ret => ret.data);
+  return defaultWebSocket.request({method: 'About'});
 }
 
 export const checkPort = (port: number): Promise<any> => {
-  return axios.get('/config/port/check', {params: {port}})
-    .then(ret => {
-      return true
-    });
+  return defaultWebSocket.request({method: 'Config.CheckPort', params: port});
 }

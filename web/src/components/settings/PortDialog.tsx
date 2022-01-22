@@ -1,5 +1,5 @@
 import { DefaultButton, Dialog, DialogFooter, PrimaryButton, TextField } from '@fluentui/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { checkPort } from '../../services/config.service';
 
@@ -21,6 +21,8 @@ export const PortDialog = (props: IAboutDialogProps) => {
     setPort(props.port);
   }
 
+  useEffect(() => { setPort(props.port) }, [props.port]);
+
   return (<>
     <Dialog
       hidden={props.hidden}
@@ -40,12 +42,11 @@ export const PortDialog = (props: IAboutDialogProps) => {
             setHasError(true);
             return t('Port valid error');
           }
-          return checkPort(Number(v))
-            .then(() => "")
-            .catch(err => {
-              setHasError(true);
-              return err.response.data || err.message;
-            })
+          return checkPort(Number(v)).catch((err: Error) => {
+            setHasError(true);
+            console.log(err.message);
+            return err.message;
+          })
         }}
         onChange={(e, v) => { setPort(Number(v)) }}
       />

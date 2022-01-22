@@ -1,11 +1,8 @@
 package api
 
 import (
-	"bytes"
 	"encoding/json"
-	"io/ioutil"
 	"net"
-	"os"
 )
 
 type Config struct {
@@ -14,52 +11,50 @@ type Config struct {
 	Port     uint   `json:"port"`
 }
 
+const (
+	SelectConfigStatement = "SELECT `config` FROM `rwm_config`"
+	InsertConfigStatement = "INSERT INTO `config` VALUES ($1)"
+	CountConfigStatement  = "SELECT COUNT(*) FROM `rwm_config`"
+	UpdateConfigStatement = "UPDATE `rwm_config` SET `config` = $1"
+)
+
 var DefaultConfig = &Config{}
 
 func (c *Config) Get() (Config, error) {
-	err := os.MkdirAll(ROOT_PATH, os.ModePerm)
-	if nil != err {
+	var config string
+	if err := DB.QueryRow(SelectConfigStatement).Scan(&config); err != nil {
 		return *c, err
 	}
-	jsonFile, err := os.OpenFile(ConfigFilePath, os.O_RDWR|os.O_CREATE, 0755)
-	if nil != err {
-		return *c, err
-	}
-	defer jsonFile.Close()
 
-	data, err := ioutil.ReadAll(jsonFile)
-	if nil != err {
-		return *c, err
-	}
-	if len(data) > 0 {
-		err = json.Unmarshal(data, c)
+	if len(config) > 0 {
+		err := json.Unmarshal([]byte(config), c)
 		if nil != err {
 			return *c, err
 		}
 	}
+
 	if c.Port == 0 {
-		c.Port = 8080
+		c.Port = 9090
 	}
 	return *c, nil
 }
 
 func (c *Config) Set() error {
-	jsonFile, err := os.OpenFile(ConfigFilePath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0755)
-	if nil != err {
-		return err
-	}
-	defer jsonFile.Close()
-
 	bts, err := json.Marshal(c)
 	if nil != err {
 		return err
 	}
-	var formatOut bytes.Buffer
-	err = json.Indent(&formatOut, bts, "", "\t")
-	if nil != err {
+
+	var count int
+	if err := DB.QueryRow(CountConfigStatement).Scan(&count); err != nil {
 		return err
 	}
-	_, err = jsonFile.Write(formatOut.Bytes())
+
+	if count >= 0 {
+		_, err = DB.Exec(UpdateConfigStatement, string(bts))
+	} else {
+		_, err = DB.Exec(InsertConfigStatement, string(bts))
+	}
 	if nil != err {
 		return err
 	}

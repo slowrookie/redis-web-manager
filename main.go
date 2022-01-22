@@ -1,41 +1,44 @@
 package main
 
 import (
+	"bytes"
+	"context"
 	"embed"
+	"encoding/json"
 	"fmt"
-	"io"
 	"io/fs"
 	"log"
 	"net"
 	"net/http"
 	"os"
+	"path"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
 	"github.com/pkg/browser"
 	"github.com/slowrookie/redis-web-manager/api"
+	"go.lsp.dev/jsonrpc2"
+	"golang.org/x/net/websocket"
 )
 
 var (
-	version  = "Development"
-	commit   = "Development"
-	date     = "Now"
-	builtBy  = "Development"
-	GIN_MODE = gin.DebugMode
+	version = "Development"
+	commit  = "Development"
+	date    = "Now"
+	builtBy = "Development"
+	MODE    = "Debug"
 )
 
 //go:embed web/build/*
 var webFS embed.FS
 
 func main() {
-	gin.SetMode(GIN_MODE)
-
-	// log
+	// files
 	os.MkdirAll(api.ROOT_PATH, os.ModePerm)
-	logfile, _ := os.Create(api.LogFilePath)
-	gin.DefaultWriter = io.MultiWriter(logfile, os.Stdout)
 
-	r := gin.Default()
+	api.InitializeDB(path.Join("./", api.ROOT_PATH, "rwm.db"))
+	// connections
+	// init connections
+	api.LoadConnections()
 
 	// static files
 	buildFiles, err := fs.Sub(webFS, "web/build")
@@ -43,179 +46,140 @@ func main() {
 		panic(nil)
 	}
 
+	// static files
+	http.Handle("/", http.FileServer(http.FS(buildFiles)))
+
+	// server
+	http.Handle("/ws", websocket.Handler(func(ws *websocket.Conn) {
+		ctx := ws.Request().Context()
+		ServerConn(ctx, ws, jsonrpc2.HandlerServer(func(ctx context.Context, reply jsonrpc2.Replier, req jsonrpc2.Request) error {
+			dec := json.NewDecoder(bytes.NewReader(req.Params()))
+			switch req.Method() {
+			case "About":
+				var about = make(map[string]string)
+				about["version"] = version
+				about["commit"] = commit
+				about["date"] = date
+				about["builtBy"] = builtBy
+				about["environment"] = MODE
+				return reply(ctx, about, nil)
+			// Config
+			case "Config":
+				conf, err := api.DefaultConfig.Get()
+				return reply(ctx, conf, err)
+			case "Config.Set":
+				var config api.Config
+				if err := dec.Decode(&config); err != nil {
+					return jsonrpc2.ErrInvalidRequest
+				}
+				err := config.Set()
+				return reply(ctx, nil, err)
+			case "Config.CheckPort":
+				var port int
+				if err := dec.Decode(&port); err != nil {
+					return jsonrpc2.ErrInvalidRequest
+				}
+				err := api.DefaultConfig.CheckPort(fmt.Sprintf("%d", port))
+				return reply(ctx, nil, err)
+			// Connections
+			case "Connections":
+				connections, err := api.Connections()
+				return reply(ctx, connections, err)
+			case "Connection.Test":
+				var connection api.Connection
+				if err := dec.Decode(&connection); err != nil {
+					return jsonrpc2.ErrInvalidRequest
+				}
+				err := connection.Test()
+				return reply(ctx, nil, err)
+			case "Connection.Edit":
+				var connection api.Connection
+				if err := dec.Decode(&connection); err != nil {
+					return jsonrpc2.ErrInvalidRequest
+				}
+				ret, err := connection.New()
+				return reply(ctx, ret, err)
+			case "Connection.Delete":
+				var id string
+				if err := dec.Decode(&id); err != nil {
+					return jsonrpc2.ErrInvalidRequest
+				}
+				err := api.FindConnectionByID(id).Delete()
+				return reply(ctx, nil, err)
+			case "Connection.Open":
+				var id string
+				if err := dec.Decode(&id); err != nil {
+					return jsonrpc2.ErrInvalidRequest
+				}
+				err := api.FindConnectionByID(id).Open()
+				return reply(ctx, nil, err)
+			case "Connection.Disconnection":
+				var id string
+				if err := dec.Decode(&id); err != nil {
+					return jsonrpc2.ErrInvalidRequest
+				}
+				err := api.FindConnectionByID(id).Disconnection()
+				return reply(ctx, nil, err)
+			case "Connection.Copy":
+				connection := &api.Connection{}
+				if err := dec.Decode(&connection); err != nil {
+					return jsonrpc2.ErrInvalidRequest
+				}
+				_connection, err := connection.Copy()
+				return reply(ctx, _connection, err)
+			case "Connection.Command":
+				var cmd api.Command
+				if err := dec.Decode(&cmd); err != nil {
+					return jsonrpc2.ErrInvalidRequest
+				}
+				ret, err := api.FindConnectionByID(cmd.ID).Command(cmd)
+				return reply(ctx, ret, err)
+			case "Convert.Length":
+				var convert api.Convert
+				if err := dec.Decode(&convert); err != nil {
+					return jsonrpc2.ErrInvalidRequest
+				}
+				return reply(ctx, strconv.Itoa(convert.Length()), nil)
+			case "Convert.ToHex":
+				var convert api.Convert
+				if err := dec.Decode(&convert); err != nil {
+					return jsonrpc2.ErrInvalidRequest
+				}
+				return reply(ctx, convert.ToHex(), nil)
+			case "Convert.ToJson":
+				var convert api.Convert
+				if err := dec.Decode(&convert); err != nil {
+					return jsonrpc2.ErrInvalidRequest
+				}
+				return reply(ctx, convert.ToJson(), nil)
+			case "Convert.ToBinary":
+				var convert api.Convert
+				if err := dec.Decode(&convert); err != nil {
+					return jsonrpc2.ErrInvalidRequest
+				}
+				return reply(ctx, convert.ToBinary(), nil)
+			case "Convert.Base64ToText":
+				var convert api.Convert
+				if err := dec.Decode(&convert); err != nil {
+					return jsonrpc2.ErrInvalidRequest
+				}
+				return reply(ctx, convert.Base64ToText(), nil)
+			case "Convert.Base64ToJson":
+				var convert api.Convert
+				if err := dec.Decode(&convert); err != nil {
+					return jsonrpc2.ErrInvalidRequest
+				}
+				return reply(ctx, convert.Base64ToJson(), nil)
+			default:
+				return jsonrpc2.MethodNotFoundHandler(ctx, reply, req)
+			}
+		}))
+	}))
+
 	// config
 	conf, err := api.DefaultConfig.Get()
 	if err != nil {
 		panic(nil)
-	}
-
-	r.GET("/", func(c *gin.Context) {
-		c.FileFromFS("/", http.FS(buildFiles))
-	})
-
-	r.GET("/manifest.json", func(c *gin.Context) {
-		c.FileFromFS("/manifest.json", http.FS(buildFiles))
-	})
-
-	r.GET("/favicon.ico", func(c *gin.Context) {
-		c.FileFromFS("/favicon.ico", http.FS(buildFiles))
-	})
-
-	r.GET("/logo192.png", func(c *gin.Context) {
-		c.FileFromFS("/logo192.png", http.FS(buildFiles))
-	})
-
-	r.GET("/static/*filepath", func(c *gin.Context) {
-		buildFiles, err := fs.Sub(webFS, "web/build/static")
-		if err != nil {
-			panic(nil)
-		}
-		c.FileFromFS(c.Param("filepath"), http.FS(buildFiles))
-	})
-
-	r.GET("/about", func(c *gin.Context) {
-		var about = make(map[string]string)
-		about["version"] = version
-		about["commit"] = commit
-		about["date"] = date
-		about["builtBy"] = builtBy
-		about["environment"] = GIN_MODE
-		c.JSON(http.StatusOK, about)
-	})
-
-	// config
-	configGroup := r.Group("/config")
-	{
-		configGroup.GET("/", func(c *gin.Context) {
-			conf, err := api.DefaultConfig.Get()
-			if nil != err {
-				c.String(http.StatusInternalServerError, fmt.Sprintf("error: %s", err))
-				return
-			}
-			c.JSON(http.StatusOK, conf)
-		})
-		configGroup.POST("/", func(c *gin.Context) {
-			c.Bind(api.DefaultConfig)
-			if err := api.DefaultConfig.Set(); nil != err {
-				c.String(http.StatusInternalServerError, fmt.Sprintf("error: %s", err))
-				return
-			}
-			c.JSON(http.StatusOK, api.DefaultConfig)
-		})
-		configGroup.GET("/port/check", func(c *gin.Context) {
-			port := c.Query("port")
-			if err := api.DefaultConfig.CheckPort(port); nil != err {
-				c.String(http.StatusInternalServerError, fmt.Sprintf("error: %s", err))
-				return
-			}
-			c.JSON(http.StatusOK, api.DefaultConfig)
-		})
-	}
-	// connections
-	// init connections
-	api.LoadConnections()
-	r.GET("/connections", func(c *gin.Context) {
-		connections, err := api.Connections()
-		if nil != err {
-			c.String(http.StatusInternalServerError, fmt.Sprintf("error: %s", err))
-			return
-		}
-		c.JSON(http.StatusOK, connections)
-	})
-	connectioniGroup := r.Group("/connection")
-	{
-		connectioniGroup.POST("/test", func(c *gin.Context) {
-			connection := &api.Connection{}
-			c.Bind(connection)
-			err := connection.Test()
-			if nil != err {
-				c.String(http.StatusInternalServerError, fmt.Sprintf("error: %s", err))
-				return
-			}
-		})
-		connectioniGroup.POST("/", func(c *gin.Context) {
-			connection := &api.Connection{}
-			c.Bind(connection)
-			ret, err := connection.New()
-			if nil != err {
-				c.String(http.StatusInternalServerError, fmt.Sprintf("error: %s", err))
-				return
-			}
-			c.JSON(http.StatusOK, ret)
-		})
-		connectioniGroup.DELETE("/:id", func(c *gin.Context) {
-			if err := api.FindConnectionByID(c.Param("id")).Delete(); nil != err {
-				c.String(http.StatusInternalServerError, fmt.Sprintf("error: %s", err))
-				return
-			}
-		})
-		connectioniGroup.POST("/:id/open", func(c *gin.Context) {
-			err := api.FindConnectionByID(c.Param("id")).Open()
-			if nil != err {
-				c.String(http.StatusInternalServerError, fmt.Sprintf("error: %s", err))
-				return
-			}
-		})
-		connectioniGroup.POST("/:id/disconnection", func(c *gin.Context) {
-			if err := api.FindConnectionByID(c.Param("id")).Disconnection(); nil != err {
-				c.String(http.StatusInternalServerError, fmt.Sprintf("error: %s", err))
-				return
-			}
-		})
-		connectioniGroup.POST("/copy", func(c *gin.Context) {
-			connection := &api.Connection{}
-			c.Bind(connection)
-			_connection, err := connection.Copy()
-			if nil != err {
-				c.String(http.StatusInternalServerError, fmt.Sprintf("error: %s", err))
-				return
-			}
-			c.JSON(http.StatusOK, _connection)
-		})
-		connectioniGroup.POST("/command", func(c *gin.Context) {
-			cmd := &api.Command{}
-			c.Bind(cmd)
-			ret, err := api.FindConnectionByID(cmd.ID).Command(*cmd)
-			if nil != err {
-				c.String(http.StatusInternalServerError, fmt.Sprintf("error: %s", err))
-				return
-			}
-			c.JSON(http.StatusOK, ret)
-		})
-	}
-	// convert
-	convertGroup := r.Group("/convert")
-	{
-		convertGroup.POST("/length", func(c *gin.Context) {
-			convert := &api.Convert{}
-			c.Bind(convert)
-			c.String(http.StatusOK, strconv.Itoa(convert.Length()))
-		})
-		convertGroup.POST("/toHex", func(c *gin.Context) {
-			convert := &api.Convert{}
-			c.Bind(convert)
-			c.String(http.StatusOK, convert.ToHex())
-		})
-		convertGroup.POST("/toJson", func(c *gin.Context) {
-			convert := &api.Convert{}
-			c.Bind(convert)
-			c.String(http.StatusOK, convert.ToJson())
-		})
-		convertGroup.POST("/toBinary", func(c *gin.Context) {
-			convert := &api.Convert{}
-			c.Bind(convert)
-			c.String(http.StatusOK, convert.ToBinary())
-		})
-		convertGroup.POST("/base64ToText", func(c *gin.Context) {
-			convert := &api.Convert{}
-			c.Bind(convert)
-			c.String(http.StatusOK, convert.Base64ToText())
-		})
-		convertGroup.POST("/base64ToJson", func(c *gin.Context) {
-			convert := &api.Convert{}
-			c.Bind(convert)
-			c.String(http.StatusOK, convert.Base64ToJson())
-		})
 	}
 
 	// listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
@@ -226,9 +190,8 @@ func main() {
 		log.Fatal(err)
 	}
 	// 服务启动之后，打开系统浏览器
-	if GIN_MODE != gin.DebugMode {
+	if MODE != "Debug" {
 		_ = browser.OpenURL(fmt.Sprintf("http://127.0.0.1:%s", port))
 	}
-	log.Fatal(http.Serve(listen, r))
-
+	log.Fatal(http.Serve(listen, nil))
 }

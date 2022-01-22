@@ -6,9 +6,6 @@ import { ConnectionItem, IConnectionItemProps } from './ConnectionItem';
 import { ConnectionList } from './ConnectionList';
 import { Config } from '../services/config.service';
 export interface IMainTabProps {
-  onChangeLanguage?: (language: string) => void
-  onChangeTheme?: (theme: string) => void
-  onChangePort?: (port: number) => void
   config: Config
 }
 

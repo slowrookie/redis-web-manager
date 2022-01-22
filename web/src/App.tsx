@@ -1,11 +1,12 @@
 import { registerIcons, Theme, ThemeProvider } from '@fluentui/react';
 import { AscendingIcon, Blocked2Icon, CancelIcon, CheckMarkIcon, ChevronDownIcon, ChevronDownSmallIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpSmallIcon, CircleAdditionIcon, CircleAdditionSolidIcon, CircleRingIcon, ClearIcon, ClipboardListIcon, CodeIcon, ColorSolidIcon, CompletedIcon, CopyIcon, DatabaseIcon, DataManagementSettingsIcon, DeleteIcon, DescendingIcon, DoubleChevronDownIcon, DoubleChevronUpIcon, EditIcon, EmbedIcon, Emoji2Icon, ErrorBadgeIcon, FilterIcon, FilterSolidIcon, FunnelChartIcon, GroupListIcon, HideIcon, HomeIcon, InfoIcon, InstallationIcon, LocaleLanguageIcon, LocationIcon, MapLayersIcon, MoreIcon, MoreVerticalIcon, PermissionsIcon, PlugConnectedIcon, PlugDisconnectedIcon, ProductListIcon, PublishContentIcon, QueryListIcon, RedEyeIcon, RefreshIcon, RemoveFromShoppingListIcon, RevToggleKeyIcon, SadIcon, SaveIcon, SearchDataIcon, SearchIcon, ServerProcessesIcon, SettingsIcon, SkypeCircleCheckIcon, StatusCircleCheckmarkIcon, StatusCircleErrorXIcon, StatusErrorFullIcon, SyncIcon, UploadIcon, ViewIcon } from '@fluentui/react-icons';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import './App.css';
 import { ErrorMessageBar } from './components/common/ErrorMessageBar';
 import { Loading } from './components/common/Loading';
 import { MainTab } from './components/MainTab';
+import { ConfigEvent, ConfigEventAction, IConfigEvent } from './events/ConfigEvent';
 import i18n from './i18n';
 import { Config, getConfig, setConfig } from './services/config.service';
 import { themes } from './theme';
@@ -101,33 +102,48 @@ function App() {
   }, []);
 
   useEffect(() => {
-    _config.language && i18n.changeLanguage(_config.language);
-  }, [_config.language])
+    const sub = ConfigEvent.subscribe((v: IConfigEvent) => {
+      switch (v.action) {
+        case ConfigEventAction.Language:
+          _setConfig(c => {
+            c.language = v.params;
+            saveConfig(c);
+            return c;
+          })
+          i18n.changeLanguage(v.params);
+          break;
+        case ConfigEventAction.Theme:
+          _setConfig(c => {
+            c.theme = v.params;
+            saveConfig(c);
+            return c;
+          })
+          setTheme(themes[v.params]);
+          break;
+        case ConfigEventAction.Port:
+          _setConfig(c => {
+            c.port = v.params;
+            saveConfig(c)
+            return c;
+          })
+          break;
+        default:
+          break;
+      }
+    })
+    return () => sub && sub.unsubscribe();
+  }, [_config])
 
-  const handleChangeTheme = (theme: string) => {
-    changeConfig({ ..._config, theme });
-    setTheme(themes[theme]);
-  }
-
-  const handleChnageLanguage = (language: string) => {
-    changeConfig({ ..._config, language });
-  }
-
-  const handleChangePort = (port: number) => {
-    changeConfig({ ..._config, port })
-  }
-
-  const changeConfig = (conf: Config) => {
+  const saveConfig = (conf: Config) => {
     setLoading(true);
-    setConfig(conf)
-      .then(ret => {
-        _setConfig(ret)
-      })
-      .catch(setError)
-      .finally(() => {
-        setLoading(false);
-      })
+    setConfig(conf).catch(setError).finally(() => {
+      setLoading(false);
+    })
   }
+
+  const mainTab = useMemo(() => (
+    <MainTab config={_config}></MainTab>
+  ), [_config])
 
   return (<>
     <ThemeProvider theme={theme} style={{ height: '100%' }}>
@@ -137,11 +153,12 @@ function App() {
         {/* error */}
         <ErrorMessageBar error={error}></ErrorMessageBar>
         {/* mainTab */}
-        <MainTab config={_config}
+        {mainTab}
+        {/* <MainTab config={_config}
           onChangeLanguage={handleChnageLanguage}
           onChangeTheme={handleChangeTheme}
           onChangePort={handleChangePort}
-        ></MainTab>
+        ></MainTab> */}
       </I18nextProvider>
     </ThemeProvider>
   </>);
