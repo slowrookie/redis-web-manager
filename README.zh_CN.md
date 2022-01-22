@@ -54,8 +54,6 @@ docker run --rm -d  -p 8080:8080/tcp slowrookie/redis-web-manager:latest
 
 服务启动后会自动调用操作系统默认浏览器，并访问 `http://127.0.0.1:8080`。
 
-服务第一次启动后会产生两个文件，一个是`.config.json`用于存放配置信息。一个是`.connections.json`,用于保存维护的连接信息。
-
 ## 项目结构
 
 - `api` 目录存放后端逻辑以及接口文件
