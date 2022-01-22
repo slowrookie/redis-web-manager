@@ -49,10 +49,10 @@ RWM 是一款使用 React & Golang 开发的Web应用，用于管理Redis，支�
 
 `Docker`:
 ```sh
-docker run --rm -d  -p 8080:8080/tcp slowrookie/redis-web-manager:latest
+docker run --rm -d  -p 63790:63790/tcp slowrookie/redis-web-manager:latest
 ```
 
-服务启动后会自动调用操作系统默认浏览器，并访问 `http://127.0.0.1:8080`。
+服务启动后会自动调用操作系统默认浏览器，并访问 `http://127.0.0.1:63790`。
 
 ## 项目结构
 

@@ -6,4 +6,4 @@ COPY RWM /usr/bin/RWM
 
 VOLUME [ "/rwm_data" ]
 
-EXPOSE 8080
+EXPOSE 63790

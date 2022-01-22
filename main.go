@@ -195,7 +195,7 @@ func main() {
 		panic(nil)
 	}
 
-	// listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	// listen and serve on 0.0.0.0:63790 (for windows "localhost:63790")
 	// r.Run()
 	port := strconv.FormatUint(uint64(conf.Port), 10)
 	listen, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%s", port))
