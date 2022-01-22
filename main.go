@@ -35,7 +35,7 @@ func main() {
 	// files
 	os.MkdirAll(api.ROOT_PATH, os.ModePerm)
 
-	api.InitializeDB(path.Join("./", api.ROOT_PATH, "rwm.db"))
+	api.InitializeDB(path.Join("./", api.ROOT_PATH, "rwm.db?cache=shared&mode=rwc&_journal_mode=WAL"))
 
 	// static files
 	buildFiles, err := fs.Sub(webFS, "web/build")
