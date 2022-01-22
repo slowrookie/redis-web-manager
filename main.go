@@ -36,9 +36,6 @@ func main() {
 	os.MkdirAll(api.ROOT_PATH, os.ModePerm)
 
 	api.InitializeDB(path.Join("./", api.ROOT_PATH, "rwm.db"))
-	// connections
-	// init connections
-	api.LoadConnections()
 
 	// static files
 	buildFiles, err := fs.Sub(webFS, "web/build")
@@ -97,42 +94,58 @@ func main() {
 				if err := dec.Decode(&connection); err != nil {
 					return jsonrpc2.ErrInvalidRequest
 				}
-				ret, err := connection.New()
-				return reply(ctx, ret, err)
+				err := connection.New()
+				return reply(ctx, nil, err)
 			case "Connection.Delete":
 				var id string
 				if err := dec.Decode(&id); err != nil {
 					return jsonrpc2.ErrInvalidRequest
 				}
-				err := api.FindConnectionByID(id).Delete()
+				connection, err := api.FindConnectionByID(id)
+				if err != nil {
+					return reply(ctx, nil, err)
+				}
+				err = connection.Delete()
 				return reply(ctx, nil, err)
 			case "Connection.Open":
 				var id string
 				if err := dec.Decode(&id); err != nil {
 					return jsonrpc2.ErrInvalidRequest
 				}
-				err := api.FindConnectionByID(id).Open()
+				connection, err := api.FindConnectionByID(id)
+				if err != nil {
+					return reply(ctx, nil, err)
+				}
+				err = connection.Open()
 				return reply(ctx, nil, err)
 			case "Connection.Disconnection":
 				var id string
 				if err := dec.Decode(&id); err != nil {
 					return jsonrpc2.ErrInvalidRequest
 				}
-				err := api.FindConnectionByID(id).Disconnection()
+				connection, err := api.FindConnectionByID(id)
+				if err != nil {
+					return reply(ctx, nil, err)
+				}
+				err = connection.Disconnection()
 				return reply(ctx, nil, err)
 			case "Connection.Copy":
 				connection := &api.Connection{}
 				if err := dec.Decode(&connection); err != nil {
 					return jsonrpc2.ErrInvalidRequest
 				}
-				_connection, err := connection.Copy()
-				return reply(ctx, _connection, err)
+				err := connection.New()
+				return reply(ctx, nil, err)
 			case "Connection.Command":
 				var cmd api.Command
 				if err := dec.Decode(&cmd); err != nil {
 					return jsonrpc2.ErrInvalidRequest
 				}
-				ret, err := api.FindConnectionByID(cmd.ID).Command(cmd)
+				connection, err := api.FindConnectionByID(cmd.ID)
+				if err != nil {
+					return reply(ctx, nil, err)
+				}
+				ret, err := connection.Command(cmd)
 				return reply(ctx, ret, err)
 			case "Convert.Length":
 				var convert api.Convert

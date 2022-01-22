@@ -1,19 +1,30 @@
 package api
 
 import (
-	"bytes"
 	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"os"
 	"strconv"
 	"time"
 
 	"github.com/go-redis/redis/v8"
 )
+
+const (
+	SelectConnectionStatement     = "SELECT `id`, `connection` FROM `rwm_connection`"
+	SelectConnectionByIdStatement = "SELECT `id`, `connection` FROM `rwm_connection` WHERE `id` = $1"
+	InsertConnectionStatement     = "INSERT INTO `rwm_connection` (`id`, `connection`) VALUES ($1, $2)"
+	UpdateConnectionStatement     = "UPDATE `rwm_connection` SET `connection` = $1 WHERE `id` = $2"
+	DeleteConnectionStatement     = "DELETE FROM `rwm_connection` WHERE `id` = $1"
+)
+
+// ConnectionEntry .
+type ConnectionEntry struct {
+	ID         string
+	Connection string
+}
 
 // Connection .
 type Connection struct {
@@ -48,8 +59,6 @@ type Command struct {
 // Clients .
 var Clients = make(map[string]*redis.Client)
 
-var connections = make([]Connection, 0, 10)
-
 // Test .
 func (c *Connection) Test() error {
 	client, err := c.client()
@@ -64,47 +73,23 @@ func (c *Connection) Test() error {
 }
 
 // New .
-func (c *Connection) New() (Connection, error) {
-	if len(c.ID) == 0 {
-		c.ID = strconv.FormatInt(time.Now().UnixNano(), 10)
-		connections = append([]Connection{*c}, connections...)
-	} else {
-		for i := 0; i < len(connections); i++ {
-			if connections[i].ID == c.ID {
-				connections[i] = *c
-				break
-			}
-		}
-	}
+func (c *Connection) New() error {
+	id := strconv.FormatInt(time.Now().UnixNano(), 10)
+	c.ID = id
 
-	client, err := c.client()
-	if nil != err {
-		return *c, err
+	bts, err := json.Marshal(c)
+	if err != nil {
+		return err
 	}
-
-	// write file
-	if err := WriteConnections(); nil != err {
-		return *c, err
+	if _, err := DB.Exec(InsertConnectionStatement, id, string(bts)); err != nil {
+		return err
 	}
-
-	Clients[c.ID] = client
-	return *c, nil
+	return nil
 }
 
 // Delete .
 func (c *Connection) Delete() error {
-	for i := 0; i < len(connections); i++ {
-		if connections[i].ID == c.ID {
-			connections = append(connections[:i], connections[i+1:]...)
-			if _, exists := Clients[c.ID]; exists {
-				Clients[c.ID].Close()
-				delete(Clients, c.ID)
-			}
-			break
-		}
-	}
-
-	if err := WriteConnections(); nil != err {
+	if _, err := DB.Exec(DeleteConnectionStatement, c.ID); err != nil {
 		return err
 	}
 	return nil
@@ -136,16 +121,6 @@ func (c *Connection) Disconnection() error {
 		}
 	}
 	return nil
-}
-
-// Copy .
-func (c *Connection) Copy() (Connection, error) {
-	c.ID = strconv.FormatInt(time.Now().UnixNano(), 10)
-	connections = append(connections, *c)
-	if err := WriteConnections(); nil != err {
-		return *c, err
-	}
-	return *c, nil
 }
 
 // Command
@@ -214,67 +189,41 @@ func (c *Connection) client() (*redis.Client, error) {
 	return redis.NewClient(&options), nil
 }
 
-func FindConnectionByID(id string) *Connection {
-	for i := 0; i < len(connections); i++ {
-		if connections[i].ID == id {
-			return &connections[i]
-		}
+func FindConnectionByID(id string) (*Connection, error) {
+	var entry ConnectionEntry
+	if err := DB.QueryRow(SelectConnectionByIdStatement, id).Scan(&entry.ID, &entry.Connection); err != nil {
+		return nil, err
 	}
-	return nil
+
+	connection := Connection{}
+	if err := json.Unmarshal([]byte(entry.Connection), &connection); err != nil {
+		return nil, err
+	}
+
+	connection.ID = entry.ID
+
+	return &connection, nil
 }
 
 // Connections get all connections
 func Connections() ([]Connection, error) {
-	if err := LoadConnections(); nil != err {
-		return connections, err
+	rows, err := DB.Query(SelectConnectionStatement)
+	if err != nil {
+		return nil, err
 	}
-	return connections, nil
-}
-
-func LoadConnections() error {
-	err := os.MkdirAll(ROOT_PATH, os.ModePerm)
-	if nil != err {
-		return err
-	}
-	jsonFile, err := os.OpenFile(ConnectionsFilePath, os.O_RDWR|os.O_CREATE, 0755)
-	if nil != err {
-		return err
-	}
-	defer jsonFile.Close()
-
-	data, err := ioutil.ReadAll(jsonFile)
-	if nil != err {
-		return err
-	}
-	if len(data) > 0 {
-		err = json.Unmarshal(data, &connections)
-		if nil != err {
-			return err
+	defer rows.Close()
+	connections := []Connection{}
+	for rows.Next() {
+		entry := ConnectionEntry{}
+		if err = rows.Scan(&entry.ID, &entry.Connection); err != nil {
+			return nil, err
 		}
+		connection := Connection{ID: entry.ID}
+		if err := json.Unmarshal([]byte(entry.Connection), &connection); err != nil {
+			return nil, err
+		}
+		connections = append(connections, connection)
 	}
-	return nil
 
-}
-
-func WriteConnections() error {
-	jsonFile, err := os.OpenFile(ConnectionsFilePath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0755)
-	if nil != err {
-		return err
-	}
-	defer jsonFile.Close()
-
-	bts, err := json.Marshal(connections)
-	if nil != err {
-		return err
-	}
-	var formatOut bytes.Buffer
-	err = json.Indent(&formatOut, bts, "", "\t")
-	if nil != err {
-		return err
-	}
-	_, err = jsonFile.Write(formatOut.Bytes())
-	if nil != err {
-		return err
-	}
-	return nil
+	return connections, nil
 }
