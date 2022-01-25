@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/go-redis/redis/v8 v8.8.0
 	github.com/mattn/go-sqlite3 v1.14.10
-	github.com/pkg/browser v0.0.0-20210621091255-c198bc921a84
+	github.com/webview/webview v0.0.0-20210330151455-f540d88dde4e
 	go.lsp.dev/jsonrpc2 v0.9.0
 	golang.org/x/net v0.0.0-20220114011407-0dd24b26b47d
 )

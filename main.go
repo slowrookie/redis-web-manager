@@ -12,10 +12,11 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"strconv"
 
-	"github.com/pkg/browser"
 	"github.com/slowrookie/redis-web-manager/api"
+	"github.com/webview/webview"
 	"go.lsp.dev/jsonrpc2"
 	"golang.org/x/net/websocket"
 )
@@ -31,16 +32,36 @@ var (
 //go:embed web/build/*
 var webFS embed.FS
 
+func init() {
+	// app path
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(dir)
+	root := path.Join(dir, api.ROOT_PATH)
+	if err := os.MkdirAll(root, os.ModePerm); err != nil {
+		panic(err)
+	}
+
+	// log
+	f, err := os.OpenFile(path.Join(root, "rwm.log"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+	defer f.Close()
+	log.SetOutput(f)
+	log.Println(fmt.Sprintf("Root Path: %s", root))
+
+	// database
+	api.InitializeDB(path.Join(root, "rwm.db?cache=shared&mode=rwc&_journal_mode=WAL"))
+}
+
 func main() {
-	// files
-	os.MkdirAll(api.ROOT_PATH, os.ModePerm)
-
-	api.InitializeDB(path.Join("./", api.ROOT_PATH, "rwm.db?cache=shared&mode=rwc&_journal_mode=WAL"))
-
 	// static files
 	buildFiles, err := fs.Sub(webFS, "web/build")
 	if err != nil {
-		panic(nil)
+		panic(err)
 	}
 
 	// static files
@@ -192,19 +213,28 @@ func main() {
 	// config
 	conf, err := api.DefaultConfig.Get()
 	if err != nil {
-		panic(nil)
+		panic(err)
 	}
 
-	// listen and serve on 0.0.0.0:63790 (for windows "localhost:63790")
-	// r.Run()
 	port := strconv.FormatUint(uint64(conf.Port), 10)
 	listen, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%s", port))
 	if err != nil {
 		log.Fatal(err)
 	}
-	// 服务启动之后，打开系统浏览器
+
+	go func() {
+		log.Fatal(http.Serve(listen, nil))
+	}()
+
+	debug := false
 	if MODE != "Debug" {
-		_ = browser.OpenURL(fmt.Sprintf("http://127.0.0.1:%s", port))
+		debug = true
 	}
-	log.Fatal(http.Serve(listen, nil))
+	w := webview.New(debug)
+	defer w.Destroy()
+	w.SetTitle("Redis Web Manager")
+	w.SetSize(800, 600, webview.HintNone)
+	w.Navigate(fmt.Sprintf("http://127.0.0.1:%s", port))
+	w.Run()
+
 }
