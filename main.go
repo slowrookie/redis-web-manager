@@ -16,7 +16,6 @@ import (
 	"strconv"
 
 	"github.com/slowrookie/redis-web-manager/api"
-	"github.com/webview/webview"
 	"go.lsp.dev/jsonrpc2"
 	"golang.org/x/net/websocket"
 )
@@ -222,19 +221,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	go func() {
-		log.Fatal(http.Serve(listen, nil))
-	}()
-
-	debug := false
-	if MODE != "Debug" {
-		debug = true
-	}
-	w := webview.New(debug)
-	defer w.Destroy()
-	w.SetTitle("Redis Web Manager")
-	w.SetSize(800, 600, webview.HintNone)
-	w.Navigate(fmt.Sprintf("http://127.0.0.1:%s", port))
-	w.Run()
+	log.Fatal(http.Serve(listen, nil))
 
 }
