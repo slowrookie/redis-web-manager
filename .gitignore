@@ -4,7 +4,8 @@
 go.sum
 
 /rwm_data
-/rwm*
+/rwm.app/Contents/MacOS/rwm
+/rwm.app/Contents/MacOS/rwm_data
 .connections.json
 .config.json
 
