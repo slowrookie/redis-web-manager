@@ -2,10 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>CFBundleExecutable</key>
+    <string>rwm</string>
     <key>CFBundleDisplayName</key>
     <string>Redis Web Manager</string>
+    <key>CFBundleGetInfoString</key>
+    <string>Redis Web Manager</string>
     <key>CFBundleIconFile</key>
-    <string>rwm.icns</string>
+    <string>logo</string>
     <key>CFBundleIdentifier</key>
     <string>com.github.slowrookie/redis-web-manager</string>
     <key>NSHighResolutionCapable</key>
