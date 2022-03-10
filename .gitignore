@@ -12,3 +12,5 @@ redis-web-manager
 redis-web-manager.exe
 __debug_bin
 .DS_Store
+
+/frontend

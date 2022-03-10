@@ -45,13 +45,13 @@ func init() {
 	}
 
 	// log
-	// f, err := os.OpenFile(path.Join(root, "rwm.log"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	// if err != nil {
-	// 	log.Fatalf("error opening file: %v", err)
-	// }
-	// defer f.Close()
-	// log.SetOutput(f)
-	// log.Println(fmt.Sprintf("Root Path: %s", root))
+	f, err := os.OpenFile(path.Join(root, "rwm.log"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+	defer f.Close()
+	log.SetOutput(f)
+	log.Println(fmt.Sprintf("Root Path: %s", root))
 
 	// database
 	api.InitializeDB(path.Join(root, "rwm.db?cache=shared&mode=rwc&_journal_mode=WAL"))
@@ -69,8 +69,8 @@ func main() {
 
 	err := wails.Run(&options.App{
 		Title:             "Redis Web Manager",
-		Width:             720,
-		Height:            570,
+		Width:             1024,
+		Height:            800,
 		MinWidth:          720,
 		MinHeight:         570,
 		DisableResize:     false,
