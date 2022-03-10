@@ -1,0 +1,31 @@
+{
+  "name": "redis-web-manager",
+  "frontend:build": "",
+  "frontend:install": "",
+  "frontend:dev": "",
+  "frontend:dev:watcher": "",
+  "wailsjsdir": "./web/build",
+  "version": "2",
+  "Path": "",
+  "BuildDir": "",
+  "outputfilename": "redis-web-manager",
+  "OutputType": "",
+  "Platform": "",
+  "runNonNativeBuildHooks": false,
+  "postBuildHooks": null,
+  "Author": {
+    "name": "jiaxing.liu",
+    "email": "liujiaxingemail@gmail.com"
+  },
+  "Info": {
+    "companyName": "redis-web-manager",
+    "productName": "redis-web-manager",
+    "productVersion": "1.0.0",
+    "copyright": "Copyright.........",
+    "comments": "Built using Wails (https://wails.app)"
+  },
+  "debounceMS": 100,
+  "devserverurl": "http://localhost:34115",
+  "appargs": "",
+  "nsisType": ""
+}

@@ -1,4 +1,4 @@
-import { defaultWebSocket } from "./WebSocketService";
+import { defaultService } from "./api.service";
 export interface Connection {
   id: string,
   name: string,
@@ -26,54 +26,33 @@ export interface Command {
 }
 
 export const getConnections = (): Promise<any> => {
-  return defaultWebSocket.request({method: 'Connections'});
+  return defaultService.request({method: 'Connections'})
 }
 
 export const testConnection = (connection: Connection): Promise<any> => {
-  return defaultWebSocket.request({method: 'Connection.Test', params: connection})
-    .catch(err => {
-      throw new Error(err?.response?.data);
-    });
+  return defaultService.request({method: 'TestConnection', params: connection});
 }
 
 export const saveConnection = (connection: Connection): Promise<Connection> => {
-  return defaultWebSocket.request({method: 'Connection.Edit', params: connection})
-    .catch(err => {
-      throw new Error(err?.response?.data);
-    });
+  return defaultService.request({method: 'EditConnection', params: connection});
 }
 
 export const deleteConnection = (id: string): Promise<any> => {
-  return defaultWebSocket.request({method: 'Connection.Delete', params: id})
-    .catch(err => {
-      throw new Error(err?.response?.data);
-    });
+  return defaultService.request({method: 'DeleteConnection', params: id});
 }
 
 export const openConnection = (id: string): Promise<{ database: Array<any>, info: string }> => {
-  return defaultWebSocket.request({method: 'Connection.Open', params: id})
-    .catch(err => {
-      throw new Error(err?.response?.data);
-    });
+  return defaultService.request({method: 'OpenConnection', params: id});
 }
 
 export const disconnectionConnection = (id: string): Promise<any> => {
-  return defaultWebSocket.request({method: 'Connection.Disconnection', params: id})
-    .catch(err => {
-      throw new Error(err?.response?.data);
-    });
+  return defaultService.request({method: 'DisConnection', params: id});
 }
 
 export const copyConnection = (connection: Connection): Promise<Connection> => {
-  return defaultWebSocket.request({method: 'Connection.Copy', params: connection})
-    .catch(err => {
-      throw new Error(err?.response?.data);
-    });
+  return defaultService.request({method: 'CopyConnection', params: connection});
 }
 
 export const executeCommand = <T>(command: Command): Promise<T> => {
-  return defaultWebSocket.request({method: 'Connection.Command', params: command})
-    .catch(err => {
-      throw new Error(err?.response?.data || 'The service cannot be accessed, please check the network and service');
-    });
+  return defaultService.request({method: 'CommandConnection', params: command});
 }

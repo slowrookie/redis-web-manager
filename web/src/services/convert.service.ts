@@ -1,28 +1,28 @@
-import { defaultWebSocket } from "./WebSocketService";
+import { defaultService } from "./api.service";
 
 export const convertLength = (params: { data: string }): Promise<String> => {
-  return defaultWebSocket.request({method: 'Convert.Length', params});
+  return defaultService.request({method: 'ConvertLength', params});
 }
 
 export const convertToHex = (params: { data: string }): Promise<String> => {
-  return defaultWebSocket.request({method: 'Convert.ToHex', params});
+  return defaultService.request({method: 'ConvertToHex', params});
 }
 
 export const convertToJson = (params: { data: string }): Promise<String> => {
-  return defaultWebSocket.request({method: 'Convert.ToJson', params});
+  return defaultService.request({method: 'ConvertToJson', params});
 }
 
 export const convertBase64ToText = (params: { data: string }): Promise<String> => {
-  return defaultWebSocket.request({method: 'Convert.Base64ToText', params});
+  return defaultService.request({method: 'ConvertBase64ToText', params});
 }
 
 export const convertBase64ToJson = (params: { data: string }): Promise<String> => {
-  return defaultWebSocket.request({method: 'Convert.Base64ToJson', params});
+  return defaultService.request({method: 'ConvertBase64ToJson', params});
 }
 
 
 export const convertToBinary = (params: { data: string }): Promise<String> => {
-  return defaultWebSocket.request({method: 'Convert.ToBinary', params});
+  return defaultService.request({method: 'ConvertToBinary', params});
 }
 
 export const convert: { [index: string]: (params: any) => Promise<any> } = {
