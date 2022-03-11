@@ -16,12 +16,12 @@ builds:
       - amd64
       - arm64
 
-dockers:
-  - 
-    goos: linux
-    goarch: amd64
-    image_templates:
-      - "docker.io/slowrookie/redis-web-manager:{{ .Tag }}"
-      - "docker.io/slowrookie/redis-web-manager:latest"
-    skip_push: auto
-    dockerfile: Dockerfile
+# dockers:
+#   - 
+#     goos: linux
+#     goarch: amd64
+#     image_templates:
+#       - "docker.io/slowrookie/redis-web-manager:{{ .Tag }}"
+#       - "docker.io/slowrookie/redis-web-manager:latest"
+#     skip_push: auto
+#     dockerfile: Dockerfile

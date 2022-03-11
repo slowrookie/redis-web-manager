@@ -89,8 +89,8 @@ func main() {
 		},
 		// Windows platform specific options
 		Windows: &windows.Options{
-			WebviewIsTransparent: false,
-			WindowIsTranslucent:  false,
+			WebviewIsTransparent: true,
+			WindowIsTranslucent:  true,
 			DisableWindowIcon:    false,
 		},
 		Mac: &mac.Options{
