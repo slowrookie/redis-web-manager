@@ -53,7 +53,6 @@ jobs:
         with:
           go-version: 1.17.6
       - run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
-      - run: xcode-select --install
       - run: wails doctor
       - run: wails build
 
