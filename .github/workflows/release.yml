@@ -25,11 +25,10 @@ jobs:
       #   with:
       #     node-version: '17.5.0'
       - uses: borales/actions-yarn@v2.3.0
-         with:
-          node-version: '17.5.0'
+        with:
+          cmd: install
       - run: |
           cd ./web
-          yarn install
           yarn run build
       - name: Upload frontend build
         uses: actions/upload-artifact@v2
