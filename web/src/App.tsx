@@ -1,5 +1,5 @@
 import { registerIcons, Theme, ThemeProvider } from '@fluentui/react';
-import { AscendingIcon, Blocked2Icon, CancelIcon, CheckMarkIcon, ChevronDownIcon, ChevronDownSmallIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpSmallIcon, CircleAdditionIcon, CircleAdditionSolidIcon, CircleRingIcon, ClearIcon, ClipboardListIcon, CodeIcon, ColorSolidIcon, CompletedIcon, CopyIcon, DatabaseIcon, DataManagementSettingsIcon, DeleteIcon, DescendingIcon, DoubleChevronDownIcon, DoubleChevronUpIcon, EditIcon, EmbedIcon, Emoji2Icon, ErrorBadgeIcon, FilterIcon, FilterSolidIcon, FunnelChartIcon, GroupListIcon, HideIcon, HomeIcon, InfoIcon, InstallationIcon, LocaleLanguageIcon, LocationIcon, MapLayersIcon, MoreIcon, MoreVerticalIcon, PermissionsIcon, PlugConnectedIcon, PlugDisconnectedIcon, ProductListIcon, PublishContentIcon, QueryListIcon, RedEyeIcon, RefreshIcon, RemoveFromShoppingListIcon, RevToggleKeyIcon, SadIcon, SaveIcon, SearchDataIcon, SearchIcon, ServerProcessesIcon, SettingsIcon, SkypeCircleCheckIcon, StatusCircleCheckmarkIcon, StatusCircleErrorXIcon, StatusErrorFullIcon, SyncIcon, UploadIcon, ViewIcon } from '@fluentui/react-icons';
+import { AscendingIcon, Blocked2Icon, CancelIcon, CheckMarkIcon, ChevronDownIcon, ChevronDownSmallIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpSmallIcon, CircleAdditionIcon, CircleAdditionSolidIcon, CircleRingIcon, ClearIcon, ClipboardListIcon, CodeIcon, ColorSolidIcon, CompletedIcon, CopyIcon, DatabaseIcon, DataManagementSettingsIcon, DeleteIcon, DescendingIcon, DoubleChevronDownIcon, DoubleChevronUpIcon, EditIcon, EmbedIcon, Emoji2Icon, ErrorBadgeIcon, FilterIcon, FilterSolidIcon, FunnelChartIcon, GroupListIcon, HideIcon, HomeIcon, InfoIcon, InstallationIcon, LocaleLanguageIcon, LocationIcon, MapLayersIcon, MoreIcon, MoreVerticalIcon, PermissionsIcon, PlugConnectedIcon, PlugDisconnectedIcon, ProductListIcon, PublishContentIcon, QueryListIcon, RedEyeIcon, RefreshIcon, RemoveFromShoppingListIcon, RevToggleKeyIcon, SadIcon, SaveIcon, SearchDataIcon, SearchIcon, ServerProcessesIcon, SettingsIcon, SkypeCheckIcon, StatusCircleCheckmarkIcon, StatusCircleErrorXIcon, StatusErrorFullIcon, SyncIcon, UploadIcon, ViewIcon } from '@fluentui/react-icons-mdl2';
 import React, { useEffect, useMemo, useState } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import './App.css';
@@ -51,7 +51,7 @@ registerIcons({
     completed: <CompletedIcon />,
     delete: <DeleteIcon />,
     removeFromShoppingList: <RemoveFromShoppingListIcon />,
-    skypeCircleCheck: <SkypeCircleCheckIcon />,
+    skypeCircleCheck: <SkypeCheckIcon />,
     save: <SaveIcon />,
     revToggleKey: <RevToggleKeyIcon />,
     statuscirclecheckmark: <StatusCircleCheckmarkIcon />,

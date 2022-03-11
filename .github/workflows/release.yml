@@ -21,13 +21,16 @@ jobs:
       # Checks-out
       - uses: actions/checkout@v2
       # use node.js
-      - uses: actions/setup-node@v2
-        with:
+      # - uses: actions/setup-node@v2
+      #   with:
+      #     node-version: '17.5.0'
+      - uses: borales/actions-yarn@v2.3.0
+         with:
           node-version: '17.5.0'
       - run: |
           cd ./web
-          npm install
-          npm run build
+          yarn install
+          yarn run build
       - name: Upload frontend build
         uses: actions/upload-artifact@v2
         with:
