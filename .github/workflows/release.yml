@@ -55,7 +55,15 @@ jobs:
       - run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
       - run: wails doctor
       - run: wails build
-
+      - name: Release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Development Build"
+          files: |
+            ./build/bin/redis-web-manager.app
 
   # goreleaser:
   #   runs-on: ubuntu-latest
