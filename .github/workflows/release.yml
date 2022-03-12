@@ -26,8 +26,8 @@ jobs:
     strategy:
       matrix:
         go-version: [1.17.6]
-        # platform: [windows-latest]
-        platform: [macos-latest, windows-latest, ubuntu-latest]
+        platform: [macos-latest]
+        # platform: [macos-latest, windows-latest, ubuntu-latest]
     runs-on: ${{matrix.platform}}
     needs: frontend-build
     steps:
@@ -50,6 +50,7 @@ jobs:
         run: |
           wails doctor
           wails build
+          ls ./build/bin
           # truning .app to .dmg
           npm install -g appdmg
           appdmg dmg-spec.json redis-web-manager-darwin_amd64.dmg
