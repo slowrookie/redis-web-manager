@@ -52,6 +52,7 @@ jobs:
           wails build
           cd ./build/bin ls
           # truning .app to .dmg
+          npm install -g appdmg
           appdmg dmg-spec.json redis-web-manager.dmg
         if: matrix.platform == 'macos-latest'
       # - name: Build package linux
