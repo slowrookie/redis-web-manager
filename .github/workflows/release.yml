@@ -8,26 +8,27 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: borales/actions-yarn@v2.3.0
-      - run: |
-          cd ./web
-          yarn install
-          yarn run build
-      - name: Upload frontend build
-        uses: actions/upload-artifact@v2
-        with:
-          name: frontend-artifact
-          path: ./web/build
+  # build-frontend:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: borales/actions-yarn@v2.3.0
+  #     - run: |
+  #         cd ./web
+  #         yarn install
+  #         yarn run build
+  #     - name: Upload frontend build
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: frontend-artifact
+  #         path: ./web/build
 
   platform-build:
     strategy:
       matrix:
         go-version: [1.17.6]
-        platform: [macos-latest, windows-latest]
+        # platform: [macos-latest, windows-latest]
+        platform: [windows-latest]
     runs-on: ${{matrix.platform}}
     needs: build-frontend
     steps:
@@ -68,6 +69,7 @@ jobs:
       #   if: matrix.platform == 'ubuntu-latest'
       - name: Build package windows
         run: |
+          dir
           wails doctor
           wails build
         if: matrix.platform == 'windows-latest'
@@ -82,7 +84,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: redis-web-manager.exe
-          path: redis-web-manager.exe
+          path: /build/bin/redis-web-manager.exe
         if: matrix.platform == 'windows-latest'
       
 
