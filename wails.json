@@ -19,7 +19,7 @@
   },
   "Info": {
     "companyName": "redis-web-manager",
-    "productName": "redis-web-manager",
+    "productName": "Redis Web Manager",
     "productVersion": "1.0.0",
     "copyright": "Copyright.........",
     "comments": "Built using Wails (https://wails.app)"

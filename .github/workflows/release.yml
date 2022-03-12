@@ -27,8 +27,8 @@ jobs:
     strategy:
       matrix:
         go-version: [1.17.6]
-        platform: [macos-latest, windows-latest]
-        # platform: [macos-latest, windows-latest, ubuntu-latest]
+        # platform: [macos-latest, windows-latest]
+        platform: [macos-latest, windows-latest, ubuntu-latest]
     runs-on: ${{matrix.platform}}
     needs: frontend-build
     steps:
@@ -55,18 +55,19 @@ jobs:
           npm install -g appdmg
           appdmg dmg-spec.json redis-web-manager.dmg
         if: matrix.platform == 'macos-latest'
-      # - name: Build package linux
-      #   run: |
-      #     sudo apt update && sudo apt install -y libgtk-3-dev libwebkit2gtk-4.0-dev
-      #     wails doctor
-      #     wails build
-      #     cd ./build/bin ls
-      #     # turn into app image
-      #     wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-      #     chmod +x linuxdeploy*.AppImage
-      #     ls ./
-      #     ./linuxdeploy*.AppImage --appdir AppDir --executable Portfall --desktop-file=Portfall.AppImage.desktop --icon-file=appicon.png --output appimage
-      #   if: matrix.platform == 'ubuntu-latest'
+      - name: Build package linux
+        run: |
+          sudo apt update && sudo apt install -y libgtk-3-dev libwebkit2gtk-4.0-dev
+          wails doctor
+          wails build
+          cd ./build/bin ls
+          # turn into app image
+          wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          chmod +x linuxdeploy*.AppImage
+          ls ./
+          ./linuxdeploy*.AppImage --appdir ./build/bin --executable redis-web-manager --desktop-file=redis-web-manager.AppImage.desktop --icon-file=appicon.png --output appimage
+          ls ./
+        if: matrix.platform == 'ubuntu-latest'
       - name: Build package windows
         run: |
           wails doctor
@@ -79,11 +80,17 @@ jobs:
           name: redis-web-manager.dmg
           path: redis-web-manager.dmg
         if: matrix.platform == 'macos-latest'
+      - name: Upload artifact linux
+        uses: actions/upload-artifact@v2
+        with:
+          name: redis-web-manager.AppImage
+          path: redis-web-manager.AppImage
+        if: matrix.platform == 'macos-latest'
       - name: Upload artifact windows
         uses: actions/upload-artifact@v2
         with:
           name: redis-web-manager.exe
-          path: /build/bin/redis-web-manager.exe
+          path: ./build/bin/redis-web-manager.exe
         if: matrix.platform == 'windows-latest'
       
 
