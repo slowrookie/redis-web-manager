@@ -50,7 +50,7 @@ jobs:
         run: |
           wails doctor
           wails build
-          ls ./build/bin
+          ls -lh ./build/bin/redis-web-manager.app/Contents/MacOS
           # truning .app to .dmg
           npm install -g appdmg
           appdmg dmg-spec.json redis-web-manager-darwin_amd64.dmg
@@ -103,16 +103,16 @@ jobs:
         with:
           name: redis-web-manager-darwin_amd64.dmg
           path: ./bin/
-      - name: Download artifact linx
-        uses: actions/download-artifact@v2
-        with:
-          name: redis-web-manager-x86_64.AppImage
-          path: ./bin/
-      - name: Download artifact windows
-        uses: actions/download-artifact@v2
-        with:
-          name: redis-web-manager-x86_64.exe
-          path: ./bin/
+      # - name: Download artifact linx
+      #   uses: actions/download-artifact@v2
+      #   with:
+      #     name: redis-web-manager-x86_64.AppImage
+      #     path: ./bin/
+      # - name: Download artifact windows
+      #   uses: actions/download-artifact@v2
+      #   with:
+      #     name: redis-web-manager-x86_64.exe
+      #     path: ./bin/
       - name: Release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
