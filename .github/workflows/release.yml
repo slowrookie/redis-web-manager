@@ -30,7 +30,7 @@ jobs:
         # platform: [macos-latest, windows-latest]
         platform: [windows-latest]
     runs-on: ${{matrix.platform}}
-    needs: build-frontend
+    # needs: build-frontend
     steps:
       # - name: Checkout
       #   uses: actions/checkout@v2
