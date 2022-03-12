@@ -88,7 +88,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: redis-web-manager.exe
-          path: ./build/bin/redis-web-manager.exe
+          path: build/bin/redis-web-manager.exe
         if: matrix.platform == 'windows-latest'
       
 
