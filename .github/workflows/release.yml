@@ -69,7 +69,7 @@ jobs:
       #   if: matrix.platform == 'ubuntu-latest'
       - name: Build package windows
         run: |
-          dir
+          cd ../
           wails doctor
           wails build
         if: matrix.platform == 'windows-latest'
