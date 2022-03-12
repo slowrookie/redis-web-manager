@@ -63,8 +63,8 @@ jobs:
           # turn into app image
           wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
           chmod +x linuxdeploy*.AppImage
-          ls ./
           ./linuxdeploy*.AppImage --appdir AppDir --executable ./build/bin/redis-web-manager --desktop-file=redis-web-manager.AppImage.desktop --icon-file=appicon_64x64.png --output appimage
+          ls ./
         if: matrix.platform == 'ubuntu-latest'
       - name: Build package windows
         run: |
@@ -83,7 +83,7 @@ jobs:
         with:
           name: redis-web-manager.AppImage
           path: redis-web-manager.AppImage
-        if: matrix.platform == 'macos-latest'
+        if: matrix.platform == 'ubuntu-latest'
       - name: Upload artifact windows
         uses: actions/upload-artifact@v2
         with:
