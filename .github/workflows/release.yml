@@ -27,8 +27,8 @@ jobs:
     strategy:
       matrix:
         go-version: [1.17.6]
-        # platform: [macos-latest, windows-latest]
-        platform: [macos-latest, windows-latest, ubuntu-latest]
+        platform: [ubuntu-latest]
+        # platform: [macos-latest, windows-latest, ubuntu-latest]
     runs-on: ${{matrix.platform}}
     needs: frontend-build
     steps:
@@ -63,7 +63,8 @@ jobs:
           # turn into app image
           wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
           chmod +x linuxdeploy*.AppImage
-          ./linuxdeploy*.AppImage --appdir ./build/bin --executable redis-web-manager --desktop-file=redis-web-manager.AppImage.desktop --icon-file=appicon.png --output appimage
+          ls ./
+          ./linuxdeploy*.AppImage --appdir AppDir --executable ./build/bin/redis-web-manager --desktop-file=redis-web-manager.AppImage.desktop --icon-file=appicon.png --output appimage
         if: matrix.platform == 'ubuntu-latest'
       - name: Build package windows
         run: |
