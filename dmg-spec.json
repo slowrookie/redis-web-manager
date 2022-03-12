@@ -1,0 +1,18 @@
+{
+    "title": "Redis Web Mananger",
+    "icon": "./build/bin/redis-web-mamager.app/Resouces/iconfile.icns",
+    "contents": [
+        {
+            "x": 448,
+            "y": 344,
+            "type": "link",
+            "path": "/Applications"
+        },
+        {
+            "x": 192,
+            "y": 344,
+            "type": "file",
+            "path": "./build/bin/redis-web-mamager.app"
+        }
+    ]
+}
