@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         go-version: [1.17.6]
-        platform: [ubuntu-latest]
+        platform: [windows-latest]
         # platform: [macos-latest, windows-latest, ubuntu-latest]
     runs-on: ${{matrix.platform}}
     needs: frontend-build
@@ -65,11 +65,13 @@ jobs:
           chmod +x linuxdeploy*.AppImage
           ./linuxdeploy*.AppImage --appdir AppDir --executable ./build/bin/redis-web-manager --desktop-file=redis-web-manager.AppImage.desktop --icon-file=appicon_64x64.png --output appimage
           ls ./
+          cp Redis_Web_Manager-*.AppImage ./redis-web-manager-x86_64.AppImage
         if: matrix.platform == 'ubuntu-latest'
       - name: Build package windows
         run: |
           wails doctor
           wails build
+          dir
         if: matrix.platform == 'windows-latest'
 
       - name: Upload artifact osx
@@ -81,8 +83,8 @@ jobs:
       - name: Upload artifact linux
         uses: actions/upload-artifact@v2
         with:
-          name: redis-web-manager.AppImage
-          path: redis-web-manager.AppImage
+          name: redis-web-manager-x86_64.AppImage
+          path: redis-web-manager-x86_64.AppImage
         if: matrix.platform == 'ubuntu-latest'
       - name: Upload artifact windows
         uses: actions/upload-artifact@v2
