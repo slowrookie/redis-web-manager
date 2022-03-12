@@ -81,8 +81,8 @@ jobs:
       - name: Upload artifact linux
         uses: actions/upload-artifact@v2
         with:
-          name: redis-web-manager.AppImage.desktop
-          path: redis-web-manager.AppImage.desktop
+          name: redis-web-manager.AppImage
+          path: redis-web-manager.AppImage
         if: matrix.platform == 'macos-latest'
       - name: Upload artifact windows
         uses: actions/upload-artifact@v2
