@@ -60,13 +60,10 @@ jobs:
           sudo apt update && sudo apt install -y libgtk-3-dev libwebkit2gtk-4.0-dev
           wails doctor
           wails build
-          cd ./build/bin ls
           # turn into app image
           wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
           chmod +x linuxdeploy*.AppImage
-          ls ./
           ./linuxdeploy*.AppImage --appdir ./build/bin --executable redis-web-manager --desktop-file=redis-web-manager.AppImage.desktop --icon-file=appicon.png --output appimage
-          ls ./
         if: matrix.platform == 'ubuntu-latest'
       - name: Build package windows
         run: |
