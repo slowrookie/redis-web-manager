@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"net"
 )
 
 type Config struct {
@@ -59,16 +58,5 @@ func (c *Config) Set() error {
 	if nil != err {
 		return err
 	}
-	return nil
-}
-
-func (c *Config) CheckPort(port string) error {
-	ln, err := net.Listen("tcp", ":"+port)
-
-	if err != nil {
-		return err
-	}
-
-	defer ln.Close()
 	return nil
 }

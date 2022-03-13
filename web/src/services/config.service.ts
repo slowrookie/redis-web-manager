@@ -25,7 +25,3 @@ export const setConfig = (config: Config): Promise<Config> => {
 export const about = (): Promise<About> => {
   return defaultService.request({method: 'AboutInfo'});
 }
-
-export const checkPort = (port: number): Promise<any> => {
-  return defaultService.request({method: 'CheckPort', params: port});
-}

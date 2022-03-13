@@ -130,7 +130,3 @@ func (a *App) Config() (api.Config, error) {
 func (a *App) SetConfig(config api.Config) error {
 	return config.Set()
 }
-
-func (a *App) CheckPort(port int) error {
-	return api.DefaultConfig.CheckPort(fmt.Sprintf("%d", port))
-}

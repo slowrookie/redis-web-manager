@@ -6,17 +6,16 @@
 
 [![](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/slowrookie/redis-web-manager/blob/master/LICENSE)
 [![](https://github.com/slowrookie/redis-web-manager/actions/workflows/release.yml/badge.svg)](https://github.com/slowrookie/redis-web-manager/actions/workflows/release.yml)
-[![Docker Hub](https://img.shields.io/docker/pulls/slowrookie/redis-web-manager.svg)](https://hub.docker.com/r/slowrookie/redis-web-manager)
+<!-- [![Docker Hub](https://img.shields.io/docker/pulls/slowrookie/redis-web-manager.svg)](https://hub.docker.com/r/slowrookie/redis-web-manager) -->
 ![](https://shields.io/github/v/release/slowrookie/redis-web-manager)
 
 
 English | [简体中文](README.zh_CN.md)
 
-RWM is a web application developed with React & Golang, used to manage Redis, and supports multi-platform operation.
+Redis Web Manager is a desktop application developed with React & Golang, used to manage Redis, and supports multi-platform operation.
 ## Introduction
   - [Project Screenshot](#Project-screenshot)
   - [Download & Install](#Download--install)
-  - [Useage](#Useage)
   - [Project Structure](#Project-structure)
   - [Related Efforts](#Related-efforts)
   - [Maintainers](#Maintainers)
@@ -31,39 +30,14 @@ RWM is a web application developed with React & Golang, used to manage Redis, an
 
 `Windows`, `Linux`, `MacOS`：
   [Release](https://github.com/slowrookie/redis-web-manager/releases)
-
-`Docker`: 
-  ```sh 
-    docker push slowrookie/redis-web-manager:latest 
-  ````
-
-## Useage
-
-`Windows`, `Linux`, `MacOS`：
-After decompressing the downloaded file (`*.tar.gz`), execute the `RWM` or `RWM.exe` file.
-
-```sh
-./RWM
-```
-
-`Docker`:
-```sh
-docker run --rm -d  -p 63790:63790/tcp slowrookie/redis-web-manager:latest
-```
-
-After the service starts, it will automatically call the default browser of the operating system and visit `http://127.0.0.1:63790`。
 ## Project Structure
 
 - `api` The directory stores the back-end logic and interface files
 - `web` The Directory to store front-end project files
-- `.goreleaser.yml` is `goreleaser` config file
- 
-Note: If there is an error in `go:embed web/build/*` in the `main.go` file, please execute `npm install & npm run build` in the `web` directory to install and build the front-end project.
-
 ## Related Efforts
 
 - [microsoft/fluentui](https://github.com/microsoft/fluentui)
-- [gin-gonic/gin](https://github.com/gin-gonic/gin)
+- [wails2](https://github.com/wailsapp/wails)
 - [go-redis/redis](https://github.com/go-redis/redis)
 
 ## Maintainers
@@ -72,7 +46,7 @@ Note: If there is an error in `go:embed web/build/*` in the `main.go` file, plea
 
 ## Contributing
 
-Feel free to dive in! [Open an issue](https://github.com/slowrookie/redis-web-manager/issues/new) or submit PRs.
+Welcome to join us! [Open an issue](https://github.com/slowrookie/redis-web-manager/issues/new) or submit PRs.
 
 ## License
 

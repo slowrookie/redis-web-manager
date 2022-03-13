@@ -5,7 +5,6 @@ import { ConfigEvent, ConfigEventAction } from '../../events/ConfigEvent';
 import { supportedLanguages } from '../../locales/resources';
 import { Config } from '../../services/config.service';
 import { AboutDialog } from './AboutDialog';
-import { PortDialog } from './PortDialog';
 
 export interface IAppSettings {
   config: Config
@@ -14,7 +13,6 @@ export interface IAppSettings {
 export const AppSettings = (props: IAppSettings) => {
   const { t } = useTranslation(),
     [aboutDialogHidden, setAboutDialogHidden] = useState(true),
-    [portDialogHidden, setPortDialogHidden] = useState(true),
     [showContextualMenu, setShowContextualMenu] = useState(false),
     linkRef = useRef(null);
 
@@ -25,11 +23,7 @@ export const AppSettings = (props: IAppSettings) => {
   const handleChangeTheme = (theme: string) => {
     ConfigEvent.next({ action: ConfigEventAction.Theme, params: theme })
   }
-
-  const handleChangePort = (port: number) => {
-    ConfigEvent.next({ action: ConfigEventAction.Port, params: port })
-  }
-
+  
   return (<>
     {/* settings */}
     <div ref={linkRef} onClick={(e: React.MouseEvent) => {
@@ -57,12 +51,6 @@ export const AppSettings = (props: IAppSettings) => {
               }),
             },
           },
-          { key: 'divider_port', itemType: ContextualMenuItemType.Divider },
-          {
-            key: 'port', id: 'settingPort', text: t("Change port"), iconProps: { iconName: 'Location', style: { lineHeight: '14px' } }, onClick: () => {
-              setPortDialogHidden(false);
-            }
-          },
           { key: 'divider_about', itemType: ContextualMenuItemType.Divider },
           {
             key: 'about', id: 'settingAbout', text: t('About'), iconProps: { iconName: 'Info', style: { lineHeight: '14px' } }, onClick: () => {
@@ -79,12 +67,6 @@ export const AppSettings = (props: IAppSettings) => {
       {/* about dialog  */}
       <AboutDialog hidden={aboutDialogHidden} onDismiss={() => setAboutDialogHidden(true)} />
 
-      {/* prot dialog */}
-      <PortDialog
-        hidden={portDialogHidden}
-        onDismiss={() => setPortDialogHidden(true)}
-        port={props.config.port}
-        onChangePort={(port: number) => { handleChangePort(port) }} />
     </div>
   </>)
 
