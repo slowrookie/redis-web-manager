@@ -84,8 +84,8 @@ jobs:
           # truning .app to .dmg
           appdmg dmg-spec.json redis-web-manager_darwin_amd64.dmg
           # darwin/arm64
-          wails build -s -platform darwin/arm64  -ldflags '-s -w -X main.version=${{ needs.frontend-build.outputs.VERSION }} -X main.commit=${{ needs.frontend-build.outputs.COMMIT}} -X main.date=${{needs.frontend-build.outputs.DATE}} -X main.builtBy=GithubActions -X main.MODE=release'
-          appdmg dmg-spec.json redis-web-manager_darwin_arm64.dmg
+          # wails build -s -platform darwin/arm64  -ldflags '-s -w -X main.version=${{ needs.frontend-build.outputs.VERSION }} -X main.commit=${{ needs.frontend-build.outputs.COMMIT}} -X main.date=${{needs.frontend-build.outputs.DATE}} -X main.builtBy=GithubActions -X main.MODE=release'
+          # appdmg dmg-spec.json redis-web-manager_darwin_arm64.dmg
         if: matrix.platform == 'macos-latest'
       - name: Build package linux
         run: |
@@ -113,7 +113,7 @@ jobs:
           name: redis-web-manager.dmg
           path: |
             redis-web-manager_darwin_amd64.dmg
-            redis-web-manager_darwin_arm64.dmg
+            # redis-web-manager_darwin_arm64.dmg
         if: matrix.platform == 'macos-latest'
       - name: Upload artifact linux
         uses: actions/upload-artifact@v3
