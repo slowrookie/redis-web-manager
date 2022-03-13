@@ -48,6 +48,12 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+      - name: Get the version
+        id: get_version
+        run: |
+          echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
+          echo ::set-output name=COMMIT::$(echo $GITHUB_SHA)
+          echo ::set-output name=DATE::$(date +'%Y-%m-%d')
       - name: Download frontend build
         uses: actions/download-artifact@v2
         with:
@@ -61,8 +67,8 @@ jobs:
           go install github.com/wailsapp/wails/v2/cmd/wails@latest
       - name: Build package osx
         run: |
-          wails doctor
-          wails build -s -ldflags
+          # wails doctor
+          wails build -s -ldflags '-s -w -X main.version=${{ steps.get_version.outputs.VERSION }} -X main.commit=${{ steps.get_version.outputs.COMMIT}} -X main.date={{steps.get_version.outputs.DATE}} -X main.builtBy=GithubActions -X main.GIN_MODE=release'
           ls -lh ./build/bin/redis-web-manager.app/Contents/MacOS
           # truning .app to .dmg
           npm install -g appdmg
@@ -71,8 +77,8 @@ jobs:
       - name: Build package linux
         run: |
           sudo apt update && sudo apt install -y libgtk-3-dev libwebkit2gtk-4.0-dev
-          wails doctor
-          wails build -s
+          # wails doctor
+          wails build -s -ldflags '-s -w -X main.version=${{ steps.get_version.outputs.VERSION }} -X main.commit=${{ steps.get_version.outputs.COMMIT}} -X main.date={{steps.get_version.outputs.DATE}} -X main.builtBy=GithubActions -X main.GIN_MODE=release'
           # turn into app image
           wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
           chmod +x linuxdeploy*.AppImage
@@ -82,8 +88,8 @@ jobs:
         if: matrix.platform == 'ubuntu-latest'
       - name: Build package windows
         run: |
-          wails doctor
-          wails build -s -ldflags '-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser -X main.GIN_MODE=release'
+          # wails doctor
+          wails build -s -ldflags '-s -w -X main.version=${{ steps.get_version.outputs.VERSION }} -X main.commit=${{ steps.get_version.outputs.COMMIT}} -X main.date={{steps.get_version.outputs.DATE}} -X main.builtBy=GithubActions -X main.GIN_MODE=release'
           dir
           copy build/bin/redis-web-manager.exe build/bin/redis-web-manager_x86_64.exe
         if: matrix.platform == 'windows-latest'
