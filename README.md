@@ -1,6 +1,6 @@
 <!-- https://github.com/RichardLitt/standard-readme -->
 
-<img align="right" width="100" src="https://user-images.githubusercontent.com/1582077/131063491-58e25690-6180-4e2b-9c8e-801649b2423e.png">
+<img align="right" width="100" src="https://user-images.githubusercontent.com/1582077/158051511-e664578b-2d95-47ed-8371-0b782d7943d9.png">
 
 # RWM (Redis web manager) 
 
