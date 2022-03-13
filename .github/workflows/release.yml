@@ -62,7 +62,7 @@ jobs:
       - name: Build package osx
         run: |
           wails doctor
-          wails build
+          wails build -s -ldflags
           ls -lh ./build/bin/redis-web-manager.app/Contents/MacOS
           # truning .app to .dmg
           npm install -g appdmg
@@ -72,7 +72,7 @@ jobs:
         run: |
           sudo apt update && sudo apt install -y libgtk-3-dev libwebkit2gtk-4.0-dev
           wails doctor
-          wails build
+          wails build -s
           # turn into app image
           wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
           chmod +x linuxdeploy*.AppImage
@@ -83,7 +83,7 @@ jobs:
       - name: Build package windows
         run: |
           wails doctor
-          wails build
+          wails build -s -ldflags '-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser -X main.GIN_MODE=release'
           dir
           copy build/bin/redis-web-manager.exe build/bin/redis-web-manager_x86_64.exe
         if: matrix.platform == 'windows-latest'
@@ -131,7 +131,7 @@ jobs:
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "latest"
-          prerelease: true
+          prerelease: false
           title: "Development Build"
           files: |
             ./bin/**
