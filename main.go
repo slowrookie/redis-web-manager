@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
 
 	"github.com/slowrookie/redis-web-manager/api"
 	"github.com/wailsapp/wails/v2"
@@ -32,14 +33,27 @@ var icon []byte
 
 var About = make(map[string]string)
 
-func init() {
-	// app path
+func appDataPath() string {
+	const project = "com.github.slowrookie.redis-web-manager"
+
+	switch runtime.GOOS {
+	case "windows":
+		return fmt.Sprintf("%s/%s", os.Getenv("APPDATA"), project)
+	case "darwin":
+		return fmt.Sprintf("%s/Library/Containers/%s", os.Getenv("HOME"), project)
+	case "linux":
+		return fmt.Sprintf("%s/.%s", os.Getenv("HOME"), project)
+	}
+	// default path
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(dir)
-	root := path.Join(dir, api.ROOT_PATH)
+	return dir
+}
+
+func init() {
+	root := path.Join(appDataPath(), "./Data")
 	if err := os.MkdirAll(root, os.ModePerm); err != nil {
 		panic(err)
 	}

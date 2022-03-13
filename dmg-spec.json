@@ -3,13 +3,13 @@
     "contents": [
         {
             "x": 448,
-            "y": 344,
+            "y": 244,
             "type": "link",
             "path": "/Applications"
         },
         {
             "x": 192,
-            "y": 344,
+            "y": 244,
             "type": "file",
             "path": "./build/bin/redis-web-manager.app"
         }
