@@ -77,12 +77,15 @@ jobs:
           go install github.com/wailsapp/wails/v2/cmd/wails@latest
       - name: Build package osx
         run: |
-          # wails doctor
-          wails build -s -ldflags '-s -w -X main.version=${{ needs.frontend-build.outputs.VERSION }} -X main.commit=${{ needs.frontend-build.outputs.COMMIT}} -X main.date=${{needs.frontend-build.outputs.DATE}} -X main.builtBy=GithubActions -X main.MODE=release'
-          ls -lh ./build/bin/redis-web-manager.app/Contents/MacOS
-          # truning .app to .dmg
           npm install -g appdmg
+          # darwin/amd64
+          wails build -s -platfom darwin/amd64 -ldflags '-s -w -X main.version=${{ needs.frontend-build.outputs.VERSION }} -X main.commit=${{ needs.frontend-build.outputs.COMMIT}} -X main.date=${{needs.frontend-build.outputs.DATE}} -X main.builtBy=GithubActions -X main.MODE=release'
+          # ls -lh ./build/bin/redis-web-manager.app/Contents/MacOS
+          # truning .app to .dmg
           appdmg dmg-spec.json redis-web-manager_darwin_amd64.dmg
+          # darwin/arm64
+          wails build -s -platfom darwin/arm64  -ldflags '-s -w -X main.version=${{ needs.frontend-build.outputs.VERSION }} -X main.commit=${{ needs.frontend-build.outputs.COMMIT}} -X main.date=${{needs.frontend-build.outputs.DATE}} -X main.builtBy=GithubActions -X main.MODE=release'
+          appdmg dmg-spec.json redis-web-manager_darwin_arm64.dmg
         if: matrix.platform == 'macos-latest'
       - name: Build package linux
         run: |
@@ -105,19 +108,21 @@ jobs:
         if: matrix.platform == 'windows-latest'
 
       - name: Upload artifact osx
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
-          name: redis-web-manager_darwin_amd64.dmg
-          path: redis-web-manager_darwin_amd64.dmg
+          name: redis-web-manager.dmg
+          path: |
+            redis-web-manager_darwin_amd64.dmg
+            redis-web-manager_darwin_arm64.dmg
         if: matrix.platform == 'macos-latest'
       - name: Upload artifact linux
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: redis-web-manager_x86_64.AppImage
           path: redis-web-manager_x86_64.AppImage
         if: matrix.platform == 'ubuntu-latest'
       - name: Upload artifact windows
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: redis-web-manager_x86_64.exe
           path: build/bin/redis-web-manager_x86_64.exe
@@ -128,17 +133,17 @@ jobs:
     needs: platform-build
     steps:
       - name: Download artifact osx
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
-          name: redis-web-manager_darwin_amd64.dmg
+          name: redis-web-manager.dmg
           path: ./bin/
       - name: Download artifact linx
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: redis-web-manager_x86_64.AppImage
           path: ./bin/
       - name: Download artifact windows
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: redis-web-manager_x86_64.exe
           path: ./bin/
