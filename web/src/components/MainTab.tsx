@@ -37,7 +37,7 @@ export const MainTab = (props: IMainTabProps) => {
   return (<>
     <Pivot overflowBehavior='menu' styles={{
       root: {boxShadow: Depths.depth8},
-      link: { height: 42, lineHeight: '42px', minWidth: 42 }
+      link: { height: 36, lineHeight: '36px', minWidth: 36 }
     }}
       linkFormat='tabs'
       selectedKey={mainTab.selectedKey}
@@ -58,7 +58,7 @@ export const MainTab = (props: IMainTabProps) => {
             <AppSettings {...props} />
           </Stack>
         )}>
-        <div style={{ height: 'calc(100vh - 42px)', overflowY: 'auto', overflowX: 'hidden' }} >
+        <div style={{ height: 'calc(100vh - 36px)', overflowY: 'auto', overflowX: 'hidden' }} >
           <ConnectionList onConnectionClick={handleConnectionClick} />
         </div>
       </PivotItem>
@@ -79,7 +79,7 @@ export const MainTab = (props: IMainTabProps) => {
             </span>
           )}
         >
-          <div style={{ height: 'calc(100vh - 42px)', overflow: 'hidden' }} >
+          <div style={{ height: 'calc(100vh - 36px)', overflow: 'hidden' }} >
             <ConnectionItem {...v} />
           </div>
         </PivotItem>

@@ -92,7 +92,7 @@ func main() {
 		Frameless:         false,
 		StartHidden:       false,
 		HideWindowOnClose: false,
-		RGBA:              &options.RGBA{R: 33, G: 37, B: 43, A: 255},
+		RGBA:              &options.RGBA{R: 255, G: 255, B: 255, A: 255},
 		Assets:            assets,
 		LogLevel:          logger.DEBUG,
 		OnStartup:         app.startup,
@@ -113,7 +113,7 @@ func main() {
 			WindowIsTranslucent:  true,
 			About: &mac.AboutInfo{
 				Title:   "Redis Web Manager",
-				Message: "Redis Web Manager is a web application developed with React & Golang, used to manage Redis, and supports multi-platform operation.",
+				Message: "Redis Web Manager is a desktop application developed with React & Golang, used to manage Redis, and supports multi-platform operation.",
 				Icon:    icon,
 			},
 		},

@@ -7,11 +7,9 @@ import (
 type Config struct {
 	Theme    string `json:"theme"`
 	Language string `json:"language"`
-	Port     uint   `json:"port"`
 }
 
 const (
-	DefaultPort           = 63790
 	SelectConfigStatement = "SELECT `config` FROM `rwm_config`"
 	InsertConfigStatement = "INSERT INTO `config` VALUES ($1)"
 	CountConfigStatement  = "SELECT COUNT(*) FROM `rwm_config`"
@@ -33,9 +31,6 @@ func (c *Config) Get() (Config, error) {
 		}
 	}
 
-	if c.Port == 0 {
-		c.Port = DefaultPort
-	}
 	return *c, nil
 }
 

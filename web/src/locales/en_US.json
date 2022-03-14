@@ -6,8 +6,10 @@
     "Configuration": "Configuration",
     "Load more": "Load more",
     "Theme": "Theme",
-    "Theme-Dark": "Dark Theme",
-    "Theme-Light": "Light Theme",
+    "Theme-Dark": "Dark",
+    "Theme-Light": "Default",
+    "Theme-Word": "Word",
+    "Theme-Teams": "Teams",
     "Lanaguage": "Lanaguage",
     "About": "About",
     "The test connection to the Redis server is successful!": "The test connection to the Redis server is successful!",
@@ -100,8 +102,5 @@
     "Groups": "Groups",
     "Upload": "Upload",
     "Security": "Security",
-    "Welcome to discussions!": "Welcome to discussions!",
-    "Change port": "Change port",
-    "After the port is changed, it needs to be restarted to take effect": "After the port is changed, it needs to be restarted to take effect",
-    "Port valid error": "Port valid error"
+    "Welcome to discussions!": "Welcome to discussions!"
 }

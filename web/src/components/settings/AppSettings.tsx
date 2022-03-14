@@ -39,8 +39,10 @@ export const AppSettings = (props: IAppSettings) => {
           {
             key: 'colorSolid', text: t('Theme'), iconProps: { iconName: 'ColorSolid', style: { lineHeight: '14px' } }, subMenuProps: {
               items: [
-                { key: 'darkTheme', text: t('Theme-Dark'), title: t('Theme-Dark'), onClick: () => handleChangeTheme('dark') },
                 { key: 'lightTheme', text: t('Theme-Light'), title: t('Theme-Light'), onClick: () => handleChangeTheme('light') },
+                { key: 'darkTheme', text: t('Theme-Dark'), title: t('Theme-Dark'), onClick: () => handleChangeTheme('dark') },
+                { key: 'WordTheme', text: t('Theme-Word'), title: t('Theme-Word'), onClick: () => handleChangeTheme('word') },
+                { key: 'TeamsTheme', text: t('Theme-Teams'), title: t('Theme-Teams'), onClick: () => handleChangeTheme('teams') },
               ],
             },
           },

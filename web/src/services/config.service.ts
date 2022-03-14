@@ -2,8 +2,7 @@ import { defaultService } from "./api.service";
 
 export interface Config {
   theme: string,
-  language: string,
-  port: number
+  language: string
 }
 
 export interface About {

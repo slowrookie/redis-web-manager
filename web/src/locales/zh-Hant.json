@@ -8,6 +8,8 @@
     "Theme": "主題",
     "Theme-Dark": "深色主題",
     "Theme-Light": "亮色主題",
+    "Theme-Word": "Word",
+    "Theme-Teams": "Teams",
     "Lanaguage": "語言",
     "About": "關於",
     "The test connection to the Redis server is successful!": "與Redis服務器的測試連接成功！",
@@ -100,8 +102,5 @@
     "Groups": "分組",
     "Upload": "上傳",
     "Security": "安全",
-    "Welcome to discussions!": "歡迎討論！",
-    "Change port": "更改端口",
-    "After the port is changed, it needs to be restarted to take effect": "端口更改後需重啓才能生效",
-    "Port valid error": "端口校驗失敗"
+    "Welcome to discussions!": "歡迎討論！"
 }

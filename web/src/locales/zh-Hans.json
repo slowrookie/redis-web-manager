@@ -5,9 +5,11 @@
     "CLI": "命令",
     "Configuration": "配置",
     "Load more": "加载更多",
-    "Theme": "颜色主题",
-    "Theme-Dark": "深色主题",
-    "Theme-Light": "亮色主题",
+    "Theme": "主题",
+    "Theme-Dark": "黑色",
+    "Theme-Light": "默认",
+    "Theme-Word": "Word",
+    "Theme-Teams": "Teams",
     "Lanaguage": "语言",
     "About": "关于",
     "The test connection to the Redis server is successful!": "测试连接 Redis 服务成功！",
@@ -100,8 +102,5 @@
     "Groups": "分组",
     "Upload": "上传",
     "Security": "安全",
-    "Welcome to discussions!": "欢迎讨论！",
-    "Change port": "更改端口",
-    "After the port is changed, it needs to be restarted to take effect": "端口更改后需重启才能生效",
-    "Port valid error": "端口校验失败"
+    "Welcome to discussions!": "欢迎讨论！"
 }

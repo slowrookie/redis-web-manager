@@ -104,7 +104,7 @@ jobs:
           # wails doctor
           wails build -s -ldflags '-s -w -X main.version=${{ needs.frontend-build.outputs.VERSION }} -X main.commit=${{ needs.frontend-build.outputs.COMMIT}} -X main.date=${{needs.frontend-build.outputs.DATE}} -X main.builtBy=GithubActions -X main.MODE=release'
           dir
-          copy build/bin/redis-web-manager.exe build/bin/redis-web-manager_x86_64.exe
+          copy build/bin/redis-web-manager.exe build/bin/redis-web-manager_windows_amd64.exe
         if: matrix.platform == 'windows-latest'
 
       - name: Upload artifact osx
@@ -125,8 +125,8 @@ jobs:
       - name: Upload artifact windows
         uses: actions/upload-artifact@v3
         with:
-          name: redis-web-manager_x86_64.exe
-          path: build/bin/redis-web-manager_x86_64.exe
+          name: redis-web-manager_windows_amd64.exe
+          path: build/bin/redis-web-manager_windows_amd64.exe
         if: matrix.platform == 'windows-latest'
 
   release:
@@ -146,7 +146,7 @@ jobs:
       - name: Download artifact windows
         uses: actions/download-artifact@v3
         with:
-          name: redis-web-manager_x86_64.exe
+          name: redis-web-manager_windows_amd64.exe
           path: ./bin/
       - name: Release
         uses: "marvinpinto/action-automatic-releases@latest"
