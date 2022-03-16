@@ -78,7 +78,6 @@ export const HashKey = (props: IHashKeyProps) => {
         scanned = scanned > ret[2] ? ret[2] : scanned;
         return { ...kp, keyName: keyProps.keyName, TTL: ret[1], length: ret[2], scanned, currentCursor: ret[3][0] };
       })
-      console.log(ret);
     })
       .catch((err: Error) => { setError(err); });
   }, [connection.id, db, search, keyProps.keyName]);

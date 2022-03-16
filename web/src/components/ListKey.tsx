@@ -79,7 +79,6 @@ export const ListKey = (props: IListKeyProps) => {
       const vs = ret[3].map((v: string, i: number) => {
         return { row: search.start + i, value: v }
       });
-      console.log(ret);
       setKeyProps(kprops => {
         return { ...kprops, TTL: ret[1], length: ret[2], values: vs }
       })

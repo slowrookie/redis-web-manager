@@ -1,5 +1,5 @@
 import { DefaultButton, Dropdown, IconButton, IContextualMenuProps, IDropdownOption, Spinner, SpinnerSize, Stack, Text, TooltipHost, useTheme } from '@fluentui/react';
-import { default as React, useCallback, useEffect, useState } from 'react';
+import { default as React, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection, executeCommand } from '../services/connection.service';
 import { DragSlider } from './common/DragSlider';
@@ -65,7 +65,6 @@ export const Database = (props: IDatabaseProps) => {
     executeCommand<Array<any>>({ id: connection.id, commands: [['SELECT', search.db], ['DBSIZE'], ['SCAN', search.cursor, 'MATCH', search.pattern, 'COUNT', search.count]] })
       .then((ret) => {
         if (!ret || !ret.length) return;
-        console.log(ret);
         _setDatabase(dbs => dbs.map(v => v.db === search.db ? { ...v, dbsize: ret[1] } : v));
         setCurrentCurosr(ret[2][0]);
         setKeysCount(count => {
@@ -136,7 +135,7 @@ export const Database = (props: IDatabaseProps) => {
 
   const handleSelectedKey = (type: string, keyName: string) => {
     if (keyName === showKeyPanel.keyName) return;
-    setShowKeyPanel({});
+    setShowKeyPanel({})
     setShowKeyPanel({ type, keyName });
   }
 
@@ -156,7 +155,7 @@ export const Database = (props: IDatabaseProps) => {
     }
 
     if (!showKeyPanel.type) {
-      return <NotFoundKey message={`Key ${showKeyPanel.keyName} not found`}/>
+      return <NotFoundKey message={`Key ${showKeyPanel.keyName} not found`} />
     }
 
     const componentProps = {
@@ -184,6 +183,12 @@ export const Database = (props: IDatabaseProps) => {
         break;
     }
   };
+
+  const keyList = useMemo(() => {
+    return <KeyList {...props} db={search.db} keys={keys}
+      onSelectedKey={handleSelectedKey} />
+    //eslint-disable-next-line
+  }, [props, search.db, keys])
 
   return (<>
     <Stack horizontal style={{ height: '100%' }}>
@@ -230,8 +235,9 @@ export const Database = (props: IDatabaseProps) => {
           {error && <ErrorMessageBar error={error} />}
           {/* keys */}
           <Stack.Item grow={1} style={{ overflow: 'auto' }}>
-            <KeyList {...props} db={search.db} keys={keys}
-              onSelectedKey={handleSelectedKey} />
+            {/* <KeyList {...props} db={search.db} keys={keys}
+              onSelectedKey={handleSelectedKey} /> */}
+            {keyList}
 
           </Stack.Item>
           {/* load more */}

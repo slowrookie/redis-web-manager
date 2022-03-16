@@ -100,7 +100,6 @@ export const StreamKey = (props: IStreamKeyProps) => {
           lastTimestamp: Number(Object.keys(streamInfo['last-entry'])[0].split("-")[0])
         };
       })
-      console.log(ret, streamInfo);
     })
       .catch(err => setError(err));
   }, [connection.id, db, search, keyProps.keyName]);

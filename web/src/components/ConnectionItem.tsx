@@ -42,7 +42,6 @@ export const ConnectionItem = (props: IConnectionItemProps) => {
         }));
         setInfo(info);
         setDatabases(databases);
-        console.log(ret);
       })
       .catch(err => setError(err))
       .finally(() => { setLoading(false) });

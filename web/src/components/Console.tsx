@@ -85,7 +85,6 @@ export const Console = (props: IConsoleProps) => {
 
       executeCommand<Array<any>>({ id: props.connection.id, commands })
         .then((ret) => {
-          console.log(ret);
           lines[lines.length - 1] = { ...lines[lines.length - 1], disabled: true, command: currentLine }
           lines.push({ type: 'O', ret: formatRet(ret[ret.length - 1]) });
           lines.push({ ...defaultInputLine, db: currentDB });

@@ -45,7 +45,6 @@ export const ZsetKey = (props: IZsetKeyProps) => {
       ]
     }).then((ret) => {
       if (!ret || !ret.length) return;
-      console.log(ret);
       setKeyProps(kprop => { return { ...kprop, TTL: ret[1] } })
     })
       .catch(err => setError(err))

@@ -1,5 +1,6 @@
-import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, SelectionMode, TooltipHost } from '@fluentui/react';
-import React, { useState } from 'react';
+import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, Selection, SelectionMode, TooltipHost } from '@fluentui/react';
+import React, { useEffect, useState } from 'react';
+import { Subject } from 'rxjs';
 import { Connection, executeCommand } from '../services/connection.service';
 import { ErrorMessageBar } from './common/ErrorMessageBar';
 import { ComponentType } from './utils';
@@ -11,20 +12,31 @@ export interface IKeyListProps {
   onSelectedKey: (type: string, keyName: string) => void,
 }
 
+const SelectionEvent = new Subject<string>();
+
 export const KeyList = (props: IKeyListProps) => {
   const { connection, db, keys, onSelectedKey } = props;
   const [error, setError] = useState<Error>();
 
-  const handleOpenKey = (keyName: string) => {
-    setError(undefined);
-    executeCommand<Array<any>>({ id: connection.id, commands: [['SELECT', db], ['TYPE', keyName]] })
-      .then((ret) => {
-        if (!ret || !ret.length) return;
-        onSelectedKey(ComponentType[ret[1].toUpperCase()], keyName);
-      })
-      .catch(err => setError(err))
-      .finally(() => { });
-  }
+  useEffect(() => {
+    const sub = SelectionEvent.subscribe((v: string) => {
+      setError(undefined);
+      executeCommand<Array<any>>({ id: connection.id, commands: [['SELECT', db], ['TYPE', v]] })
+        .then((ret) => {
+          if (!ret || !ret.length) return;
+          onSelectedKey(ComponentType[ret[1].toUpperCase()], v);
+        })
+        .catch(err => setError(err))
+        .finally(() => { });
+    })
+    return () => sub && sub.unsubscribe();
+  }, [db, connection.id, onSelectedKey])
+
+  const selection = new Selection({
+    onSelectionChanged: () => {
+      selection.getSelection().length && SelectionEvent.next((selection.getSelection()[0] as string));
+    }
+  })
 
   return (<>
     {/* error */}
@@ -32,12 +44,12 @@ export const KeyList = (props: IKeyListProps) => {
     {/* {list} */}
     <DetailsList compact
       layoutMode={DetailsListLayoutMode.justified}
+      selection={selection}
       selectionMode={SelectionMode.single}
       checkboxVisibility={CheckboxVisibility.hidden}
       enterModalSelectionOnTouch={true}
       selectionPreservedOnEmptyClick={true}
       isHeaderVisible={false}
-      onActiveItemChanged={handleOpenKey}
       columns={[
         {
           key: 'Key', name: 'Key', minWidth: 190, onRender: (item) => {
