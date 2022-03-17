@@ -28,19 +28,26 @@ type ConnectionEntry struct {
 
 // Connection .
 type Connection struct {
-	ID                 string `json:"id"`
-	Name               string `json:"name"`
-	Host               string `json:"host"`
-	Port               int32  `json:"port"`
-	Username           string `json:"username"`
-	Auth               string `json:"auth"`
-	KeysPattern        string `json:"keysPattern"`
-	NamespaceSeparator string `json:"namespaceSeparator"`
-	TimeoutConnect     int64  `json:"timeoutConnect"`
-	TimeoutExecute     int64  `json:"timeoutExecute"`
-	DbScanLimit        int32  `json:"dbScanLimit"`
-	DataScanLimit      int32  `json:"dataScanLimit"`
-	Tls                Tls    `json:"tls"`
+	ID                 string   `json:"id"`
+	Name               string   `json:"name"`
+	Host               string   `json:"host"`
+	Port               int32    `json:"port"`
+	Addrs              []string `json:"addrs"`
+	Username           string   `json:"username"`
+	Auth               string   `json:"auth"`
+	KeysPattern        string   `json:"keysPattern"`
+	NamespaceSeparator string   `json:"namespaceSeparator"`
+	TimeoutConnect     int64    `json:"timeoutConnect"`
+	TimeoutExecute     int64    `json:"timeoutExecute"`
+	DbScanLimit        int32    `json:"dbScanLimit"`
+	DataScanLimit      int32    `json:"dataScanLimit"`
+	Tls                Tls      `json:"tls"`
+	IsCluster          bool     `json:"isCluster"`
+	IsSentinel         bool     `json:"isSentinel"`
+	SentinelPassword   string   `json:"sentinelPassword"`
+	MasterName         string   `json:"masterName"`
+	RouteByLatency     bool     `json:"routeByLatency"`
+	RouteRandomly      bool     `json:"routeRandomly"`
 }
 
 type Tls struct {
@@ -57,7 +64,7 @@ type Command struct {
 }
 
 // Clients .
-var Clients = make(map[string]*redis.Client)
+var Clients = make(map[string]redis.UniversalClient)
 
 // Test .
 func (c *Connection) Test() error {
@@ -82,6 +89,18 @@ func (c *Connection) New() error {
 		return err
 	}
 	if _, err := DB.Exec(InsertConnectionStatement, id, string(bts)); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Edit .
+func (c *Connection) Edit() error {
+	bts, err := json.Marshal(c)
+	if err != nil {
+		return err
+	}
+	if _, err := DB.Exec(UpdateConnectionStatement, c.ID, string(bts)); err != nil {
 		return err
 	}
 	return nil
@@ -159,10 +178,11 @@ func (c *Connection) Command(cmd Command) ([]interface{}, error) {
 	return rets, nil
 }
 
-func (c *Connection) client() (*redis.Client, error) {
+func (c *Connection) client() (redis.UniversalClient, error) {
 	// options
-	options := redis.Options{
-		Addr:        fmt.Sprintf("%s:%d", c.Host, c.Port),
+	universalOptions := &redis.UniversalOptions{
+		Addrs:       []string{fmt.Sprintf("%s:%d", c.Host, c.Port)},
+		Username:    c.Username,
 		Password:    c.Auth,
 		ReadTimeout: time.Duration(c.TimeoutExecute) * time.Millisecond,
 		DialTimeout: time.Duration(c.TimeoutConnect) * time.Millisecond,
@@ -183,10 +203,23 @@ func (c *Connection) client() (*redis.Client, error) {
 			caCertPool.AppendCertsFromPEM([]byte(c.Tls.Ca))
 			tls.RootCAs = caCertPool
 		}
-		options.TLSConfig = &tls
+		universalOptions.TLSConfig = &tls
 	}
 
-	return redis.NewClient(&options), nil
+	// cluster
+	if c.IsSentinel {
+		universalOptions.SentinelPassword = c.SentinelPassword
+		universalOptions.MasterName = c.MasterName
+	}
+
+	// cluster & sentinel
+	if c.IsCluster || c.IsSentinel {
+		universalOptions.Addrs = c.Addrs
+		universalOptions.RouteByLatency = c.RouteByLatency
+		universalOptions.RouteRandomly = c.RouteRandomly
+	}
+
+	return redis.NewUniversalClient(universalOptions), nil
 }
 
 func FindConnectionByID(id string) (*Connection, error) {

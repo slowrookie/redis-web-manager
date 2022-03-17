@@ -1,4 +1,4 @@
-import { DefaultButton, CommandBarButton, ITextFieldProps, MessageBar, MessageBarType, Overlay, Panel, PanelType, Pivot, PivotItem, PrimaryButton, Separator, Spinner, SpinnerSize, Stack, TextField, Toggle } from '@fluentui/react';
+import { ChoiceGroup, CommandBarButton, DefaultButton, IChoiceGroupOption, IconButton, ITextFieldProps, Label, MessageBar, MessageBarType, Overlay, Panel, PanelType, Pivot, PivotItem, PrimaryButton, Separator, Spinner, SpinnerSize, Stack, TextField, Toggle } from '@fluentui/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection, saveConnection, testConnection } from '../../services/connection.service';
@@ -9,6 +9,11 @@ export interface IConnectionPanel {
   isOpen: boolean,
   setIsOpen: (open: boolean) => void
   onSave?: (connection: Connection) => void
+}
+
+interface Addr {
+  host: string,
+  port: number
 }
 
 const defaultConnection: Connection = {
@@ -66,10 +71,18 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
     [success, setSuccess] = useState<string>()
     ;
 
+  const clientTypeOptions: IChoiceGroupOption[] = [
+    { key: 'general', text: '一般' },
+    { key: 'cluster', text: '集群' },
+    { key: 'sentinel', text: '哨兵' },
+  ];
+
   useEffect(() => {
     setError(undefined);
     setSuccess("");
-    connection && _setConnection(connection.id ? connection : defaultConnection);
+    if (!connection) return;
+    _setConnection(connection.id ? connection : defaultConnection);
+    connection.addrs && setAddrs(connection.addrs.map(a => ({ host: a.split(':')[0], port: Number(a.split(':')[1] || 0) })));
   }, [connection])
 
   const onTestConnection = () => {
@@ -98,19 +111,101 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
       .finally(() => setConnecting(false));
   }
 
+  // address
+  const [addrs, setAddrs] = useState<Array<Addr>>([{ host: '', port: 0 }]);
+  useEffect(() => {
+    _setConnection(c => ({ ...c, addrs: addrs.map(a => `${a.host}:${a.port}`) }))
+  }, [addrs])
+
+  const handleAddAddr = () => {
+    setAddrs([...addrs, { host: '', port: 0 }])
+  }
+
+  const handleDeleteAddr = (index: number) => {
+    addrs.splice(index, 1);
+    setAddrs([...addrs]);
+  }
+
+  const general = (<>
+    <TextField label={t('Address')} placeholder={t('Service address')} required value={_connection.host} onChange={(e, v) => {
+      _setConnection(c => ({ ...c, host: v || '' }))
+    }} />
+    <TextField label={t('Port')} type="number" placeholder={t('Port')} min={0} max={65535} required value={`${_connection.port}`} onChange={(e, v) => {
+      var nv = Number(v);
+      if (nv > 65535) { nv = 65535 };
+      _setConnection(c => ({ ...c, port: nv }));
+    }} />
+  </>);
+
+  const cluster = (<>
+    <Stack tokens={{ childrenGap: 10 }}>
+      <Stack horizontal horizontalAlign='space-between' verticalAlign='center' tokens={{ childrenGap: 10 }}>
+        <Label required>{t('Address')}</Label>
+        <IconButton iconProps={{ iconName: 'circleAdditionSolid' }} onClick={handleAddAddr} />
+      </Stack>
+      <Stack>
+        {addrs && addrs.map((addr, index: number) => {
+          return <Stack horizontal tokens={{ childrenGap: 10 }} horizontalAlign='space-evenly'>
+            <Stack.Item grow={1}>
+              <TextField label={''} placeholder={t('Service address')} underlined value={addr.host} onChange={(e, v) => {
+                addrs[index].host = v || '';
+                setAddrs([...addrs])
+              }} />
+            </Stack.Item>
+            <TextField label={''} type="number" placeholder={t('Port')} underlined min={0} max={65535} value={`${addr.port}`} onChange={(e, v) => {
+              var nv = Number(v);
+              if (nv > 65535) { nv = 65535 };
+              addrs[index].port = nv || 0;
+              setAddrs([...addrs])
+            }} />
+            <IconButton iconProps={{ iconName: 'delete' }} onClick={() => handleDeleteAddr(index)} />
+          </Stack>
+        })}
+      </Stack>
+
+      <ChoiceGroup label="路由" required styles={{ flexContainer: { display: "flex", justifyContent: 'space-between' } }}
+        selectedKey={_connection.routeByLatency ? 'RouteByLatency' : _connection.routeRandomly ? 'RouteRandomly' : 'RouteByLatency'}
+        onChange={(e, o) => {
+          if (!o) return;
+          const routeByLatency = 'RouteByLatency' === o.key;
+          const routeRandomly = 'RouteRandomly' === o.key;
+          _setConnection(c => ({ ...c, routeByLatency, routeRandomly }))
+        }}
+        defaultSelectedKey="RouteByLatency" options={[
+          { key: 'RouteByLatency', text: 'RouteByLatency' },
+          { key: 'RouteRandomly', text: 'RouteRandomly' }
+        ]} />
+
+    </Stack>
+  </>)
+
+  const sentinel = (<>
+    <TextField label={t('SentinelPassword')} type="password" placeholder={t('SentinelPassword')} canRevealPassword={true} value={_connection.sentinelPassword} onChange={(e, v) => {
+      _setConnection(c => ({ ...c, sentinelPassword: v || '' }))
+    }} />
+
+    <TextField label={t('MasterName')} type="text" placeholder={t('Master name')} value={_connection.masterName} onChange={(e, v) => {
+      _setConnection(c => ({ ...c, masterName: v || '' }))
+    }} />
+  </>)
+
   const basic = (
     <PivotItem headerText={t('Basic')}>
       <TextField label={t('Name')} placeholder={t('Connection name')} required value={_connection.name} onChange={(e, v) => {
         _setConnection(c => ({ ...c, name: v || '' }));
       }} />
-      <TextField label={t('Address')} placeholder={t('Service address')} required value={_connection.host} onChange={(e, v) => {
-        _setConnection(c => ({ ...c, host: v || '' }))
-      }} />
-      <TextField label={t('Port')} type="number" placeholder={t('Port')} min={0} max={65535} required value={`${_connection.port}`} onChange={(e, v) => {
-        var nv = Number(v);
-        if (nv > 65535) { nv = 65535 };
-        _setConnection(c => ({ ...c, port: nv }));
-      }} />
+      <ChoiceGroup label={t('Type')} required styles={{ flexContainer: { display: "flex", justifyContent: 'space-between' } }}
+        selectedKey={_connection.isCluster ? 'cluster' : _connection.isSentinel ? 'sentinel' : 'general'}
+        onChange={(e, o) => {
+          if (!o) return;
+          _setConnection(c => ({ ...c, isCluster: o.key === 'cluster', isSentinel: o.key === 'sentinel' }))
+        }}
+        defaultSelectedKey="general" options={clientTypeOptions} />
+
+      {(_connection.isCluster || _connection.isSentinel) && cluster}
+      {_connection.isSentinel && sentinel}
+      {(!_connection.isCluster && !_connection.isSentinel) && general}
+
       <TextField label={t('Password')} type="password" placeholder={t('(Optional) Service authentication password')} canRevealPassword={true} value={_connection.auth} onChange={(e, v) => {
         _setConnection(c => ({ ...c, auth: v || '' }))
       }}
@@ -191,7 +286,7 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
       onDismiss={() => setIsOpen(false)}
       headerText={t('Connection settings')}
       onRenderFooterContent={() => {
-        const disabled = !(_connection.name && _connection.host && _connection.port) || 
+        const disabled = !(_connection.name && _connection.host && _connection.port) ||
           (_connection.tls.enable && (!_connection.tls.cert || !_connection.tls.key));
         return (
           <Stack tokens={{ childrenGap: 10 }} horizontal horizontalAlign="space-evenly">

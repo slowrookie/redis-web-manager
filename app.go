@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	"github.com/slowrookie/redis-web-manager/api"
 )
@@ -53,7 +52,7 @@ func (a *App) TestConnection(con api.Connection) error {
 }
 
 func (a *App) EditConnection(con api.Connection) error {
-	return con.New()
+	return con.Edit()
 }
 
 func (a *App) DeleteConnection(id string) error {
@@ -90,31 +89,6 @@ func (a *App) CommandConnection(cmd api.Command) ([]interface{}, error) {
 		return nil, err
 	}
 	return connection.Command(cmd)
-}
-
-// Convert .
-func (a *App) ConvertLength(cv api.Convert) string {
-	return strconv.Itoa(cv.Length())
-}
-
-func (a *App) ConvertToHex(cv api.Convert) string {
-	return cv.ToHex()
-}
-
-func (a *App) ConvertToJson(cv api.Convert) string {
-	return cv.ToJson()
-}
-
-func (a *App) ConvertToBinary(cv api.Convert) string {
-	return cv.ToBinary()
-}
-
-func (a *App) ConvertBase64ToText(cv api.Convert) string {
-	return cv.Base64ToText()
-}
-
-func (a *App) ConvertBase64ToJson(cv api.Convert) string {
-	return cv.Base64ToJson()
 }
 
 // Config .

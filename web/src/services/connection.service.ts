@@ -1,9 +1,12 @@
 import { defaultService } from "./api.service";
+
+
 export interface Connection {
   id: string,
   name: string,
   host: string,
   port: number,
+  addrs?: Array<string>,
   username: string,
   auth: string,
   keysPattern: string,
@@ -17,42 +20,47 @@ export interface Connection {
     cert?: string
     key?: string
     ca?: string
-  }
+  },
+  isCluster?: boolean
+  isSentinel?: boolean
+  sentinelPassword?: string
+  masterName?: string
+  routeByLatency?: boolean
+  routeRandomly?: boolean
 }
-
 export interface Command {
   id: string,
   commands: Array<any>
 }
 
 export const getConnections = (): Promise<any> => {
-  return defaultService.request({method: 'Connections'})
+  return defaultService.request({ method: 'Connections' })
 }
 
 export const testConnection = (connection: Connection): Promise<any> => {
-  return defaultService.request({method: 'TestConnection', params: connection});
+  return defaultService.request({ method: 'TestConnection', params: connection });
 }
 
 export const saveConnection = (connection: Connection): Promise<Connection> => {
-  return defaultService.request({method: 'EditConnection', params: connection});
+  return defaultService.request({ method: 'EditConnection', params: connection });
 }
 
 export const deleteConnection = (id: string): Promise<any> => {
-  return defaultService.request({method: 'DeleteConnection', params: id});
+  return defaultService.request({ method: 'DeleteConnection', params: id });
 }
 
 export const openConnection = (id: string): Promise<{ database: Array<any>, info: string }> => {
-  return defaultService.request({method: 'OpenConnection', params: id});
+  return defaultService.request({ method: 'OpenConnection', params: id });
 }
 
 export const disconnectionConnection = (id: string): Promise<any> => {
-  return defaultService.request({method: 'DisConnection', params: id});
+  return defaultService.request({ method: 'DisConnection', params: id });
 }
 
 export const copyConnection = (connection: Connection): Promise<Connection> => {
-  return defaultService.request({method: 'CopyConnection', params: connection});
+  return defaultService.request({ method: 'CopyConnection', params: connection });
 }
 
 export const executeCommand = <T>(command: Command): Promise<T> => {
-  return defaultService.request({method: 'CommandConnection', params: command});
+  return defaultService.request({ method: 'CommandConnection', params: command });
 }
