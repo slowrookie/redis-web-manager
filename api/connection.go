@@ -100,7 +100,7 @@ func (c *Connection) Edit() error {
 	if err != nil {
 		return err
 	}
-	if _, err := DB.Exec(UpdateConnectionStatement, c.ID, string(bts)); err != nil {
+	if _, err := DB.Exec(UpdateConnectionStatement, string(bts), c.ID); err != nil {
 		return err
 	}
 	return nil

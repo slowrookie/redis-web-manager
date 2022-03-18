@@ -14,6 +14,7 @@
     "About": "關於",
     "The test connection to the Redis server is successful!": "與Redis服務器的測試連接成功！",
     "The connection to the Redis server is successful!": "與Redis服務器的連接成功！",
+    "Save success!": "保存成功！",
     "Connection settings": "連接設置",
     "Test Connection": "測試連接",
     "OK": "確認",
@@ -27,7 +28,7 @@
     "Port": "端口",
     "Password": "密碼",
     "(Optional) Service authentication password": "（可選）服務認證密碼",
-    "Username": "Username",
+    "Username": "用戶名",
     "(Optional) Service authentication user name Reids> 6.0": "（可選）服務認證用戶名Reids> 6.0",
     "Advanced": "高級",
     "Key load": "鍵加載",
@@ -102,5 +103,14 @@
     "Groups": "分組",
     "Upload": "上傳",
     "Security": "安全",
-    "Welcome to discussions!": "歡迎討論！"
+    "Welcome to discussions!": "歡迎討論！",
+    "general": "一般",
+    "cluster": "集群",
+    "sentinel": "哨兵",
+    "Route": "路由",
+    "RouteByLatency": "延遲",
+    "RouteRandomly": "隨機",
+    "Sentinel password": "哨兵密碼",
+    "Master name": "主節點名稱",
+    "Type": "類型"
 }

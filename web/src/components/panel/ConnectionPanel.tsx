@@ -25,8 +25,8 @@ const defaultConnection: Connection = {
   username: '',
   keysPattern: '*',
   namespaceSeparator: ':',
-  timeoutConnect: 20000,
-  timeoutExecute: 60000,
+  timeoutConnect: 2000,
+  timeoutExecute: 2000,
   dbScanLimit: 20,
   dataScanLimit: 2000,
   tls: {
@@ -72,9 +72,9 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
     ;
 
   const clientTypeOptions: IChoiceGroupOption[] = [
-    { key: 'general', text: '一般' },
-    { key: 'cluster', text: '集群' },
-    { key: 'sentinel', text: '哨兵' },
+    { key: 'general', text: t('general') },
+    { key: 'cluster', text: t('cluster') },
+    { key: 'sentinel', text: t('sentinel') }
   ];
 
   useEffect(() => {
@@ -103,8 +103,8 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
     setSuccess("");
     setConnecting(true);
     saveConnection(_connection).then((v) => {
-      setSuccess(t("The connection to the Redis server is successful!"));
-      setIsOpen(false);
+      setSuccess(t("Save success!"));
+      // setIsOpen(false);
       onSave && onSave(v);
     })
       .catch(err => setError(err))
@@ -145,7 +145,7 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
       </Stack>
       <Stack>
         {addrs && addrs.map((addr, index: number) => {
-          return <Stack horizontal tokens={{ childrenGap: 10 }} horizontalAlign='space-evenly'>
+          return <Stack key={`${addr.host}:${addr.port}:${index}`} horizontal tokens={{ childrenGap: 10 }} horizontalAlign='space-evenly'>
             <Stack.Item grow={1}>
               <TextField label={''} placeholder={t('Service address')} underlined value={addr.host} onChange={(e, v) => {
                 addrs[index].host = v || '';
@@ -163,7 +163,7 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
         })}
       </Stack>
 
-      <ChoiceGroup label="路由" required styles={{ flexContainer: { display: "flex", justifyContent: 'space-between' } }}
+      <ChoiceGroup label={t('Route')} required styles={{ flexContainer: { display: "flex", justifyContent: 'space-between' } }}
         selectedKey={_connection.routeByLatency ? 'RouteByLatency' : _connection.routeRandomly ? 'RouteRandomly' : 'RouteByLatency'}
         onChange={(e, o) => {
           if (!o) return;
@@ -172,19 +172,19 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
           _setConnection(c => ({ ...c, routeByLatency, routeRandomly }))
         }}
         defaultSelectedKey="RouteByLatency" options={[
-          { key: 'RouteByLatency', text: 'RouteByLatency' },
-          { key: 'RouteRandomly', text: 'RouteRandomly' }
+          { key: 'RouteByLatency', text: t('RouteByLatency') },
+          { key: 'RouteRandomly', text: t('RouteRandomly') }
         ]} />
 
     </Stack>
   </>)
 
   const sentinel = (<>
-    <TextField label={t('SentinelPassword')} type="password" placeholder={t('SentinelPassword')} canRevealPassword={true} value={_connection.sentinelPassword} onChange={(e, v) => {
+    <TextField label={t('Sentinel password')} type="password" placeholder={t('Sentinel password')} canRevealPassword={true} value={_connection.sentinelPassword} onChange={(e, v) => {
       _setConnection(c => ({ ...c, sentinelPassword: v || '' }))
     }} />
 
-    <TextField label={t('MasterName')} type="text" placeholder={t('Master name')} value={_connection.masterName} onChange={(e, v) => {
+    <TextField label={t('Master name')} type="text" placeholder={t('Master name')} value={_connection.masterName} onChange={(e, v) => {
       _setConnection(c => ({ ...c, masterName: v || '' }))
     }} />
   </>)
@@ -282,7 +282,6 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
       isOpen={isOpen}
       isBlocking={true}
       type={PanelType.medium}
-      isLightDismiss={true}
       onDismiss={() => setIsOpen(false)}
       headerText={t('Connection settings')}
       onRenderFooterContent={() => {

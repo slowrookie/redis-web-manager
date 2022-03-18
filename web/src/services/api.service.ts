@@ -13,8 +13,8 @@ export class APIService {
             return reject(msg)
         })
 
+        console.log("Request: ", opt);
         return ((opt.params ? method(opt.params) : method()) as Promise<any>).then(v => {
-            console.log("Request: ", opt)
             console.log("Response: ", v)
             return v;
         });

@@ -14,6 +14,7 @@
     "About": "About",
     "The test connection to the Redis server is successful!": "The test connection to the Redis server is successful!",
     "The connection to the Redis server is successful!": "The connection to the Redis server is successful!",
+    "Save success!": "Save success!",
     "Connection settings": "Connection settings",
     "Test Connection": "Test Connection",
     "OK": "OK",
@@ -102,5 +103,14 @@
     "Groups": "Groups",
     "Upload": "Upload",
     "Security": "Security",
-    "Welcome to discussions!": "Welcome to discussions!"
+    "Welcome to discussions!": "Welcome to discussions!",
+    "general": "General",
+    "cluster": "Cluster",
+    "sentinel": "Sentinel",
+    "Route": "Route",
+    "RouteByLatency": "Route by latency",
+    "RouteRandomly": "Route randomly",
+    "Sentinel password": "Sentinel Password",
+    "Master name": "Master Name",
+    "Type": "类型"
 }
