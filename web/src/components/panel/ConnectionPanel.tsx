@@ -143,16 +143,16 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
         <Label required>{t('Address')}</Label>
         <IconButton iconProps={{ iconName: 'circleAdditionSolid' }} onClick={handleAddAddr} />
       </Stack>
-      <Stack>
-        {addrs && addrs.map((addr, index: number) => {
-          return <Stack key={`${addr.host}:${addr.port}:${index}`} horizontal tokens={{ childrenGap: 10 }} horizontalAlign='space-evenly'>
+      <Stack tokens={{ childrenGap: 10 }}>
+        {addrs.length && [...Array(addrs.length)].fill(0).map((_, index: number) => {
+          return <Stack key={`address${index}`} horizontal tokens={{ childrenGap: 10 }} horizontalAlign='space-evenly'>
             <Stack.Item grow={1}>
-              <TextField label={''} placeholder={t('Service address')} underlined value={addr.host} onChange={(e, v) => {
+              <TextField label={''} placeholder={t('Service address')} underlined value={addrs[index].host} onChange={(e, v) => {
                 addrs[index].host = v || '';
                 setAddrs([...addrs])
               }} />
             </Stack.Item>
-            <TextField label={''} type="number" placeholder={t('Port')} underlined min={0} max={65535} value={`${addr.port}`} onChange={(e, v) => {
+            <TextField label={''} type="number" placeholder={t('Port')} underlined min={0} max={65535} value={`${addrs[index].port}`} onChange={(e, v) => {
               var nv = Number(v);
               if (nv > 65535) { nv = 65535 };
               addrs[index].port = nv || 0;

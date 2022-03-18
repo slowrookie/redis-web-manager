@@ -74,7 +74,12 @@ export const ConnectionList = (props: IConnectionListProps) => {
         return <DocumentCard key={connection.id} type={DocumentCardType.compact} styles={{ root: { width: 320 } }} onClick={() => handleConnectionClick(connection)}>
           <DocumentCardDetails>
             <Label style={{ ...textOverflow, padding: '5px 10px' }}>{connection.name}</Label>
-            <Text variant='small' style={{ ...textOverflow, padding: '0 10px' }}>{`${connection.host}:${connection.port}`}</Text>
+            {(connection.isCluster || connection.isSentinel) && (
+              <Text variant='small' style={{ ...textOverflow, padding: '0 10px' }}>{connection.addrs?.join(',')}</Text>
+            )}
+            {!(connection.isCluster || connection.isSentinel) && (
+              <Text variant='small' style={{ ...textOverflow, padding: '0 10px' }}>{`${connection.host}:${connection.port}`}</Text>
+            )}
             <Stack horizontal style={{ width: '100%' }}>
               <Stack.Item grow={1}><span></span></Stack.Item>
               <DocumentCardActions actions={[
