@@ -24,8 +24,7 @@ export const FormatTextField = (props: IFormatTextFieldProps) => {
     }
   }
 
-  const [viewValue, setViewValue] = useState<string>(),
-    [_length, _setLength] = useState<number>();
+  const [_length, _setLength] = useState<number>();
 
   useEffect(() => {
     _setLength(length || 0);
@@ -36,7 +35,7 @@ export const FormatTextField = (props: IFormatTextFieldProps) => {
   }
 
   return (
-    <Stack style={{ height: '100%', padding: '5px 0' }} tokens={{childrenGap: 3}}>
+    <Stack style={{ height: '100%', padding: '5px 0' }} tokens={{ childrenGap: 3 }}>
 
       <Stack horizontal horizontalAlign="space-between" verticalAlign="center" tokens={{ childrenGap: 5 }}>
         <Label>{label}</Label>
@@ -46,8 +45,7 @@ export const FormatTextField = (props: IFormatTextFieldProps) => {
       </Stack>
 
       <Stack.Item grow={1}>
-        {viewValue ? <TextField readOnly styles={fieldStyles} {...props} value={viewValue} label={undefined}></TextField> :
-          <TextField styles={fieldStyles} {...props} onChange={handleValueChange} label={undefined} ></TextField>}
+        <TextField styles={fieldStyles} {...props} onChange={handleValueChange} label={undefined} />
       </Stack.Item>
 
     </Stack>
