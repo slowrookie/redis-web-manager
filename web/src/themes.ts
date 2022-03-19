@@ -62,7 +62,7 @@ export const themes: { [index: string]: Theme } = {
   })
 }
 
-export const getCustomTheme = (theme: string) => {
+export const getCustomTheme = (theme: string = 'light') => {
   const th = themes[theme]
   th.fonts.medium.fontSize = 12;
   return th
