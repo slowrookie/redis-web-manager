@@ -104,7 +104,7 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
     setConnecting(true);
     saveConnection(_connection).then((v) => {
       setSuccess(t("Save success!"));
-      // setIsOpen(false);
+      setIsOpen(false);
       onSave && onSave(v);
     })
       .catch(err => setError(err))

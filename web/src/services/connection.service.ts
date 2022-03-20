@@ -42,7 +42,7 @@ export const testConnection = (connection: Connection): Promise<any> => {
 }
 
 export const saveConnection = (connection: Connection): Promise<Connection> => {
-  return defaultService.request({ method: 'EditConnection', params: connection });
+  return defaultService.request({ method: connection.id ? 'EditConnection' : 'NewConnection', params: connection });
 }
 
 export const deleteConnection = (id: string): Promise<any> => {
@@ -58,7 +58,7 @@ export const disconnectionConnection = (id: string): Promise<any> => {
 }
 
 export const copyConnection = (connection: Connection): Promise<Connection> => {
-  return defaultService.request({ method: 'CopyConnection', params: connection });
+  return defaultService.request({ method: 'NewConnection', params: connection });
 }
 
 export const executeCommand = <T>(command: Command): Promise<T> => {

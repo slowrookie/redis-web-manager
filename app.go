@@ -79,7 +79,7 @@ func (a *App) DisConnection(id string) error {
 	return connection.Disconnection()
 }
 
-func (a *App) CopyConnection(con api.Connection) error {
+func (a *App) NewConnection(con api.Connection) error {
 	return con.New()
 }
 
