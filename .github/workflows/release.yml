@@ -138,16 +138,16 @@ jobs:
         with:
           name: redis-web-manager.dmg
           path: ./bin/
-      - name: Download artifact linx
-        uses: actions/download-artifact@v3
-        with:
-          name: redis-web-manager_x86_64.AppImage
-          path: ./bin/
-      - name: Download artifact windows
-        uses: actions/download-artifact@v3
-        with:
-          name: redis-web-manager_windows_amd64.exe
-          path: ./bin/
+      # - name: Download artifact linx
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: redis-web-manager_x86_64.AppImage
+      #     path: ./bin/
+      # - name: Download artifact windows
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: redis-web-manager_windows_amd64.exe
+      #     path: ./bin/
       - name: Release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
