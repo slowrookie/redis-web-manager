@@ -1,6 +1,6 @@
 module github.com/slowrookie/redis-web-manager
 
-go 1.17
+go 1.18
 
 require (
 	github.com/go-redis/redis/v8 v8.8.0
