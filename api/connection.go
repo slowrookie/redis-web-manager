@@ -6,10 +6,12 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"net"
 	"strconv"
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	"golang.org/x/crypto/ssh"
 )
 
 const (
@@ -28,26 +30,27 @@ type ConnectionEntry struct {
 
 // Connection .
 type Connection struct {
-	ID                 string   `json:"id"`
-	Name               string   `json:"name"`
-	Host               string   `json:"host"`
-	Port               int32    `json:"port"`
-	Addrs              []string `json:"addrs"`
-	Username           string   `json:"username"`
-	Auth               string   `json:"auth"`
-	KeysPattern        string   `json:"keysPattern"`
-	NamespaceSeparator string   `json:"namespaceSeparator"`
-	TimeoutConnect     int64    `json:"timeoutConnect"`
-	TimeoutExecute     int64    `json:"timeoutExecute"`
-	DbScanLimit        int32    `json:"dbScanLimit"`
-	DataScanLimit      int32    `json:"dataScanLimit"`
-	Tls                Tls      `json:"tls"`
-	IsCluster          bool     `json:"isCluster"`
-	IsSentinel         bool     `json:"isSentinel"`
-	SentinelPassword   string   `json:"sentinelPassword"`
-	MasterName         string   `json:"masterName"`
-	RouteByLatency     bool     `json:"routeByLatency"`
-	RouteRandomly      bool     `json:"routeRandomly"`
+	ID                 string     `json:"id"`
+	Name               string     `json:"name"`
+	Host               string     `json:"host"`
+	Port               int32      `json:"port"`
+	Addrs              []string   `json:"addrs"`
+	Username           string     `json:"username"`
+	Auth               string     `json:"auth"`
+	KeysPattern        string     `json:"keysPattern"`
+	NamespaceSeparator string     `json:"namespaceSeparator"`
+	TimeoutConnect     int64      `json:"timeoutConnect"`
+	TimeoutExecute     int64      `json:"timeoutExecute"`
+	DbScanLimit        int32      `json:"dbScanLimit"`
+	DataScanLimit      int32      `json:"dataScanLimit"`
+	Tls                Tls        `json:"tls"`
+	SSHOptions         SSHOptions `json:"sshOptions"`
+	IsCluster          bool       `json:"isCluster"`
+	IsSentinel         bool       `json:"isSentinel"`
+	SentinelPassword   string     `json:"sentinelPassword"`
+	MasterName         string     `json:"masterName"`
+	RouteByLatency     bool       `json:"routeByLatency"`
+	RouteRandomly      bool       `json:"routeRandomly"`
 }
 
 type Tls struct {
@@ -55,6 +58,13 @@ type Tls struct {
 	Cert   string `json:"cert"`
 	Key    string `json:"key"`
 	Ca     string `json:"ca"`
+}
+
+type SSHOptions struct {
+	Enable   bool   `json:"enable"`
+	User     string `json:"user"`
+	Password string `json:"password"`
+	Addr     string `json:"addr"`
 }
 
 // Command .
@@ -206,6 +216,17 @@ func (c *Connection) client() (redis.UniversalClient, error) {
 		universalOptions.TLSConfig = &tls
 	}
 
+	// ssh enable
+	if c.SSHOptions.Enable {
+		cli, err := sshClient(c.SSHOptions)
+		if nil != err {
+			return nil, err
+		}
+		universalOptions.Dialer = func(ctx context.Context, network, addr string) (net.Conn, error) {
+			return cli.Dial(network, addr)
+		}
+	}
+
 	// cluster
 	if c.IsSentinel {
 		universalOptions.SentinelPassword = c.SentinelPassword
@@ -220,6 +241,27 @@ func (c *Connection) client() (redis.UniversalClient, error) {
 	}
 
 	return redis.NewUniversalClient(universalOptions), nil
+}
+
+// sshClient create ssh client
+func sshClient(opts SSHOptions) (*ssh.Client, error) {
+	sshConn, err := net.Dial("tcp", opts.Addr)
+	if nil != err {
+		return nil, err
+	}
+
+	clientConn, chans, reqs, err := ssh.NewClientConn(sshConn, opts.Addr, &ssh.ClientConfig{
+		User:            opts.User,
+		Auth:            []ssh.AuthMethod{ssh.Password(opts.Password)},
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+	})
+	if nil != err {
+		sshConn.Close()
+		return nil, err
+	}
+
+	client := ssh.NewClient(clientConn, chans, reqs)
+	return client, nil
 }
 
 func FindConnectionByID(id string) (*Connection, error) {
