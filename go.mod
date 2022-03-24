@@ -10,7 +10,7 @@ require (
 )
 
 require (
-	github.com/andybalholm/brotli v1.0.2 // indirect
+	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
@@ -22,7 +22,7 @@ require (
 	github.com/google/uuid v1.1.2 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/jchv/go-winloader v0.0.0-20210711035445-715c2860da7e // indirect
-	github.com/klauspost/compress v1.12.2 // indirect
+	github.com/klauspost/compress v1.15.0 // indirect
 	github.com/leaanthony/go-ansi-parser v1.0.1 // indirect
 	github.com/leaanthony/go-common-file-dialog v1.0.3 // indirect
 	github.com/leaanthony/go-webview2 v1.0.3-0.20220125181555-00f20a61c17d // indirect
@@ -35,11 +35,11 @@ require (
 	github.com/savsgio/gotils v0.0.0-20200117113501-90175b0fbe3f // indirect
 	github.com/tkrajina/go-reflector v0.5.5 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.28.0 // indirect
+	github.com/valyala/fasthttp v1.34.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	go.opentelemetry.io/otel v0.19.0 // indirect
 	go.opentelemetry.io/otel/metric v0.19.0 // indirect
 	go.opentelemetry.io/otel/trace v0.19.0 // indirect
-	golang.org/x/net v0.0.0-20220114011407-0dd24b26b47d // indirect
+	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
 	golang.org/x/sys v0.0.0-20220319134239-a9b59b0215f8 // indirect
 )
