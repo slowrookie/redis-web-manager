@@ -1,5 +1,5 @@
 {
-  "name": "redis-web-manager",
+  "name": "RedisWebManager",
   "frontend:build": "",
   "frontend:install": "",
   "frontend:dev": "",
@@ -8,7 +8,7 @@
   "version": "2",
   "Path": "",
   "BuildDir": "",
-  "outputfilename": "redis-web-manager",
+  "outputfilename": "RedisWebManager",
   "OutputType": "",
   "Platform": "",
   "runNonNativeBuildHooks": false,
@@ -18,10 +18,10 @@
     "email": "liujiaxingemail@gmail.com"
   },
   "Info": {
-    "companyName": "redis-web-manager",
+    "companyName": "https://github.com/slowrookie",
     "productName": "Redis Web Manager",
     "productVersion": "1.0.0",
-    "copyright": "Copyright.........",
+    "copyright": "Copyright@slowrookie",
     "comments": "Built using Wails (https://wails.app)"
   },
   "debounceMS": 100,

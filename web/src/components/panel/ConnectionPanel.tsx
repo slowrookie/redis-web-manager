@@ -31,6 +31,9 @@ const defaultConnection: Connection = {
   dataScanLimit: 2000,
   tls: {
     enable: false
+  },
+  ssh: {
+    enable: false
   }
 }
 
@@ -80,9 +83,12 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
   useEffect(() => {
     setError(undefined);
     setSuccess("");
-    if (!connection) return;
-    _setConnection(connection.id ? connection : defaultConnection);
-    connection.addrs && setAddrs(connection.addrs.map(a => ({ host: a.split(':')[0], port: Number(a.split(':')[1] || 0) })));
+    if (!connection || !connection.id) {
+      _setConnection(defaultConnection)
+    } else {
+      _setConnection(connection)
+    }
+    connection && connection.addrs && setAddrs(connection.addrs.map(a => ({ host: a.split(':')[0], port: Number(a.split(':')[1] || 0) })));
   }, [connection])
 
   const onTestConnection = () => {
@@ -218,14 +224,19 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
 
   const security = (
     <PivotItem headerText={t("Security")}>
-      <Toggle inlineLabel label="SSL / TLS" checked={_connection.tls.enable}
+      {/* tls */}
+      <Toggle inlineLabel label="SSL / TLS" checked={_connection.tls && _connection.tls.enable}
         onChange={(e, checked: boolean | undefined) => {
+          if (!_connection.tls) {
+            _connection.tls = { enable: false }
+          };
           _connection.tls.enable = !!checked;
           _setConnection({ ..._connection })
         }} />
-      {_connection.tls.enable && (<Stack tokens={{ childrenGap: 10 }}>
+      {_connection.tls && _connection.tls.enable && (<Stack tokens={{ childrenGap: 10 }}>
 
         <ReadFileTextFiled label="Cert" multiline rows={3} value={_connection.tls.cert} required onChange={(e, v) => {
+          if (!_connection.tls) return;
           _connection.tls.cert = v;
           _setConnection({ ..._connection });
         }} placeholder="-----BEGIN CERTIFICATE-----
@@ -233,12 +244,14 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
         BQAwNTETMBEGA1UECgwKUmVkaXMgVGVzdDEeMBwGA1UEAwwVQ2VydGlma"/>
 
         <ReadFileTextFiled label="Key" multiline rows={3} value={_connection.tls.key} required onChange={(e, v) => {
+          if (!_connection.tls) return;
           _connection.tls.key = v;
           _setConnection({ ..._connection });
         }} placeholder="-----BEGIN RSA PRIVATE KEY-----
         MIIEowIBAAKCAQEA1Ypl1H65Fs6x4nD0inPqpxSSW2RDWJDD5z5k8knZLr+aKXOW" />
 
         <ReadFileTextFiled label="CA" multiline rows={3} value={_connection.tls.ca} onChange={(e, v) => {
+          if (!_connection.tls) return;
           _connection.tls.ca = v;
           _setConnection({ ..._connection });
         }} placeholder="-----BEGIN CERTIFICATE-----
@@ -246,7 +259,45 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
         BQAwNTETMBEGA1UECgwKUmVkaXMgVGVzdDEeMBwGA1UEAwwVQ2VydGlma" />
 
       </Stack>)}
-      <Toggle inlineLabel label="SSH 通道" />
+
+      {/* ssh */}
+      {/* <Toggle inlineLabel label="SSH" checked={_connection.ssh && _connection.ssh.enable}
+        onChange={(e, checked: boolean | undefined) => {
+          if (!_connection.ssh) {
+            _connection.ssh = { enable: false };
+          }
+          _connection.ssh.enable = !!checked;
+          _setConnection({ ..._connection })
+        }} />
+      {_connection.ssh && _connection.ssh.enable && (<Stack tokens={{ childrenGap: 10 }}>
+        <TextField label={t('Host')} required value={_connection.ssh.host} onChange={(e, v) => {
+          if (!_connection.ssh) return;
+          _connection.ssh.host = v;
+          _setConnection({ ..._connection })
+        }} />
+
+        <TextField label={t('Port')} type="number" placeholder={t('Port')} min={0} max={65535} required value={`${_connection.ssh.port}`} onChange={(e, v) => {
+          var nv = Number(v);
+          if (nv > 65535) { nv = 65535 };
+          if (!_connection.ssh) return;
+          _connection.ssh.port = nv;
+          _setConnection({..._connection});
+        }} />
+
+        <TextField label={t('User')} required value={_connection.ssh.user} onChange={(e, v) => {
+          if (!_connection.ssh) return;
+          _connection.ssh.user = v;
+          _setConnection({ ..._connection })
+        }} />
+
+        <TextField type='password' label={t('Password')} required canRevealPassword value={_connection.ssh.password} onChange={(e, v) => {
+          if (!_connection.ssh) return;
+          _connection.ssh.password = v;
+          _setConnection({ ..._connection })
+        }} />
+
+      </Stack>)} */}
+
     </PivotItem>
   )
 
@@ -286,7 +337,7 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
       headerText={t('Connection settings')}
       onRenderFooterContent={() => {
         const disabled = !(_connection.name && _connection.host && _connection.port) ||
-          (_connection.tls.enable && (!_connection.tls.cert || !_connection.tls.key));
+          (_connection.tls && _connection.tls.enable && (!_connection.tls.cert || !_connection.tls.key));
         return (
           <Stack tokens={{ childrenGap: 10 }} horizontal horizontalAlign="space-evenly">
             <PrimaryButton

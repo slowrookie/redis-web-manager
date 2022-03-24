@@ -15,11 +15,18 @@ export interface Connection {
   timeoutExecute: number,
   dbScanLimit: number,
   dataScanLimit: number,
-  tls: {
+  tls?: {
     enable: boolean
     cert?: string
     key?: string
     ca?: string
+  },
+  ssh?: {
+    enable: boolean
+    user?: string
+    password?: string
+    host?: string
+    port?: number
   },
   isCluster?: boolean
   isSentinel?: boolean

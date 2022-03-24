@@ -87,7 +87,7 @@ export const ConnectionList = (props: IConnectionListProps) => {
                   iconProps: { iconName: 'edit' }, title: t('Edit'), disabled: loading, onClick: (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    setSelectedConnection(connection);
+                    setSelectedConnection({...connection});
                     setShowEditPanel(true);
                   }
                 },

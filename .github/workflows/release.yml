@@ -80,12 +80,12 @@ jobs:
           npm install -g appdmg
           # darwin/amd64
           wails build -s -platform darwin/amd64 -ldflags '-s -w -X main.version=${{ needs.frontend-build.outputs.VERSION }} -X main.commit=${{ needs.frontend-build.outputs.COMMIT}} -X main.date=${{needs.frontend-build.outputs.DATE}} -X main.builtBy=GithubActions -X main.MODE=release'
-          # ls -lh ./build/bin/redis-web-manager.app/Contents/MacOS
+          # ls -lh ./build/bin/Redis Web Manager.app/Contents/MacOS
           # truning .app to .dmg
-          appdmg dmg-spec.json redis-web-manager.dmg
+          appdmg dmg-spec.json RedisWebManager.dmg
           # darwin/arm64
           # wails build -s -platform darwin/arm64  -ldflags '-s -w -X main.version=${{ needs.frontend-build.outputs.VERSION }} -X main.commit=${{ needs.frontend-build.outputs.COMMIT}} -X main.date=${{needs.frontend-build.outputs.DATE}} -X main.builtBy=GithubActions -X main.MODE=release'
-          # appdmg dmg-spec.json redis-web-manager_darwin_arm64.dmg
+          # appdmg dmg-spec.json RedisWebManager_darwin_arm64.dmg
         if: matrix.platform == 'macos-latest'
       - name: Build package linux
         run: |
@@ -95,38 +95,38 @@ jobs:
           # turn into app image
           wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
           chmod +x linuxdeploy*.AppImage
-          ./linuxdeploy*.AppImage --appdir AppDir --executable ./build/bin/redis-web-manager --desktop-file=redis-web-manager.AppImage.desktop --icon-file=appicon_64x64.png --output appimage
+          ./linuxdeploy*.AppImage --appdir AppDir --executable ./build/bin/RedisWebManager --desktop-file=RedisWebManager.AppImage.desktop --icon-file=appicon_64x64.png --output appimage
           ls ./
-          cp Redis_Web_Manager-*.AppImage ./redis-web-manager_x86_64.AppImage
+          cp RedisWebManager-*.AppImage ./RedisWebManager_amd64.AppImage
         if: matrix.platform == 'ubuntu-latest'
       - name: Build package windows
         run: |
           # wails doctor
           wails build -s -ldflags '-s -w -X main.version=${{ needs.frontend-build.outputs.VERSION }} -X main.commit=${{ needs.frontend-build.outputs.COMMIT}} -X main.date=${{needs.frontend-build.outputs.DATE}} -X main.builtBy=GithubActions -X main.MODE=release'
           dir
-          copy build/bin/redis-web-manager.exe build/bin/redis-web-manager_windows_amd64.exe
+          copy build/bin/RedisWebManager.exe build/bin/RedisWebManager_windows_amd64.exe
         if: matrix.platform == 'windows-latest'
 
       - name: Upload artifact osx
         uses: actions/upload-artifact@v3
         with:
-          name: redis-web-manager.dmg
+          name: RedisWebManager.dmg
           path: |
-            redis-web-manager.dmg
-            # redis-web-manager_darwin_amd64.dmg
-            # redis-web-manager_darwin_arm64.dmg
+            RedisWebManager.dmg
+            # RedisWebManager_darwin_amd64.dmg
+            # RedisWebManager_darwin_arm64.dmg
         if: matrix.platform == 'macos-latest'
       - name: Upload artifact linux
         uses: actions/upload-artifact@v3
         with:
-          name: redis-web-manager_x86_64.AppImage
-          path: redis-web-manager_x86_64.AppImage
+          name: RedisWebManager_amd64.AppImage
+          path: RedisWebManager_amd64.AppImage
         if: matrix.platform == 'ubuntu-latest'
       - name: Upload artifact windows
         uses: actions/upload-artifact@v3
         with:
-          name: redis-web-manager_windows_amd64.exe
-          path: build/bin/redis-web-manager_windows_amd64.exe
+          name: RedisWebManager_windows_amd64.exe
+          path: build/bin/RedisWebManager_windows_amd64.exe
         if: matrix.platform == 'windows-latest'
 
   release:
@@ -136,17 +136,17 @@ jobs:
       - name: Download artifact osx
         uses: actions/download-artifact@v3
         with:
-          name: redis-web-manager.dmg
+          name: RedisWebManager.dmg
           path: ./bin/
       - name: Download artifact linx
         uses: actions/download-artifact@v3
         with:
-          name: redis-web-manager_x86_64.AppImage
+          name: RedisWebManager_amd64.AppImage
           path: ./bin/
       - name: Download artifact windows
         uses: actions/download-artifact@v3
         with:
-          name: redis-web-manager_windows_amd64.exe
+          name: RedisWebManager_windows_amd64.exe
           path: ./bin/
       - name: Release
         uses: "marvinpinto/action-automatic-releases@latest"

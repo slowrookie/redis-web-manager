@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net"
 	"strconv"
 	"time"
@@ -33,7 +34,7 @@ type Connection struct {
 	ID                 string     `json:"id"`
 	Name               string     `json:"name"`
 	Host               string     `json:"host"`
-	Port               int32      `json:"port"`
+	Port               int        `json:"port"`
 	Addrs              []string   `json:"addrs"`
 	Username           string     `json:"username"`
 	Auth               string     `json:"auth"`
@@ -44,7 +45,7 @@ type Connection struct {
 	DbScanLimit        int32      `json:"dbScanLimit"`
 	DataScanLimit      int32      `json:"dataScanLimit"`
 	Tls                Tls        `json:"tls"`
-	SSHOptions         SSHOptions `json:"sshOptions"`
+	SSHOptions         SSHOptions `json:"ssh"`
 	IsCluster          bool       `json:"isCluster"`
 	IsSentinel         bool       `json:"isSentinel"`
 	SentinelPassword   string     `json:"sentinelPassword"`
@@ -64,7 +65,8 @@ type SSHOptions struct {
 	Enable   bool   `json:"enable"`
 	User     string `json:"user"`
 	Password string `json:"password"`
-	Addr     string `json:"addr"`
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
 }
 
 // Command .
@@ -223,6 +225,7 @@ func (c *Connection) client() (redis.UniversalClient, error) {
 			return nil, err
 		}
 		universalOptions.Dialer = func(ctx context.Context, network, addr string) (net.Conn, error) {
+			log.Println(fmt.Sprintf("%s", addr))
 			return cli.Dial(network, addr)
 		}
 	}
@@ -245,23 +248,16 @@ func (c *Connection) client() (redis.UniversalClient, error) {
 
 // sshClient create ssh client
 func sshClient(opts SSHOptions) (*ssh.Client, error) {
-	sshConn, err := net.Dial("tcp", opts.Addr)
-	if nil != err {
-		return nil, err
-	}
+	addr := net.JoinHostPort(opts.Host, strconv.Itoa(opts.Port))
 
-	clientConn, chans, reqs, err := ssh.NewClientConn(sshConn, opts.Addr, &ssh.ClientConfig{
+	sshConfig := &ssh.ClientConfig{
 		User:            opts.User,
 		Auth:            []ssh.AuthMethod{ssh.Password(opts.Password)},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-	})
-	if nil != err {
-		sshConn.Close()
-		return nil, err
+		Timeout:         15 * time.Second,
 	}
 
-	client := ssh.NewClient(clientConn, chans, reqs)
-	return client, nil
+	return ssh.Dial("tcp", addr, sshConfig)
 }
 
 func FindConnectionByID(id string) (*Connection, error) {

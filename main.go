@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path"
@@ -71,7 +72,7 @@ func main() {
 		log.Fatalf("error opening file: %v", err)
 	}
 	defer f.Close()
-	log.SetOutput(f)
+	log.SetOutput(io.MultiWriter(os.Stdout, f))
 	log.Println(fmt.Sprintf("Root Path: %s", root))
 
 	app := NewApp()

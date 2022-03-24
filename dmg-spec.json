@@ -11,7 +11,7 @@
             "x": 192,
             "y": 200,
             "type": "file",
-            "path": "./build/bin/redis-web-manager.app"
+            "path": "./build/bin/RedisWebManager.app"
         }
     ]
 }
