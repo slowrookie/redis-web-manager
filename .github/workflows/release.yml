@@ -98,7 +98,7 @@ jobs:
           chmod +x linuxdeploy*.AppImage
           ./linuxdeploy*.AppImage --appdir AppDir --executable ./build/bin/RedisWebManager --desktop-file=RedisWebManager.AppImage.desktop --icon-file=./iconset/icon_128x128.png --output appimage
           ls ./
-          cp RedisWebManager-*.AppImage ./RedisWebManager_amd64.AppImage
+          cp Redis_Web_Manager-*.AppImage ./RedisWebManager_amd64.AppImage
         if: matrix.platform == 'ubuntu-latest'
       - name: Build package windows
         run: |
