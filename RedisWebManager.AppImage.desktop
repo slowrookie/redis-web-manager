@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Redis Web Manager
-Exec=redis-web-manager
-Icon=appicon_64x64
+Exec=RedisWebManager
+Icon=icon_64x64@2x.png
 Type=Application
 Categories=GTK;GNOME;Utility;Development;
