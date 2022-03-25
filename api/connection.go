@@ -6,7 +6,6 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net"
 	"strconv"
 	"time"
@@ -62,11 +61,12 @@ type Tls struct {
 }
 
 type SSHOptions struct {
-	Enable   bool   `json:"enable"`
-	User     string `json:"user"`
-	Password string `json:"password"`
-	Host     string `json:"host"`
-	Port     int    `json:"port"`
+	Enable     bool   `json:"enable"`
+	User       string `json:"user"`
+	Password   string `json:"password"`
+	Host       string `json:"host"`
+	Port       int    `json:"port"`
+	Privatekey string `json:"privatekey"`
 }
 
 // Command .
@@ -224,8 +224,9 @@ func (c *Connection) client() (redis.UniversalClient, error) {
 		if nil != err {
 			return nil, err
 		}
+		universalOptions.ReadTimeout = -1
+		universalOptions.WriteTimeout = -1
 		universalOptions.Dialer = func(ctx context.Context, network, addr string) (net.Conn, error) {
-			log.Println(fmt.Sprintf("%s", addr))
 			return cli.Dial(network, addr)
 		}
 	}
@@ -252,9 +253,24 @@ func sshClient(opts SSHOptions) (*ssh.Client, error) {
 
 	sshConfig := &ssh.ClientConfig{
 		User:            opts.User,
-		Auth:            []ssh.AuthMethod{ssh.Password(opts.Password)},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		Timeout:         15 * time.Second,
+	}
+
+	if len(opts.Password) != 0 && len(opts.Privatekey) != 0 {
+		signer, err := ssh.ParsePrivateKeyWithPassphrase([]byte(opts.Privatekey), []byte(opts.Password))
+		if err != nil {
+			return nil, err
+		}
+		sshConfig.Auth = []ssh.AuthMethod{ssh.PublicKeys(signer)}
+	} else if len(opts.Privatekey) != 0 {
+		signer, err := ssh.ParsePrivateKey([]byte(opts.Privatekey))
+		if err != nil {
+			return nil, err
+		}
+		sshConfig.Auth = []ssh.AuthMethod{ssh.PublicKeys(signer)}
+	} else if len(opts.Password) != 0 {
+		sshConfig.Auth = []ssh.AuthMethod{ssh.Password(opts.Password)}
 	}
 
 	return ssh.Dial("tcp", addr, sshConfig)

@@ -25,6 +25,7 @@ export interface Connection {
     enable: boolean
     user?: string
     password?: string
+    privateKey?: string
     host?: string
     port?: number
   },

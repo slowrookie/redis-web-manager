@@ -133,14 +133,18 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
   }
 
   const general = (<>
-    <TextField label={t('Address')} placeholder={t('Service address')} required value={_connection.host} onChange={(e, v) => {
-      _setConnection(c => ({ ...c, host: v || '' }))
-    }} />
-    <TextField label={t('Port')} type="number" placeholder={t('Port')} min={0} max={65535} required value={`${_connection.port}`} onChange={(e, v) => {
-      var nv = Number(v);
-      if (nv > 65535) { nv = 65535 };
-      _setConnection(c => ({ ...c, port: nv }));
-    }} />
+    <Stack horizontal tokens={{ childrenGap: 10 }}>
+      <Stack.Item grow={1}>
+        <TextField label={t('Host')} placeholder={t('Service address')} required value={_connection.host} onChange={(e, v) => {
+          _setConnection(c => ({ ...c, host: v || '' }))
+        }} />
+      </Stack.Item>
+      <TextField label={t('Port')} type="number" placeholder={t('Port')} min={0} max={65535} required value={`${_connection.port}`} onChange={(e, v) => {
+        var nv = Number(v);
+        if (nv > 65535) { nv = 65535 };
+        _setConnection(c => ({ ...c, port: nv }));
+      }} />
+    </Stack>
   </>);
 
   const cluster = (<>
@@ -230,7 +234,11 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
           if (!_connection.tls) {
             _connection.tls = { enable: false }
           };
+          if (!_connection.ssh) {
+            _connection.ssh = { enable: false }
+          }
           _connection.tls.enable = !!checked;
+          _connection.ssh.enable = !!!checked;
           _setConnection({ ..._connection })
         }} />
       {_connection.tls && _connection.tls.enable && (<Stack tokens={{ childrenGap: 10 }}>
@@ -261,42 +269,59 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
       </Stack>)}
 
       {/* ssh */}
-      {/* <Toggle inlineLabel label="SSH" checked={_connection.ssh && _connection.ssh.enable}
+      <Toggle inlineLabel label="SSH" checked={_connection.ssh && _connection.ssh.enable}
         onChange={(e, checked: boolean | undefined) => {
           if (!_connection.ssh) {
             _connection.ssh = { enable: false };
           }
+          if (!_connection.tls) {
+            _connection.tls = { enable: false }
+          };
           _connection.ssh.enable = !!checked;
+          _connection.tls.enable = !!!checked;
           _setConnection({ ..._connection })
         }} />
       {_connection.ssh && _connection.ssh.enable && (<Stack tokens={{ childrenGap: 10 }}>
-        <TextField label={t('Host')} required value={_connection.ssh.host} onChange={(e, v) => {
-          if (!_connection.ssh) return;
-          _connection.ssh.host = v;
-          _setConnection({ ..._connection })
-        }} />
+        <Stack horizontal tokens={{ childrenGap: 10 }}>
+          <Stack.Item grow={1}>
+            <TextField label={t('Host')} required value={_connection.ssh.host} onChange={(e, v) => {
+              if (!_connection.ssh) return;
+              _connection.ssh.host = v;
+              _setConnection({ ..._connection })
+            }} />
+          </Stack.Item>
 
-        <TextField label={t('Port')} type="number" placeholder={t('Port')} min={0} max={65535} required value={`${_connection.ssh.port}`} onChange={(e, v) => {
-          var nv = Number(v);
-          if (nv > 65535) { nv = 65535 };
-          if (!_connection.ssh) return;
-          _connection.ssh.port = nv;
-          _setConnection({..._connection});
-        }} />
+          <TextField label={t('Port')} type="number" placeholder={t('Port')} min={0} max={65535} required value={`${_connection.ssh.port}`} onChange={(e, v) => {
+            var nv = Number(v);
+            if (nv > 65535) { nv = 65535 };
+            if (!_connection.ssh) return;
+            _connection.ssh.port = nv;
+            _setConnection({ ..._connection });
+          }} />
+        </Stack>
 
-        <TextField label={t('User')} required value={_connection.ssh.user} onChange={(e, v) => {
+        <TextField label={t('Username')} required value={_connection.ssh.user} onChange={(e, v) => {
           if (!_connection.ssh) return;
           _connection.ssh.user = v;
           _setConnection({ ..._connection })
         }} />
 
-        <TextField type='password' label={t('Password')} required canRevealPassword value={_connection.ssh.password} onChange={(e, v) => {
+        <TextField type='password' label={t('Password')} canRevealPassword value={_connection.ssh.password} onChange={(e, v) => {
           if (!_connection.ssh) return;
           _connection.ssh.password = v;
           _setConnection({ ..._connection })
         }} />
 
-      </Stack>)} */}
+        <ReadFileTextFiled label={t('Private key')} multiline rows={3} value={_connection.ssh.privateKey} onChange={(e, v) => {
+          if (!_connection.ssh) return;
+          _connection.ssh.privateKey = v;
+          _setConnection({ ..._connection });
+        }} placeholder="-----BEGIN CERTIFICATE-----
+        MIIFSzCCAzOgAwIBAgIUD0gAuzJzzUCPs05IHM70fIQEo/cwDQYJKoZIhvcNAQEL
+        BQAwNTETMBEGA1UECgwKUmVkaXMgVGVzdDEeMBwGA1UEAwwVQ2VydGlma" />
+
+
+      </Stack>)}
 
     </PivotItem>
   )
