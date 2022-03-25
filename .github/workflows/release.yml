@@ -96,7 +96,7 @@ jobs:
           # turn into app image
           wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
           chmod +x linuxdeploy*.AppImage
-          ./linuxdeploy*.AppImage --appdir AppDir --executable ./build/bin/RedisWebManager --desktop-file=RedisWebManager.AppImage.desktop --icon-file=./iconset/icon_64x64@2x.png --output appimage
+          ./linuxdeploy*.AppImage --appdir AppDir --executable ./build/bin/RedisWebManager --desktop-file=RedisWebManager.AppImage.desktop --icon-file=./iconset/icon_128x128.png --output appimage
           ls ./
           cp RedisWebManager-*.AppImage ./RedisWebManager_amd64.AppImage
         if: matrix.platform == 'ubuntu-latest'
