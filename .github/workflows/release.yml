@@ -80,8 +80,9 @@ jobs:
           npm install -g appdmg
           # darwin/amd64
           wails build -s -platform darwin/amd64 -ldflags '-s -w -X main.version=${{ needs.frontend-build.outputs.VERSION }} -X main.commit=${{ needs.frontend-build.outputs.COMMIT}} -X main.date=${{needs.frontend-build.outputs.DATE}} -X main.builtBy=GithubActions -X main.MODE=release'
-          # ls -lh ./build/bin/Redis Web Manager.app/Contents/MacOS
+          # ls -lh ./build/bin/RedisWebManager.app/Contents/MacOS
           # truning .app to .dmg
+          codesign --force --deep --sign - ./build/bin/RedisWebManager.app
           appdmg dmg-spec.json RedisWebManager.dmg
           # darwin/arm64
           # wails build -s -platform darwin/arm64  -ldflags '-s -w -X main.version=${{ needs.frontend-build.outputs.VERSION }} -X main.commit=${{ needs.frontend-build.outputs.COMMIT}} -X main.date=${{needs.frontend-build.outputs.DATE}} -X main.builtBy=GithubActions -X main.MODE=release'
@@ -95,7 +96,7 @@ jobs:
           # turn into app image
           wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
           chmod +x linuxdeploy*.AppImage
-          ./linuxdeploy*.AppImage --appdir AppDir --executable ./build/bin/RedisWebManager --desktop-file=RedisWebManager.AppImage.desktop --icon-file=appicon_64x64.png --output appimage
+          ./linuxdeploy*.AppImage --appdir AppDir --executable ./build/bin/RedisWebManager --desktop-file=RedisWebManager.AppImage.desktop --icon-file=./iconset/icon_64x64@2x.png --output appimage
           ls ./
           cp RedisWebManager-*.AppImage ./RedisWebManager_amd64.AppImage
         if: matrix.platform == 'ubuntu-latest'

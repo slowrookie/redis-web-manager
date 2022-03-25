@@ -3,7 +3,7 @@ module github.com/slowrookie/redis-web-manager
 go 1.18
 
 require (
-	github.com/go-redis/redis/v8 v8.8.0
+	github.com/go-redis/redis/v8 v8.11.5
 	github.com/mattn/go-sqlite3 v1.14.10
 	github.com/wailsapp/wails/v2 v2.0.0-beta.33
 	golang.org/x/crypto v0.0.0-20220315160706-3147a52a75dd
@@ -40,5 +40,3 @@ require (
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
 	golang.org/x/sys v0.0.0-20220319134239-a9b59b0215f8 // indirect
 )
-
-replace github.com/go-redis/redis/v8 => ../redis
