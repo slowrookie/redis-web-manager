@@ -1,8 +1,10 @@
-import { ChoiceGroup, CommandBarButton, DefaultButton, IChoiceGroupOption, IconButton, ITextFieldProps, Label, MessageBar, MessageBarType, Overlay, Panel, PanelType, Pivot, PivotItem, PrimaryButton, Separator, Spinner, SpinnerSize, Stack, TextField, Toggle } from '@fluentui/react';
-import React, { useEffect, useRef, useState } from 'react';
+import { ChoiceGroup, DefaultButton, IChoiceGroupOption, IconButton, Label, MessageBar, MessageBarType, Overlay, Panel, PanelType, Pivot, PivotItem, PrimaryButton, Separator, Spinner, SpinnerSize, Stack, TextField, Toggle } from '@fluentui/react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection, saveConnection, testConnection } from '../../services/connection.service';
 import { ErrorMessageBar } from '../common/ErrorMessageBar';
+import { ReadFileTextFiled } from '../common/ReadFileTextField';
+import _ from 'lodash';
 
 export interface IConnectionPanel {
   connection?: Connection
@@ -37,32 +39,6 @@ const defaultConnection: Connection = {
   }
 }
 
-const ReadFileTextFiled = (props: ITextFieldProps) => {
-  const { t } = useTranslation();
-  const fileChosenRef = useRef<any>();
-
-  return <TextField {...props} onRenderLabel={(fieldProps, defaultRender: any) => {
-    return (
-      <Stack horizontal>
-        {defaultRender(fieldProps)}
-        <Stack.Item grow={1}><span></span></Stack.Item>
-        <input type="file" style={{ display: 'none' }} ref={fileChosenRef} onChange={(e) => {
-          if (!e.target.files) return;
-          let file = e.target.files[0];
-          const fileReader = new FileReader()
-          fileReader.onloadend = () => {
-            props.onChange && props.onChange(e, fileReader.result?.toString());
-          }
-          fileReader.readAsText(file);
-        }} />
-        <CommandBarButton iconProps={{ iconName: 'Upload' }} text={t('Upload')} onClick={() => {
-          fileChosenRef.current.click();
-        }}></CommandBarButton>
-      </Stack>
-    )
-  }} />
-}
-
 
 export const ConnectionPanel = (props: IConnectionPanel) => {
   const { t } = useTranslation();
@@ -81,12 +57,14 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
   ];
 
   useEffect(() => {
+    console.log(connection);
+
     setError(undefined);
     setSuccess("");
     if (!connection || !connection.id) {
       _setConnection(defaultConnection)
     } else {
-      _setConnection(connection)
+      _setConnection(_.cloneDeep(connection))
     }
     connection && connection.addrs && setAddrs(connection.addrs.map(a => ({ host: a.split(':')[0], port: Number(a.split(':')[1] || 0) })));
   }, [connection])
@@ -181,7 +159,7 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
           const routeRandomly = 'RouteRandomly' === o.key;
           _setConnection(c => ({ ...c, routeByLatency, routeRandomly }))
         }}
-        defaultSelectedKey="RouteByLatency" options={[
+        options={[
           { key: 'RouteByLatency', text: t('RouteByLatency') },
           { key: 'RouteRandomly', text: t('RouteRandomly') }
         ]} />
@@ -210,7 +188,7 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
           if (!o) return;
           _setConnection(c => ({ ...c, isCluster: o.key === 'cluster', isSentinel: o.key === 'sentinel' }))
         }}
-        defaultSelectedKey="general" options={clientTypeOptions} />
+        options={clientTypeOptions} />
 
       {(_connection.isCluster || _connection.isSentinel) && cluster}
       {_connection.isSentinel && sentinel}

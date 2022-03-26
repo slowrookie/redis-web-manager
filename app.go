@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 
 	"github.com/slowrookie/redis-web-manager/api"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // App struct
@@ -98,4 +100,22 @@ func (a *App) Config() (api.Config, error) {
 
 func (a *App) SetConfig(config api.Config) error {
 	return config.Set()
+}
+
+// ReadFile .
+func (a *App) ReadFile() (string, error) {
+	filePath, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{})
+	if err != nil {
+		return "", err
+	}
+	bts, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return "", err
+	}
+	return string(bts), err
+}
+
+// Quit
+func (a *App) Quit() {
+	runtime.Quit(a.ctx)
 }
