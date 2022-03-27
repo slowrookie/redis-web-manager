@@ -56,13 +56,13 @@ func appDataPath() string {
 }
 
 func init() {
-	root = path.Join(appDataPath(), "./Data")
+	root = appDataPath()
 	if err := os.MkdirAll(root, os.ModePerm); err != nil {
 		panic(err)
 	}
 
-	// database
-	api.InitializeDB(path.Join(root, "rwm.db?cache=shared&mode=rwc&_journal_mode=WAL"))
+	// storage
+	api.GlobalStorage.Initialize(path.Join(root, "storage"))
 }
 
 func main() {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"strconv"
@@ -15,11 +15,7 @@ import (
 )
 
 const (
-	SelectConnectionStatement     = "SELECT `id`, `connection` FROM `rwm_connection`"
-	SelectConnectionByIdStatement = "SELECT `id`, `connection` FROM `rwm_connection` WHERE `id` = $1"
-	InsertConnectionStatement     = "INSERT INTO `rwm_connection` (`id`, `connection`) VALUES ($1, $2)"
-	UpdateConnectionStatement     = "UPDATE `rwm_connection` SET `connection` = $1 WHERE `id` = $2"
-	DeleteConnectionStatement     = "DELETE FROM `rwm_connection` WHERE `id` = $1"
+	ConnectionC = "connections"
 )
 
 // ConnectionEntry .
@@ -75,6 +71,8 @@ type Command struct {
 	Commands [][]interface{} `json:"commands"`
 }
 
+var Connections = make([]Connection, 0)
+
 // Clients .
 var Clients = make(map[string]redis.UniversalClient)
 
@@ -95,35 +93,17 @@ func (c *Connection) Test() error {
 func (c *Connection) New() error {
 	id := strconv.FormatInt(time.Now().UnixNano(), 10)
 	c.ID = id
-
-	bts, err := json.Marshal(c)
-	if err != nil {
-		return err
-	}
-	if _, err := DB.Exec(InsertConnectionStatement, id, string(bts)); err != nil {
-		return err
-	}
-	return nil
+	return GlobalStorage.Write(ConnectionC, id, c)
 }
 
 // Edit .
 func (c *Connection) Edit() error {
-	bts, err := json.Marshal(c)
-	if err != nil {
-		return err
-	}
-	if _, err := DB.Exec(UpdateConnectionStatement, string(bts), c.ID); err != nil {
-		return err
-	}
-	return nil
+	return GlobalStorage.Write(ConnectionC, c.ID, c)
 }
 
 // Delete .
 func (c *Connection) Delete() error {
-	if _, err := DB.Exec(DeleteConnectionStatement, c.ID); err != nil {
-		return err
-	}
-	return nil
+	return GlobalStorage.Delete(ConnectionC, c.ID)
 }
 
 // Open .
@@ -276,41 +256,25 @@ func sshClient(opts SSHOptions) (*ssh.Client, error) {
 	return ssh.Dial("tcp", addr, sshConfig)
 }
 
-func FindConnectionByID(id string) (*Connection, error) {
-	var entry ConnectionEntry
-	if err := DB.QueryRow(SelectConnectionByIdStatement, id).Scan(&entry.ID, &entry.Connection); err != nil {
-		return nil, err
+func GetConnection(id string) (*Connection, error) {
+	for _, con := range Connections {
+		if con.ID == id {
+			return &con, nil
+		}
 	}
-
-	connection := Connection{}
-	if err := json.Unmarshal([]byte(entry.Connection), &connection); err != nil {
-		return nil, err
-	}
-
-	connection.ID = entry.ID
-
-	return &connection, nil
+	return nil, errors.New(fmt.Sprintf("Connection %s not exists", id))
 }
 
-// Connections get all connections
-func Connections() ([]Connection, error) {
-	rows, err := DB.Query(SelectConnectionStatement)
+func LoadConnections() error {
+	var byts [][]byte
+	err := GlobalStorage.ReadAll(ConnectionC, &byts)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	defer rows.Close()
-	connections := []Connection{}
-	for rows.Next() {
-		entry := ConnectionEntry{}
-		if err = rows.Scan(&entry.ID, &entry.Connection); err != nil {
-			return nil, err
-		}
-		connection := Connection{ID: entry.ID}
-		if err := json.Unmarshal([]byte(entry.Connection), &connection); err != nil {
-			return nil, err
-		}
-		connections = append(connections, connection)
+	var _connections = make([]Connection, 0)
+	if err = RecordsToStruct(byts, &_connections); err != nil {
+		return err
 	}
-
-	return connections, nil
+	Connections = _connections
+	return nil
 }

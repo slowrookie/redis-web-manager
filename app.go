@@ -45,8 +45,9 @@ func (a *App) AboutInfo() map[string]string {
 }
 
 // Connections .
-func (a *App) Connections() ([]api.Connection, error) {
-	return api.Connections()
+func (a *App) Connections() []api.Connection {
+	api.LoadConnections()
+	return api.Connections
 }
 
 func (a *App) TestConnection(con api.Connection) error {
@@ -58,7 +59,7 @@ func (a *App) EditConnection(con api.Connection) error {
 }
 
 func (a *App) DeleteConnection(id string) error {
-	connection, err := api.FindConnectionByID(id)
+	connection, err := api.GetConnection(id)
 	if err != nil {
 		return err
 	}
@@ -66,7 +67,7 @@ func (a *App) DeleteConnection(id string) error {
 }
 
 func (a *App) OpenConnection(id string) error {
-	connection, err := api.FindConnectionByID(id)
+	connection, err := api.GetConnection(id)
 	if err != nil {
 		return err
 	}
@@ -74,7 +75,7 @@ func (a *App) OpenConnection(id string) error {
 }
 
 func (a *App) DisConnection(id string) error {
-	connection, err := api.FindConnectionByID(id)
+	connection, err := api.GetConnection(id)
 	if err != nil {
 		return err
 	}
@@ -86,7 +87,7 @@ func (a *App) NewConnection(con api.Connection) error {
 }
 
 func (a *App) CommandConnection(cmd api.Command) ([]interface{}, error) {
-	connection, err := api.FindConnectionByID(cmd.ID)
+	connection, err := api.GetConnection(cmd.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +96,10 @@ func (a *App) CommandConnection(cmd api.Command) ([]interface{}, error) {
 
 // Config .
 func (a *App) Config() (api.Config, error) {
-	return api.DefaultConfig.Get()
+	if err := api.DefaultConfig.Get(); err != nil {
+		return *api.DefaultConfig, err
+	}
+	return *api.DefaultConfig, nil
 }
 
 func (a *App) SetConfig(config api.Config) error {
