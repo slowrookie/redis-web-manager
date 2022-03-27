@@ -37,6 +37,7 @@ export const ConnectionList = (props: IConnectionListProps) => {
 
   useEffect(() => {
     load();
+    return () => setSelectedConnection(undefined)
   }, [load]);
 
   const handleSave = () => {
