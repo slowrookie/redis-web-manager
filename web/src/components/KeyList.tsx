@@ -1,6 +1,5 @@
 import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, Selection, SelectionMode, TooltipHost } from '@fluentui/react';
-import React, { useEffect, useState } from 'react';
-import { Subject } from 'rxjs';
+import React, { useState } from 'react';
 import { Connection, executeCommand } from '../services/connection.service';
 import { ErrorMessageBar } from './common/ErrorMessageBar';
 import { ComponentType } from './utils';
@@ -12,29 +11,23 @@ export interface IKeyListProps {
   onSelectedKey: (type: string, keyName: string) => void,
 }
 
-const SelectionEvent = new Subject<string>();
-
 export const KeyList = (props: IKeyListProps) => {
   const { connection, db, keys, onSelectedKey } = props;
   const [error, setError] = useState<Error>();
 
-  useEffect(() => {
-    const sub = SelectionEvent.subscribe((v: string) => {
-      setError(undefined);
-      executeCommand<Array<any>>({ id: connection.id, commands: [['SELECT', db], ['TYPE', v]] })
-        .then((ret) => {
-          if (!ret || !ret.length) return;
-          onSelectedKey(ComponentType[ret[1].toUpperCase()], v);
-        })
-        .catch(err => setError(err))
-        .finally(() => { });
-    })
-    return () => sub && sub.unsubscribe();
-  }, [db, connection.id, onSelectedKey])
-
   const selection = new Selection({
     onSelectionChanged: () => {
-      selection.getSelection().length && SelectionEvent.next((selection.getSelection()[0] as string));
+      if (selection.getSelection().length) {
+        const v = selection.getSelection()[0] as string;
+        setError(undefined);
+        executeCommand<Array<any>>({ id: connection.id, commands: [['SELECT', db], ['TYPE', v]] })
+          .then((ret) => {
+            if (!ret || !ret.length) return;
+            onSelectedKey(ComponentType[ret[1].toUpperCase()], v);
+          })
+          .catch(err => setError(err))
+          .finally(() => { });
+      }
     }
   })
 

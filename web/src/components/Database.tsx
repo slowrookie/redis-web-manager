@@ -187,8 +187,9 @@ export const Database = (props: IDatabaseProps) => {
   const keyList = useMemo(() => {
     return <KeyList {...props} db={search.db} keys={keys}
       onSelectedKey={handleSelectedKey} />
-    //eslint-disable-next-line
+    // eslint-disable-next-line    
   }, [props, search.db, keys])
+
 
   return (<>
     <Stack horizontal style={{ height: '100%' }}>
@@ -235,10 +236,7 @@ export const Database = (props: IDatabaseProps) => {
           {error && <ErrorMessageBar error={error} />}
           {/* keys */}
           <Stack.Item grow={1} style={{ overflow: 'auto' }}>
-            {/* <KeyList {...props} db={search.db} keys={keys}
-              onSelectedKey={handleSelectedKey} /> */}
             {keyList}
-
           </Stack.Item>
           {/* load more */}
           <div style={{ borderBottom: `1px solid ${theme.palette.neutralLight}` }}></div>
