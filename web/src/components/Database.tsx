@@ -133,29 +133,23 @@ export const Database = (props: IDatabaseProps) => {
     setSearch({ ...search, pattern, cursor: 0, count })
   }
 
-  const handleSelectedKey = (type: string, keyName: string) => {
-    if (keyName === showKeyPanel.keyName) return;
-    setShowKeyPanel({})
-    setShowKeyPanel({ type, keyName });
-  }
-
-  const handleDeletedKey = (keyName: string) => {
-    showKeyPanel.keyName === keyName && setShowKeyPanel({});
-    setSearch({ ...search, cursor: 0 });
-  }
-
-  const handleKeyNameChanged = (oldKey: string, newKey: string) => {
-    setShowKeyPanel({ ...showKeyPanel, keyName: newKey });
-    setKeys(keys.map(v => v === oldKey ? newKey : v));
-  }
-
-  const keyComponent = () => {
+  const keyComponent = useCallback(() => {
     if (!showKeyPanel.type && !showKeyPanel.keyName) {
       return <NoKeySelected />
     }
 
     if (!showKeyPanel.type) {
       return <NotFoundKey message={`Key ${showKeyPanel.keyName} not found`} />
+    }
+
+    const handleDeletedKey = (keyName: string) => {
+      showKeyPanel.keyName === keyName && setShowKeyPanel({});
+      setSearch({ ...search, cursor: 0 });
+    }
+
+    const handleKeyNameChanged = (oldKey: string, newKey: string) => {
+      setShowKeyPanel({ ...showKeyPanel, keyName: newKey });
+      setKeys(keys.map(v => v === oldKey ? newKey : v));
     }
 
     const componentProps = {
@@ -182,12 +176,16 @@ export const Database = (props: IDatabaseProps) => {
       default:
         break;
     }
-  };
+  }, [keys, props, search, showKeyPanel]);
 
   const keyList = useMemo(() => {
+    const handleSelectedKey = (type: string, keyName: string) => {
+      setShowKeyPanel({});
+      setShowKeyPanel((v: any) => ({...v, type, keyName }));
+    }
+
     return <KeyList {...props} db={search.db} keys={keys}
       onSelectedKey={handleSelectedKey} />
-    // eslint-disable-next-line    
   }, [props, search.db, keys])
 
 
