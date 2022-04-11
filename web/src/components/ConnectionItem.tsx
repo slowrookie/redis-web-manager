@@ -76,6 +76,12 @@ export const ConnectionItem = (props: IConnectionItemProps) => {
           }} />
         </TooltipHost>
 
+        <TooltipHost content={t('Lua')} directionalHint={DirectionalHint.rightCenter}>
+          <IconButton styles={buttonStyles} style={selectedStyle('lua')} iconProps={{ iconName: 'Lua' }} onClick={() => {
+            setSelectedKey('lua');
+          }} />
+        </TooltipHost>
+
         <Stack.Item grow={1}><span /></Stack.Item>
 
         <TooltipHost content={t('Configuration')} directionalHint={DirectionalHint.rightCenter}>
