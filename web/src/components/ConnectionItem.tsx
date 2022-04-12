@@ -8,6 +8,7 @@ import { DatabaseConfiguration } from './configuration/DatabaseConfiguration';
 import { Console } from './Console';
 import { Database, IDatabase } from './Database';
 import { Info } from './info/Info';
+import { Luas } from './lua/Luas';
 import { parseInfo } from './utils';
 
 export interface IConnectionItemProps {
@@ -102,6 +103,10 @@ export const ConnectionItem = (props: IConnectionItemProps) => {
 
       <Stack.Item grow={1} style={{ display: selectedKey === 'cli' ? 'block' : 'none' }}>
         <Console {...props} />
+      </Stack.Item>
+
+      <Stack.Item grow={1} style={{ display: selectedKey === 'lua' ? 'block' : 'none' }}>
+        <Luas {...props} />
       </Stack.Item>
 
       <Stack.Item grow={1} style={{ display: selectedKey === 'databaseConfig' ? 'block' : 'none' }}>

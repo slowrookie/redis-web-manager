@@ -7,10 +7,9 @@ import (
 	"log"
 	"os"
 	"path"
-	"path/filepath"
-	"runtime"
 
 	"github.com/slowrookie/redis-web-manager/api"
+	_ "github.com/slowrookie/redis-web-manager/api"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/logger"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -34,46 +33,15 @@ var icon []byte
 
 var About = make(map[string]string)
 
-var root string
-
-func appDataPath() string {
-	const project = "com.github.slowrookie.redis-web-manager"
-
-	switch runtime.GOOS {
-	case "windows":
-		return fmt.Sprintf("%s/%s", os.Getenv("APPDATA"), project)
-	case "darwin":
-		return fmt.Sprintf("%s/Library/Containers/%s", os.Getenv("HOME"), project)
-	case "linux":
-		return fmt.Sprintf("%s/.%s", os.Getenv("HOME"), project)
-	}
-	// default path
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		log.Fatal(err)
-	}
-	return dir
-}
-
-func init() {
-	root = appDataPath()
-	if err := os.MkdirAll(root, os.ModePerm); err != nil {
-		panic(err)
-	}
-
-	// storage
-	api.GlobalStorage.Initialize(path.Join(root, "storage"))
-}
-
 func main() {
 	// log
-	f, err := os.OpenFile(path.Join(root, "rwm.log"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err := os.OpenFile(path.Join(api.APP_ROOT, "rwm.log"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
 	defer f.Close()
 	log.SetOutput(io.MultiWriter(os.Stdout, f))
-	log.Println(fmt.Sprintf("Root Path: %s", root))
+	log.Println(fmt.Sprintf("Root Path: %s", api.APP_ROOT))
 
 	app := NewApp()
 	var about = make(map[string]string)

@@ -6,16 +6,16 @@ type Config struct {
 }
 
 const (
-	ConfigC = "config"
-	ConfigK = "system_config"
+	configStorageCollection = "config"
+	configStorageKey        = "system_config"
 )
 
 var DefaultConfig = &Config{}
 
 func (c *Config) Get() error {
-	return GlobalStorage.Read(ConfigC, ConfigK, c)
+	return GlobalStorage.Read(configStorageCollection, configStorageKey, c)
 }
 
 func (c *Config) Set() error {
-	return GlobalStorage.Write(ConfigC, ConfigK, *c)
+	return GlobalStorage.Write(configStorageCollection, configStorageKey, *c)
 }

@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	ConnectionC = "connections"
+	connectionCollection = "connections"
 )
 
 // ConnectionEntry .
@@ -93,17 +93,17 @@ func (c *Connection) Test() error {
 func (c *Connection) New() error {
 	id := strconv.FormatInt(time.Now().UnixNano(), 10)
 	c.ID = id
-	return GlobalStorage.Write(ConnectionC, id, c)
+	return GlobalStorage.Write(connectionCollection, id, c)
 }
 
 // Edit .
 func (c *Connection) Edit() error {
-	return GlobalStorage.Write(ConnectionC, c.ID, c)
+	return GlobalStorage.Write(connectionCollection, c.ID, c)
 }
 
 // Delete .
 func (c *Connection) Delete() error {
-	return GlobalStorage.Delete(ConnectionC, c.ID)
+	return GlobalStorage.Delete(connectionCollection, c.ID)
 }
 
 // Open .
@@ -168,6 +168,26 @@ func (c *Connection) Command(cmd Command) ([]interface{}, error) {
 		rets[i] = ret
 	}
 	return rets, nil
+}
+
+// Scripting lua script
+func (c *Connection) Scripting(lua Lua) (interface{}, error) {
+	start := time.Now()
+	if _, exists := Clients[c.ID]; !exists {
+		client, err := c.client()
+		if nil != err {
+			return nil, err
+		}
+		Clients[c.ID] = client
+	}
+	ctx := context.Background()
+	ret, err := redis.NewScript(lua.Script).Run(ctx, Clients[c.ID], lua.Keys, lua.Args...).Result()
+	if nil != err {
+		return nil, err
+	}
+	lua.LastExecutionAt = start.Unix()
+	lua.Elapsed = fmt.Sprintf("%v", time.Since(start))
+	return ret, nil
 }
 
 func (c *Connection) client() (redis.UniversalClient, error) {
@@ -267,7 +287,7 @@ func GetConnection(id string) (*Connection, error) {
 
 func LoadConnections() error {
 	var byts [][]byte
-	err := GlobalStorage.ReadAll(ConnectionC, &byts)
+	err := GlobalStorage.ReadAll(connectionCollection, &byts)
 	if err != nil {
 		return err
 	}

@@ -94,6 +94,14 @@ func (a *App) CommandConnection(cmd api.Command) ([]interface{}, error) {
 	return connection.Command(cmd)
 }
 
+func (a *App) ExecutionScript(lua api.Lua) (interface{}, error) {
+	connection, err := api.GetConnection(lua.ConnectionID)
+	if err != nil {
+		return nil, err
+	}
+	return connection.Scripting(lua)
+}
+
 // Config .
 func (a *App) Config() (api.Config, error) {
 	if err := api.DefaultConfig.Get(); err != nil {
@@ -104,6 +112,33 @@ func (a *App) Config() (api.Config, error) {
 
 func (a *App) SetConfig(config api.Config) error {
 	return config.Set()
+}
+
+// Lua
+func (a *App) NewLua(lua api.Lua) error {
+	return lua.New()
+}
+
+func (a *App) EditLua(lua api.Lua) error {
+	return lua.Edit()
+}
+
+func (a *App) DeleteLua(lua api.Lua) error {
+	return lua.Delete()
+}
+
+func (a *App) LoadLuas(connectionId string) ([]api.Lua, error) {
+	luas := make([]api.Lua, 0)
+	if err := api.LoadLuas(&luas); nil != err {
+		return nil, err
+	}
+	_luas := []api.Lua{}
+	for _, v := range luas {
+		if v.ConnectionID == connectionId {
+			_luas = append(_luas, v)
+		}
+	}
+	return _luas, nil
 }
 
 // ReadFile .
