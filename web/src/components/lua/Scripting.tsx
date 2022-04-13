@@ -1,9 +1,9 @@
-import { PrimaryButton, Stack, TextField } from '@fluentui/react';
+import { Label, PrimaryButton, Stack, Text, TextField, useTheme } from '@fluentui/react';
 import Editor from '@monaco-editor/react';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { eidtLua, executionScript, Lua } from '../../services/lua.service';
-
+import dayjs from 'dayjs';
 
 export interface ILuaProps {
   lua: Lua,
@@ -14,19 +14,24 @@ export const Scripting = (props: ILuaProps) => {
   const { lua, onChanged } = props;
 
   const editorRef = useRef<any>(null),
+    theme = useTheme(),
     { t } = useTranslation(),
+    [_lua, _setLua] = useState<Lua>(lua),
     [ret, setRet] = useState<any>(),
     [errorMsg, setErrorMsg] = useState<string>();
 
-  const handleExecution = (save?: boolean) => {
-    if (!editorRef.current) return;
+  useEffect(() => {
+    console.log(lua);
+    _setLua({ ...lua });
+  }, [lua])
+
+  const handleExecution = () => {
     setRet(null);
     setErrorMsg('');
-    lua.Script = editorRef.current.getValue();
-    (save ? eidtLua(lua).then(() => executionScript(lua)) : executionScript(lua))
+    executionScript(_lua)
       .then(v => {
-        setRet(v);
-        save && onChanged(lua);
+        setRet(v.result);
+        _setLua(v)
       })
       .catch(err => {
         setErrorMsg(err);
@@ -37,27 +42,50 @@ export const Scripting = (props: ILuaProps) => {
       })
   }
 
+  const handleSave = () => {
+    eidtLua(_lua)
+      .then(v => {
+        onChanged(_lua);
+      })
+      .catch(err => {
+        setErrorMsg(err)
+        setRet(err)
+      })
+  }
+
   return (
     <Stack style={{ height: '100%' }} tokens={{ padding: 5, childrenGap: 10 }}>
+      <TextField required prefix={t('Name')}
+        value={_lua.name || ''}
+        onChange={(e, v: string | undefined) => {
+          _setLua({ ..._lua, name: v || '' })
+        }} />
+
       <TextField prefix='KEYS'
-        value={lua.Keys?.join(',')}
+        value={_lua.keys?.join(',')}
         onChange={(e, v: string | undefined) => {
-          lua.Keys = v ? v.split(',') : [];
+          _setLua({ ..._lua, keys: v ? v.split(',') : [] })
         }}
-        description={`${t('multiple keys are separated by commas `,`')}`} />
+        description={`${'multiple keys are separated by commas `,`'}`} />
+
       <TextField prefix='ARGV'
-        value={lua.Args?.join(',')}
+        value={_lua.args?.join(',')}
         onChange={(e, v: string | undefined) => {
-          lua.Args = v ? v.split(',') : [];
+          _setLua({ ..._lua, args: v ? v.split(',') : [] })
         }}
-        description={`${t('multiple args are separated by commas `,`')}`} />
+        description={`${'multiple args are separated by commas `,`'}`} />
+
       {/* eidtor */}
       <Stack.Item grow={1}>
         <Editor
           height={'100%'}
+          theme={theme.name?.includes('dark') ? 'vs-dark' : 'light'}
           defaultLanguage="lua"
-          value={lua.Script}
+          value={_lua.script}
           defaultValue="-- lua script"
+          onChange={(v) => {
+            _setLua({ ..._lua, script: v || '' })
+          }}
           onMount={(editor, monaco) => {
             editorRef.current = editor;
           }}
@@ -65,9 +93,18 @@ export const Scripting = (props: ILuaProps) => {
       </Stack.Item>
 
       {/* buttons */}
-      <Stack horizontal horizontalAlign='end' tokens={{ childrenGap: 10 }}>
-        <PrimaryButton text={t('Execution')} onClick={() => { handleExecution() }}></PrimaryButton>
-        <PrimaryButton text={`${t('Execution')} & ${t('Save')}`} onClick={() => { handleExecution(true) }}></PrimaryButton>
+      <Stack horizontal verticalAlign='center' tokens={{ childrenGap: 10 }} styles={{ root: { padding: '0 10px' } }}>
+        {_lua && _lua.lastExecutionAt && (<>
+          <Label>上次执行时间:</Label>
+          <Text variant='small'>{dayjs(_lua?.lastExecutionAt).format("YYYY-MM-DD HH:mm:ss SSS")}</Text>
+        </>)}
+        {_lua && _lua.elapsed && (<>
+          <Label>耗时:</Label>
+          <Text variant='small'>{_lua?.elapsed}</Text>
+        </>)}
+        <Stack.Item grow={1}><span></span></Stack.Item>
+        <PrimaryButton disabled={!_lua?.name} text={`${t('Save')}`} onClick={() => { handleSave() }}></PrimaryButton>
+        <PrimaryButton disabled={!_lua?.name} text={t('Execution')} onClick={() => { handleExecution() }}></PrimaryButton>
       </Stack>
 
       {/* result */}

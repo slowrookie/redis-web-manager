@@ -13,12 +13,13 @@ const (
 type Lua struct {
 	ConnectionID    string        `json:"connectionID"`
 	ID              string        `json:"id"`
-	Desc            string        `json:"desc"`
+	Name            string        `json:"name"`
 	Keys            []string      `json:"keys"`
 	Args            []interface{} `json:"args"`
 	Script          string        `json:"script"`
 	LastExecutionAt int64         `json:"lastExecutionAt"`
 	Elapsed         string        `json:"elapsed"`
+	Result          interface{}   `json:"result"`
 }
 
 // New add lua script

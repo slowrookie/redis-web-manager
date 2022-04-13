@@ -2,6 +2,8 @@ import { createTheme } from "@fluentui/style-utilities";
 import { Theme } from "@fluentui/theme";
 import { DefaultTheme, DarkTheme, WordTheme, TeamsTheme } from '@fluentui/theme-samples';
 
+DarkTheme.name = 'dark';
+
 export const themes: { [index: string]: Theme } = {
   default: DefaultTheme,
   light: DefaultTheme,

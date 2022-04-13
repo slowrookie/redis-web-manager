@@ -48,11 +48,11 @@ func (sut *ConnectionSuite) TestScripting() {
 		Script:       incrByScript,
 	}
 
-	ret, err := connection.Scripting(*lua)
+	err := connection.Scripting(lua)
 	sut.ErrorIs(err, nil)
-	sut.GreaterOrEqual(ret, int64(1))
+	sut.GreaterOrEqual(lua.Result, int64(1))
 	fmt.Println(fmt.Sprintf("%#v", lua))
-	fmt.Println(fmt.Sprintf("%+v", ret))
+	fmt.Println(fmt.Sprintf("%+v", lua.Result))
 }
 
 func TestConnectionSuite(t *testing.T) {

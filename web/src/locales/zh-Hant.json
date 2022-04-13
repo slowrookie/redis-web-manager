@@ -114,5 +114,6 @@
     "RouteRandomly": "隨機",
     "Sentinel password": "哨兵密碼",
     "Master name": "主節點名稱",
-    "Type": "類型"
+    "Type": "類型",
+    "Execution": "運行"
 }

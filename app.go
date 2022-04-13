@@ -94,12 +94,13 @@ func (a *App) CommandConnection(cmd api.Command) ([]interface{}, error) {
 	return connection.Command(cmd)
 }
 
-func (a *App) ExecutionScript(lua api.Lua) (interface{}, error) {
+func (a *App) ExecutionScript(lua *api.Lua) (*api.Lua, error) {
 	connection, err := api.GetConnection(lua.ConnectionID)
 	if err != nil {
 		return nil, err
 	}
-	return connection.Scripting(lua)
+	err = connection.Scripting(lua)
+	return lua, nil
 }
 
 // Config .

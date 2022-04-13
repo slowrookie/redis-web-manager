@@ -171,23 +171,24 @@ func (c *Connection) Command(cmd Command) ([]interface{}, error) {
 }
 
 // Scripting lua script
-func (c *Connection) Scripting(lua Lua) (interface{}, error) {
+func (c *Connection) Scripting(lua *Lua) error {
 	start := time.Now()
 	if _, exists := Clients[c.ID]; !exists {
 		client, err := c.client()
 		if nil != err {
-			return nil, err
+			return err
 		}
 		Clients[c.ID] = client
 	}
 	ctx := context.Background()
 	ret, err := redis.NewScript(lua.Script).Run(ctx, Clients[c.ID], lua.Keys, lua.Args...).Result()
 	if nil != err {
-		return nil, err
+		return err
 	}
-	lua.LastExecutionAt = start.Unix()
+	lua.LastExecutionAt = start.UnixMilli()
 	lua.Elapsed = fmt.Sprintf("%v", time.Since(start))
-	return ret, nil
+	lua.Result = ret
+	return nil
 }
 
 func (c *Connection) client() (redis.UniversalClient, error) {
