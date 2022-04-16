@@ -1,9 +1,10 @@
 import { Label, PrimaryButton, Stack, Text, TextField, useTheme } from '@fluentui/react';
 import Editor from '@monaco-editor/react';
+import dayjs from 'dayjs';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { debounceTime, fromEvent, map } from 'rxjs';
 import { eidtLua, executionScript, Lua } from '../../services/lua.service';
-import dayjs from 'dayjs';
 
 export interface ILuaProps {
   lua: Lua,
@@ -21,7 +22,6 @@ export const Scripting = (props: ILuaProps) => {
     [errorMsg, setErrorMsg] = useState<string>();
 
   useEffect(() => {
-    console.log(lua);
     _setLua({ ...lua });
   }, [lua])
 
@@ -53,6 +53,21 @@ export const Scripting = (props: ILuaProps) => {
       })
   }
 
+  // re-render eiditor after window resize
+  const [display, setDisplay] = useState<string>('block');
+  useEffect(() => {
+    const sub = fromEvent(window, "resize").pipe(
+      map(v => {
+        setDisplay('none');
+        return v;
+      }),
+      debounceTime(250)
+    ).subscribe(v => {
+      setDisplay('block');
+    })
+    return () => sub && sub.unsubscribe();
+  })
+
   return (
     <Stack style={{ height: '100%' }} tokens={{ padding: 5, childrenGap: 10 }}>
       <TextField required prefix={t('Name')}
@@ -77,19 +92,21 @@ export const Scripting = (props: ILuaProps) => {
 
       {/* eidtor */}
       <Stack.Item grow={1}>
-        <Editor
-          height={'100%'}
-          theme={theme.name?.includes('dark') ? 'vs-dark' : 'light'}
-          defaultLanguage="lua"
-          value={_lua.script}
-          defaultValue="-- lua script"
-          onChange={(v) => {
-            _setLua({ ..._lua, script: v || '' })
-          }}
-          onMount={(editor, monaco) => {
-            editorRef.current = editor;
-          }}
-        />
+        <div style={{ height: '100%', display }}>
+          <Editor
+            height={'100%'}
+            theme={theme.name?.includes('dark') ? 'vs-dark' : 'light'}
+            defaultLanguage="lua"
+            value={_lua.script}
+            defaultValue="-- lua script"
+            onChange={(v) => {
+              _setLua({ ..._lua, script: v || '' })
+            }}
+            onMount={(editor, monaco) => {
+              editorRef.current = editor;
+            }}
+          />
+        </div>
       </Stack.Item>
 
       {/* buttons */}

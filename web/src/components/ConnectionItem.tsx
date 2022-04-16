@@ -16,7 +16,7 @@ export interface IConnectionItemProps {
 }
 
 const buttonStyles: IButtonStyles = {
-  root: { width: 42, height: 42 }
+  root: { width: 54, height: 54 }
 }
 
 export const ConnectionItem = (props: IConnectionItemProps) => {
@@ -53,9 +53,9 @@ export const ConnectionItem = (props: IConnectionItemProps) => {
   }
 
   return (<>
-    <ErrorMessageBar error={error}></ErrorMessageBar>
     <Loading loading={loading} />
     <Stack horizontal style={{ height: '100%', position: 'relative' }}>
+      <ErrorMessageBar error={error}></ErrorMessageBar>
 
       <Stack style={{ height: '100%', boxShadow: Depths.depth8 }}>
         {/* server info */}
