@@ -31,8 +31,6 @@ var assets embed.FS
 //go:embed build/appicon.png
 var icon []byte
 
-var About = make(map[string]string)
-
 func main() {
 	// log
 	f, err := os.OpenFile(path.Join(api.APP_ROOT, "rwm.log"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)

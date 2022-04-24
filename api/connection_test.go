@@ -17,6 +17,19 @@ func (sut *ConnectionSuite) SetupTest() {
 
 }
 
+func (sut *ConnectionSuite) TestOpen() {
+	id := strconv.FormatInt(time.Now().UnixNano(), 10)
+	connection := &Connection{
+		ID:   id,
+		Host: "localhost",
+		Port: 6379,
+	}
+
+	err := connection.Open()
+	sut.ErrorIs(err, nil)
+	sut.NotEqual(connection._client, nil)
+}
+
 func (sut *ConnectionSuite) TestScripting() {
 	id := strconv.FormatInt(time.Now().UnixNano(), 10)
 	connection := &Connection{

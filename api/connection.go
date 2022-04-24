@@ -47,6 +47,7 @@ type Connection struct {
 	MasterName         string     `json:"masterName"`
 	RouteByLatency     bool       `json:"routeByLatency"`
 	RouteRandomly      bool       `json:"routeRandomly"`
+	_client            redis.UniversalClient
 }
 
 type Tls struct {
@@ -71,10 +72,7 @@ type Command struct {
 	Commands [][]interface{} `json:"commands"`
 }
 
-var Connections = make([]Connection, 0)
-
-// Clients .
-var Clients = make(map[string]redis.UniversalClient)
+var Connections = make([]*Connection, 0)
 
 // Test .
 func (c *Connection) Test() error {
@@ -108,14 +106,14 @@ func (c *Connection) Delete() error {
 
 // Open .
 func (c *Connection) Open() error {
-	if _, exists := Clients[c.ID]; !exists {
+	if nil == c._client {
 		client, err := c.client()
 		if nil != err {
 			return err
 		}
-		Clients[c.ID] = client
+		c._client = client
 	}
-	_, err := Clients[c.ID].Ping(context.Background()).Result()
+	_, err := c._client.Ping(context.Background()).Result()
 	if nil != err {
 		return err
 	}
@@ -124,9 +122,8 @@ func (c *Connection) Open() error {
 
 // Disconnection .
 func (c *Connection) Disconnection() error {
-	if _, exists := Clients[c.ID]; exists {
-		err := Clients[c.ID].Close()
-		delete(Clients, c.ID)
+	if nil != c._client {
+		err := c._client.Close()
 		if nil != err {
 			return err
 		}
@@ -141,16 +138,8 @@ func (c *Connection) Command(cmd Command) ([]interface{}, error) {
 		return nil, nil
 	}
 
-	if _, exists := Clients[cmd.ID]; !exists {
-		client, err := c.client()
-		if nil != err {
-			return nil, err
-		}
-		Clients[cmd.ID] = client
-	}
-
 	ctx := context.Background()
-	pipe := Clients[cmd.ID].Pipeline()
+	pipe := c._client.Pipeline()
 	retCmds := make([]*redis.Cmd, size)
 	rets := make([]interface{}, size)
 
@@ -173,15 +162,8 @@ func (c *Connection) Command(cmd Command) ([]interface{}, error) {
 // Scripting lua script
 func (c *Connection) Scripting(lua *Lua) error {
 	start := time.Now()
-	if _, exists := Clients[c.ID]; !exists {
-		client, err := c.client()
-		if nil != err {
-			return err
-		}
-		Clients[c.ID] = client
-	}
 	ctx := context.Background()
-	ret, err := redis.NewScript(lua.Script).Run(ctx, Clients[c.ID], lua.Keys, lua.Args...).Result()
+	ret, err := redis.NewScript(lua.Script).Run(ctx, c._client, lua.Keys, lua.Args...).Result()
 	if nil != err {
 		return err
 	}
@@ -244,7 +226,6 @@ func (c *Connection) client() (redis.UniversalClient, error) {
 		universalOptions.RouteByLatency = c.RouteByLatency
 		universalOptions.RouteRandomly = c.RouteRandomly
 	}
-
 	return redis.NewUniversalClient(universalOptions), nil
 }
 
@@ -280,7 +261,7 @@ func sshClient(opts SSHOptions) (*ssh.Client, error) {
 func GetConnection(id string) (*Connection, error) {
 	for _, con := range Connections {
 		if con.ID == id {
-			return &con, nil
+			return con, nil
 		}
 	}
 	return nil, errors.New(fmt.Sprintf("Connection %s not exists", id))
@@ -292,9 +273,16 @@ func LoadConnections() error {
 	if err != nil {
 		return err
 	}
-	var _connections = make([]Connection, 0)
+	var _connections = make([]*Connection, 0)
 	if err = RecordsToStruct(byts, &_connections); err != nil {
 		return err
+	}
+	for _, nc := range _connections {
+		for _, c := range Connections {
+			if nc.ID == c.ID {
+				nc._client = c._client
+			}
+		}
 	}
 	Connections = _connections
 	return nil

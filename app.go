@@ -45,7 +45,7 @@ func (a *App) AboutInfo() map[string]string {
 }
 
 // Connections .
-func (a *App) Connections() []api.Connection {
+func (a *App) Connections() []*api.Connection {
 	api.LoadConnections()
 	return api.Connections
 }
