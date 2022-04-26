@@ -115,5 +115,7 @@
     "Sentinel password": "哨兵密码",
     "Master name": "主节点名称",
     "Type": "类型",
-    "Execution": "运行"
+    "Execution": "运行",
+    "Last Execution At": "上次执行时间",
+    "Elapsed": "耗时"
 }

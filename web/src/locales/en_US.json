@@ -115,5 +115,7 @@
     "Sentinel password": "Sentinel Password",
     "Master name": "Master Name",
     "Type": "Type",
-    "Execution": "Execution"
+    "Execution": "Execution",
+    "Last Execution At": "Last Execution At",
+    "Elapsed": "Elapsed"
 }

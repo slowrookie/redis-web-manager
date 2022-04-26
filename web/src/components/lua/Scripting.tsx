@@ -112,11 +112,11 @@ export const Scripting = (props: ILuaProps) => {
       {/* buttons */}
       <Stack horizontal verticalAlign='center' tokens={{ childrenGap: 10 }} styles={{ root: { padding: '0 10px' } }}>
         {_lua && _lua.lastExecutionAt && (<>
-          <Label>上次执行时间:</Label>
+          <Label>{`${t('Last Execution At')}:`}</Label>
           <Text variant='small'>{dayjs(_lua?.lastExecutionAt).format("YYYY-MM-DD HH:mm:ss SSS")}</Text>
         </>)}
         {_lua && _lua.elapsed && (<>
-          <Label>耗时:</Label>
+          <Label>{`${t('Elapsed')}:`}:</Label>
           <Text variant='small'>{_lua?.elapsed}</Text>
         </>)}
         <Stack.Item grow={1}><span></span></Stack.Item>
