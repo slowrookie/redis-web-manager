@@ -2,10 +2,10 @@ import { Depths, DirectionalHint, IButtonStyles, IconButton, Stack, TooltipHost,
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection, executeCommand } from '../services/connection.service';
+import { Command } from './command/Command';
 import { ErrorMessageBar } from './common/ErrorMessageBar';
 import { Loading } from './common/Loading';
 import { DatabaseConfiguration } from './configuration/DatabaseConfiguration';
-import { Console } from './Console';
 import { Database, IDatabase } from './Database';
 import { Info } from './info/Info';
 import { Luas } from './lua/Luas';
@@ -102,7 +102,8 @@ export const ConnectionItem = (props: IConnectionItemProps) => {
       </Stack.Item>
 
       <Stack.Item grow={1} style={{ display: selectedKey === 'cli' ? 'block' : 'none' }}>
-        <Console {...props} />
+        {/* <Console {...props} /> */}
+        <Command {...props} />
       </Stack.Item>
 
       <Stack.Item grow={1} style={{ display: selectedKey === 'lua' ? 'block' : 'none' }}>

@@ -5,7 +5,7 @@ export interface RequestOptions {
 
 export class APIService {
 
-    request = (opt: RequestOptions): Promise<any> => {
+    request = async (opt: RequestOptions): Promise<any> => {
         const go = (window as any).go;
         const method = go.main.App[opt.method];
         if (!method) return new Promise((resolve, reject) => {
