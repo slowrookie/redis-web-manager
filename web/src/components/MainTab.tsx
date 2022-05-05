@@ -37,7 +37,7 @@ export const MainTab = (props: IMainTabProps) => {
   return (<>
     <Pivot overflowBehavior='menu' styles={{
       root: {boxShadow: Depths.depth8},
-      link: { height: 36, lineHeight: '36px', minWidth: 36 }
+      link: { height: 36, lineHeight: '36px', minWidth: 36, marginLeft: 0 }
     }}
       linkFormat='tabs'
       selectedKey={mainTab.selectedKey}

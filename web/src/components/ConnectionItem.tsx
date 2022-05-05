@@ -102,7 +102,6 @@ export const ConnectionItem = (props: IConnectionItemProps) => {
       </Stack.Item>
 
       <Stack.Item grow={1} style={{ display: selectedKey === 'cli' ? 'block' : 'none' }}>
-        {/* <Console {...props} /> */}
         <Command {...props} />
       </Stack.Item>
 

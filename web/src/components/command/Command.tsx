@@ -32,7 +32,7 @@ export interface ICommandProps extends ITerminalOptions {
 }
 
 export const Command = (props: ICommandProps) => {
-  // const theme = useTheme(), { t } = useTranslation();
+  // const theme = useTheme();
 
   const container = useRef<HTMLDivElement>(null),
     [xterm, setXterm] = useState<Terminal>(),
@@ -131,8 +131,13 @@ export const Command = (props: ICommandProps) => {
   // init xterm
   useEffect(() => {
     if (!container || !container.current) return;
+    console.log("init xterm");
 
-    let term = new Terminal({...props, cursorBlink: true});
+    let term = new Terminal({
+      ...props, 
+      cursorBlink: true, 
+      fontSize: 12
+    });
     
     term.loadAddon(fitAddon);
     term.open(container.current);
