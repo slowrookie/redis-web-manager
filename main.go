@@ -9,10 +9,12 @@ import (
 	"io"
 	"io/fs"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"path"
 
+	"github.com/pkg/browser"
 	"github.com/slowrookie/redis-web-manager/api"
 	_ "github.com/slowrookie/redis-web-manager/api"
 	"github.com/slowrookie/redis-web-manager/api/parser"
@@ -133,6 +135,17 @@ func main() {
 				}
 				ret, err := connection.Command(cmd)
 				return reply(ctx, ret, err)
+			case "ExecutionScript":
+				var lua api.Lua
+				if err := dec.Decode(&lua); err != nil {
+					return jsonrpc2.ErrInvalidRequest
+				}
+				connection, err := api.GetConnection(lua.ConnectionID)
+				if err != nil {
+					return reply(ctx, nil, err)
+				}
+				err = connection.Scripting(&lua)
+				return reply(ctx, lua, err)
 			case "Suggestions":
 				var command string
 				if err := dec.Decode(&command); err != nil {
@@ -196,4 +209,16 @@ func main() {
 			}
 		}))
 	}))
+
+	// port := strconv.FormatUint(uint64(conf.Port), 10)
+	port := "63790"
+	listen, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%s", port))
+	if err != nil {
+		log.Fatal(err)
+	}
+	// 服务启动之后，打开系统浏览器
+	if MODE != "Debug" {
+		_ = browser.OpenURL(fmt.Sprintf("http://127.0.0.1:%s", port))
+	}
+	log.Fatal(http.Serve(listen, nil))
 }
