@@ -12,10 +12,10 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"strconv"
 
 	"github.com/slowrookie/redis-web-manager/api"
 	_ "github.com/slowrookie/redis-web-manager/api"
+	"github.com/slowrookie/redis-web-manager/api/parser"
 	"go.lsp.dev/jsonrpc2"
 	"golang.org/x/net/websocket"
 )
@@ -30,9 +30,6 @@ var (
 
 //go:embed web/build
 var assets embed.FS
-
-//go:embed build/appicon.png
-var icon []byte
 
 func main() {
 	// log
@@ -59,7 +56,7 @@ func main() {
 		ServerConn(ctx, ws, jsonrpc2.HandlerServer(func(ctx context.Context, reply jsonrpc2.Replier, req jsonrpc2.Request) error {
 			dec := json.NewDecoder(bytes.NewReader(req.Params()))
 			switch req.Method() {
-			case "About":
+			case "AboutInfo":
 				var about = make(map[string]string)
 				about["version"] = version
 				about["commit"] = commit
@@ -67,138 +64,136 @@ func main() {
 				about["builtBy"] = builtBy
 				about["environment"] = MODE
 				return reply(ctx, about, nil)
-			// Config
-			case "Config":
-				conf, err := api.DefaultConfig.Get()
-				return reply(ctx, conf, err)
-			case "Config.Set":
-				var config api.Config
-				if err := dec.Decode(&config); err != nil {
-					return jsonrpc2.ErrInvalidRequest
-				}
-				err := config.Set()
-				return reply(ctx, nil, err)
-			case "Config.CheckPort":
-				var port int
-				if err := dec.Decode(&port); err != nil {
-					return jsonrpc2.ErrInvalidRequest
-				}
-				err := api.DefaultConfig.CheckPort(fmt.Sprintf("%d", port))
-				return reply(ctx, nil, err)
 			// Connections
 			case "Connections":
-				connections, err := api.Connections()
-				return reply(ctx, connections, err)
-			case "Connection.Test":
+				api.LoadConnections()
+				return reply(ctx, api.Connections, err)
+			case "TestConnection":
 				var connection api.Connection
 				if err := dec.Decode(&connection); err != nil {
 					return jsonrpc2.ErrInvalidRequest
 				}
 				err := connection.Test()
 				return reply(ctx, nil, err)
-			case "Connection.Edit":
+			case "EditConnection":
 				var connection api.Connection
 				if err := dec.Decode(&connection); err != nil {
 					return jsonrpc2.ErrInvalidRequest
 				}
 				err := connection.New()
 				return reply(ctx, nil, err)
-			case "Connection.Delete":
+			case "DeleteConnection":
 				var id string
 				if err := dec.Decode(&id); err != nil {
 					return jsonrpc2.ErrInvalidRequest
 				}
-				connection, err := api.FindConnectionByID(id)
+				connection, err := api.GetConnection(id)
 				if err != nil {
 					return reply(ctx, nil, err)
 				}
 				err = connection.Delete()
 				return reply(ctx, nil, err)
-			case "Connection.Open":
+			case "OpenConnection":
 				var id string
 				if err := dec.Decode(&id); err != nil {
 					return jsonrpc2.ErrInvalidRequest
 				}
-				connection, err := api.FindConnectionByID(id)
+				connection, err := api.GetConnection(id)
 				if err != nil {
 					return reply(ctx, nil, err)
 				}
 				err = connection.Open()
 				return reply(ctx, nil, err)
-			case "Connection.Disconnection":
+			case "DisConnection":
 				var id string
 				if err := dec.Decode(&id); err != nil {
 					return jsonrpc2.ErrInvalidRequest
 				}
-				connection, err := api.FindConnectionByID(id)
+				connection, err := api.GetConnection(id)
 				if err != nil {
 					return reply(ctx, nil, err)
 				}
 				err = connection.Disconnection()
 				return reply(ctx, nil, err)
-			case "Connection.Copy":
+			case "NewConnection":
 				connection := &api.Connection{}
 				if err := dec.Decode(&connection); err != nil {
 					return jsonrpc2.ErrInvalidRequest
 				}
 				err := connection.New()
 				return reply(ctx, nil, err)
-			case "Connection.Command":
+			case "CommandConnection":
 				var cmd api.Command
 				if err := dec.Decode(&cmd); err != nil {
 					return jsonrpc2.ErrInvalidRequest
 				}
-				connection, err := api.FindConnectionByID(cmd.ID)
+				connection, err := api.GetConnection(cmd.ID)
 				if err != nil {
 					return reply(ctx, nil, err)
 				}
 				ret, err := connection.Command(cmd)
 				return reply(ctx, ret, err)
-			case "Convert.Length":
-				var convert api.Convert
-				if err := dec.Decode(&convert); err != nil {
+			case "Suggestions":
+				var command string
+				if err := dec.Decode(&command); err != nil {
 					return jsonrpc2.ErrInvalidRequest
 				}
-				return reply(ctx, strconv.Itoa(convert.Length()), nil)
-			case "Convert.ToHex":
-				var convert api.Convert
-				if err := dec.Decode(&convert); err != nil {
+				ret := parser.Suggestions(command)
+				return reply(ctx, ret, err)
+			// Config
+			case "Config":
+				if err := api.DefaultConfig.Get(); err != nil {
 					return jsonrpc2.ErrInvalidRequest
 				}
-				return reply(ctx, convert.ToHex(), nil)
-			case "Convert.ToJson":
-				var convert api.Convert
-				if err := dec.Decode(&convert); err != nil {
+				return reply(ctx, *api.DefaultConfig, err)
+			case "SetConfig":
+				var config api.Config
+				if err := dec.Decode(&config); err != nil {
 					return jsonrpc2.ErrInvalidRequest
 				}
-				return reply(ctx, convert.ToJson(), nil)
-			case "Convert.ToBinary":
-				var convert api.Convert
-				if err := dec.Decode(&convert); err != nil {
+				err := config.Set()
+				return reply(ctx, nil, err)
+			// Lua
+			case "NewLua":
+				lua := &api.Lua{}
+				if err := dec.Decode(&lua); err != nil {
 					return jsonrpc2.ErrInvalidRequest
 				}
-				return reply(ctx, convert.ToBinary(), nil)
-			case "Convert.Base64ToText":
-				var convert api.Convert
-				if err := dec.Decode(&convert); err != nil {
+				err := lua.New()
+				return reply(ctx, nil, err)
+			case "EditLua":
+				lua := &api.Lua{}
+				if err := dec.Decode(&lua); err != nil {
 					return jsonrpc2.ErrInvalidRequest
 				}
-				return reply(ctx, convert.Base64ToText(), nil)
-			case "Convert.Base64ToJson":
-				var convert api.Convert
-				if err := dec.Decode(&convert); err != nil {
+				err := lua.Edit()
+				return reply(ctx, nil, err)
+			case "DeleteLua":
+				lua := &api.Lua{}
+				if err := dec.Decode(&lua); err != nil {
 					return jsonrpc2.ErrInvalidRequest
 				}
-				return reply(ctx, convert.Base64ToJson(), nil)
+				err := lua.Delete()
+				return reply(ctx, nil, err)
+			case "LoadLuas":
+				var connectionId string
+				if err := dec.Decode(&connectionId); err != nil {
+					return jsonrpc2.ErrInvalidRequest
+				}
+				luas := make([]api.Lua, 0)
+				if err := api.LoadLuas(&luas); nil != err {
+					return reply(ctx, nil, err)
+				}
+				_luas := []api.Lua{}
+				for _, v := range luas {
+					if v.ConnectionID == connectionId {
+						_luas = append(_luas, v)
+					}
+				}
+				return reply(ctx, _luas, nil)
 			default:
 				return jsonrpc2.MethodNotFoundHandler(ctx, reply, req)
 			}
 		}))
 	}))
-
-	// config
-	conf, err := api.DefaultConfig.Get()
-	if err != nil {
-		panic(nil)
-	}
 }
