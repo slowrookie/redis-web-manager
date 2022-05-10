@@ -3,6 +3,7 @@ module github.com/slowrookie/redis-web-manager
 go 1.18
 
 require (
+	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220418222510-f25a4f6275ed
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/stretchr/testify v1.7.1
 	github.com/wailsapp/wails/v2 v2.0.0-beta.36
