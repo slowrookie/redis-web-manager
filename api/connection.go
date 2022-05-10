@@ -4,20 +4,18 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/json"
+	"errors"
 	"fmt"
+	"net"
 	"strconv"
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	"golang.org/x/crypto/ssh"
 )
 
 const (
-	SelectConnectionStatement     = "SELECT `id`, `connection` FROM `rwm_connection`"
-	SelectConnectionByIdStatement = "SELECT `id`, `connection` FROM `rwm_connection` WHERE `id` = $1"
-	InsertConnectionStatement     = "INSERT INTO `rwm_connection` (`id`, `connection`) VALUES ($1, $2)"
-	UpdateConnectionStatement     = "UPDATE `rwm_connection` SET `connection` = $1 WHERE `id` = $2"
-	DeleteConnectionStatement     = "DELETE FROM `rwm_connection` WHERE `id` = $1"
+	connectionCollection = "connections"
 )
 
 // ConnectionEntry .
@@ -28,19 +26,28 @@ type ConnectionEntry struct {
 
 // Connection .
 type Connection struct {
-	ID                 string `json:"id"`
-	Name               string `json:"name"`
-	Host               string `json:"host"`
-	Port               int32  `json:"port"`
-	Username           string `json:"username"`
-	Auth               string `json:"auth"`
-	KeysPattern        string `json:"keysPattern"`
-	NamespaceSeparator string `json:"namespaceSeparator"`
-	TimeoutConnect     int64  `json:"timeoutConnect"`
-	TimeoutExecute     int64  `json:"timeoutExecute"`
-	DbScanLimit        int32  `json:"dbScanLimit"`
-	DataScanLimit      int32  `json:"dataScanLimit"`
-	Tls                Tls    `json:"tls"`
+	ID                 string     `json:"id"`
+	Name               string     `json:"name"`
+	Host               string     `json:"host"`
+	Port               int        `json:"port"`
+	Addrs              []string   `json:"addrs"`
+	Username           string     `json:"username"`
+	Auth               string     `json:"auth"`
+	KeysPattern        string     `json:"keysPattern"`
+	NamespaceSeparator string     `json:"namespaceSeparator"`
+	TimeoutConnect     int64      `json:"timeoutConnect"`
+	TimeoutExecute     int64      `json:"timeoutExecute"`
+	DbScanLimit        int32      `json:"dbScanLimit"`
+	DataScanLimit      int32      `json:"dataScanLimit"`
+	Tls                Tls        `json:"tls"`
+	SSHOptions         SSHOptions `json:"ssh"`
+	IsCluster          bool       `json:"isCluster"`
+	IsSentinel         bool       `json:"isSentinel"`
+	SentinelPassword   string     `json:"sentinelPassword"`
+	MasterName         string     `json:"masterName"`
+	RouteByLatency     bool       `json:"routeByLatency"`
+	RouteRandomly      bool       `json:"routeRandomly"`
+	_client            redis.UniversalClient
 }
 
 type Tls struct {
@@ -50,14 +57,22 @@ type Tls struct {
 	Ca     string `json:"ca"`
 }
 
+type SSHOptions struct {
+	Enable     bool   `json:"enable"`
+	User       string `json:"user"`
+	Password   string `json:"password"`
+	Host       string `json:"host"`
+	Port       int    `json:"port"`
+	Privatekey string `json:"privatekey"`
+}
+
 // Command .
 type Command struct {
 	ID       string          `json:"id"`
 	Commands [][]interface{} `json:"commands"`
 }
 
-// Clients .
-var Clients = make(map[string]*redis.Client)
+var Connections = make([]*Connection, 0)
 
 // Test .
 func (c *Connection) Test() error {
@@ -76,35 +91,29 @@ func (c *Connection) Test() error {
 func (c *Connection) New() error {
 	id := strconv.FormatInt(time.Now().UnixNano(), 10)
 	c.ID = id
+	return GlobalStorage.Write(connectionCollection, id, c)
+}
 
-	bts, err := json.Marshal(c)
-	if err != nil {
-		return err
-	}
-	if _, err := DB.Exec(InsertConnectionStatement, id, string(bts)); err != nil {
-		return err
-	}
-	return nil
+// Edit .
+func (c *Connection) Edit() error {
+	return GlobalStorage.Write(connectionCollection, c.ID, c)
 }
 
 // Delete .
 func (c *Connection) Delete() error {
-	if _, err := DB.Exec(DeleteConnectionStatement, c.ID); err != nil {
-		return err
-	}
-	return nil
+	return GlobalStorage.Delete(connectionCollection, c.ID)
 }
 
 // Open .
 func (c *Connection) Open() error {
-	if _, exists := Clients[c.ID]; !exists {
+	if nil == c._client {
 		client, err := c.client()
 		if nil != err {
 			return err
 		}
-		Clients[c.ID] = client
+		c._client = client
 	}
-	_, err := Clients[c.ID].Ping(context.Background()).Result()
+	_, err := c._client.Ping(context.Background()).Result()
 	if nil != err {
 		return err
 	}
@@ -113,9 +122,8 @@ func (c *Connection) Open() error {
 
 // Disconnection .
 func (c *Connection) Disconnection() error {
-	if _, exists := Clients[c.ID]; exists {
-		err := Clients[c.ID].Close()
-		delete(Clients, c.ID)
+	if nil != c._client {
+		err := c._client.Close()
 		if nil != err {
 			return err
 		}
@@ -130,16 +138,8 @@ func (c *Connection) Command(cmd Command) ([]interface{}, error) {
 		return nil, nil
 	}
 
-	if _, exists := Clients[cmd.ID]; !exists {
-		client, err := c.client()
-		if nil != err {
-			return nil, err
-		}
-		Clients[cmd.ID] = client
-	}
-
 	ctx := context.Background()
-	pipe := Clients[cmd.ID].Pipeline()
+	pipe := c._client.Pipeline()
 	retCmds := make([]*redis.Cmd, size)
 	rets := make([]interface{}, size)
 
@@ -159,10 +159,25 @@ func (c *Connection) Command(cmd Command) ([]interface{}, error) {
 	return rets, nil
 }
 
-func (c *Connection) client() (*redis.Client, error) {
+// Scripting lua script
+func (c *Connection) Scripting(lua *Lua) error {
+	start := time.Now()
+	ctx := context.Background()
+	ret, err := redis.NewScript(lua.Script).Run(ctx, c._client, lua.Keys, lua.Args...).Result()
+	if nil != err {
+		return err
+	}
+	lua.LastExecutionAt = start.UnixMilli()
+	lua.Elapsed = fmt.Sprintf("%v", time.Since(start))
+	lua.Result = ret
+	return nil
+}
+
+func (c *Connection) client() (redis.UniversalClient, error) {
 	// options
-	options := redis.Options{
-		Addr:        fmt.Sprintf("%s:%d", c.Host, c.Port),
+	universalOptions := &redis.UniversalOptions{
+		Addrs:       []string{fmt.Sprintf("%s:%d", c.Host, c.Port)},
+		Username:    c.Username,
 		Password:    c.Auth,
 		ReadTimeout: time.Duration(c.TimeoutExecute) * time.Millisecond,
 		DialTimeout: time.Duration(c.TimeoutConnect) * time.Millisecond,
@@ -183,47 +198,92 @@ func (c *Connection) client() (*redis.Client, error) {
 			caCertPool.AppendCertsFromPEM([]byte(c.Tls.Ca))
 			tls.RootCAs = caCertPool
 		}
-		options.TLSConfig = &tls
+		universalOptions.TLSConfig = &tls
 	}
 
-	return redis.NewClient(&options), nil
+	// ssh enable
+	if c.SSHOptions.Enable {
+		cli, err := sshClient(c.SSHOptions)
+		if nil != err {
+			return nil, err
+		}
+		universalOptions.ReadTimeout = -1
+		universalOptions.WriteTimeout = -1
+		universalOptions.Dialer = func(ctx context.Context, network, addr string) (net.Conn, error) {
+			return cli.Dial(network, addr)
+		}
+	}
+
+	// cluster
+	if c.IsSentinel {
+		universalOptions.SentinelPassword = c.SentinelPassword
+		universalOptions.MasterName = c.MasterName
+	}
+
+	// cluster & sentinel
+	if c.IsCluster || c.IsSentinel {
+		universalOptions.Addrs = c.Addrs
+		universalOptions.RouteByLatency = c.RouteByLatency
+		universalOptions.RouteRandomly = c.RouteRandomly
+	}
+	return redis.NewUniversalClient(universalOptions), nil
 }
 
-func FindConnectionByID(id string) (*Connection, error) {
-	var entry ConnectionEntry
-	if err := DB.QueryRow(SelectConnectionByIdStatement, id).Scan(&entry.ID, &entry.Connection); err != nil {
-		return nil, err
+// sshClient create ssh client
+func sshClient(opts SSHOptions) (*ssh.Client, error) {
+	addr := net.JoinHostPort(opts.Host, strconv.Itoa(opts.Port))
+
+	sshConfig := &ssh.ClientConfig{
+		User:            opts.User,
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		Timeout:         15 * time.Second,
 	}
 
-	connection := Connection{}
-	if err := json.Unmarshal([]byte(entry.Connection), &connection); err != nil {
-		return nil, err
+	if len(opts.Password) != 0 && len(opts.Privatekey) != 0 {
+		signer, err := ssh.ParsePrivateKeyWithPassphrase([]byte(opts.Privatekey), []byte(opts.Password))
+		if err != nil {
+			return nil, err
+		}
+		sshConfig.Auth = []ssh.AuthMethod{ssh.PublicKeys(signer)}
+	} else if len(opts.Privatekey) != 0 {
+		signer, err := ssh.ParsePrivateKey([]byte(opts.Privatekey))
+		if err != nil {
+			return nil, err
+		}
+		sshConfig.Auth = []ssh.AuthMethod{ssh.PublicKeys(signer)}
+	} else if len(opts.Password) != 0 {
+		sshConfig.Auth = []ssh.AuthMethod{ssh.Password(opts.Password)}
 	}
 
-	connection.ID = entry.ID
-
-	return &connection, nil
+	return ssh.Dial("tcp", addr, sshConfig)
 }
 
-// Connections get all connections
-func Connections() ([]Connection, error) {
-	rows, err := DB.Query(SelectConnectionStatement)
+func GetConnection(id string) (*Connection, error) {
+	for _, con := range Connections {
+		if con.ID == id {
+			return con, nil
+		}
+	}
+	return nil, errors.New(fmt.Sprintf("Connection %s not exists", id))
+}
+
+func LoadConnections() error {
+	var byts [][]byte
+	err := GlobalStorage.ReadAll(connectionCollection, &byts)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	defer rows.Close()
-	connections := []Connection{}
-	for rows.Next() {
-		entry := ConnectionEntry{}
-		if err = rows.Scan(&entry.ID, &entry.Connection); err != nil {
-			return nil, err
-		}
-		connection := Connection{ID: entry.ID}
-		if err := json.Unmarshal([]byte(entry.Connection), &connection); err != nil {
-			return nil, err
-		}
-		connections = append(connections, connection)
+	var _connections = make([]*Connection, 0)
+	if err = RecordsToStruct(byts, &_connections); err != nil {
+		return err
 	}
-
-	return connections, nil
+	for _, nc := range _connections {
+		for _, c := range Connections {
+			if nc.ID == c.ID {
+				nc._client = c._client
+			}
+		}
+	}
+	Connections = _connections
+	return nil
 }

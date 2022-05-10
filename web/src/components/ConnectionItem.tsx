@@ -2,12 +2,13 @@ import { Depths, DirectionalHint, IButtonStyles, IconButton, Stack, TooltipHost,
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection, executeCommand } from '../services/connection.service';
+import { Command } from './command/Command';
 import { ErrorMessageBar } from './common/ErrorMessageBar';
 import { Loading } from './common/Loading';
 import { DatabaseConfiguration } from './configuration/DatabaseConfiguration';
-import { Console } from './Console';
 import { Database, IDatabase } from './Database';
 import { Info } from './info/Info';
+import { Luas } from './lua/Luas';
 import { parseInfo } from './utils';
 
 export interface IConnectionItemProps {
@@ -15,7 +16,7 @@ export interface IConnectionItemProps {
 }
 
 const buttonStyles: IButtonStyles = {
-  root: { width: 42, height: 42 }
+  root: { width: 54, height: 54 }
 }
 
 export const ConnectionItem = (props: IConnectionItemProps) => {
@@ -42,7 +43,6 @@ export const ConnectionItem = (props: IConnectionItemProps) => {
         }));
         setInfo(info);
         setDatabases(databases);
-        console.log(ret);
       })
       .catch(err => setError(err))
       .finally(() => { setLoading(false) });
@@ -53,9 +53,9 @@ export const ConnectionItem = (props: IConnectionItemProps) => {
   }
 
   return (<>
-    <ErrorMessageBar error={error}></ErrorMessageBar>
     <Loading loading={loading} />
     <Stack horizontal style={{ height: '100%', position: 'relative' }}>
+      <ErrorMessageBar error={error}></ErrorMessageBar>
 
       <Stack style={{ height: '100%', boxShadow: Depths.depth8 }}>
         {/* server info */}
@@ -74,6 +74,12 @@ export const ConnectionItem = (props: IConnectionItemProps) => {
         <TooltipHost content={t('CLI')} directionalHint={DirectionalHint.rightCenter}>
           <IconButton styles={buttonStyles} style={selectedStyle('cli')} iconProps={{ iconName: 'Code' }} onClick={() => {
             setSelectedKey('cli');
+          }} />
+        </TooltipHost>
+
+        <TooltipHost content={'Lua'} directionalHint={DirectionalHint.rightCenter}>
+          <IconButton styles={buttonStyles} style={selectedStyle('lua')} iconProps={{ iconName: 'Lua' }} onClick={() => {
+            setSelectedKey('lua');
           }} />
         </TooltipHost>
 
@@ -96,7 +102,11 @@ export const ConnectionItem = (props: IConnectionItemProps) => {
       </Stack.Item>
 
       <Stack.Item grow={1} style={{ display: selectedKey === 'cli' ? 'block' : 'none' }}>
-        <Console {...props} />
+        <Command {...props} />
+      </Stack.Item>
+
+      <Stack.Item grow={1} style={{ display: selectedKey === 'lua' ? 'block' : 'none' }}>
+        <Luas {...props} />
       </Stack.Item>
 
       <Stack.Item grow={1} style={{ display: selectedKey === 'databaseConfig' ? 'block' : 'none' }}>

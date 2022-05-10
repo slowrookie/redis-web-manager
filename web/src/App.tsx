@@ -1,5 +1,4 @@
-import { registerIcons, Theme, ThemeProvider } from '@fluentui/react';
-import { AscendingIcon, Blocked2Icon, CancelIcon, CheckMarkIcon, ChevronDownIcon, ChevronDownSmallIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpSmallIcon, CircleAdditionIcon, CircleAdditionSolidIcon, CircleRingIcon, ClearIcon, ClipboardListIcon, CodeIcon, ColorSolidIcon, CompletedIcon, CopyIcon, DatabaseIcon, DataManagementSettingsIcon, DeleteIcon, DescendingIcon, DoubleChevronDownIcon, DoubleChevronUpIcon, EditIcon, EmbedIcon, Emoji2Icon, ErrorBadgeIcon, FilterIcon, FilterSolidIcon, FunnelChartIcon, GroupListIcon, HideIcon, HomeIcon, InfoIcon, InstallationIcon, LocaleLanguageIcon, LocationIcon, MapLayersIcon, MoreIcon, MoreVerticalIcon, PermissionsIcon, PlugConnectedIcon, PlugDisconnectedIcon, ProductListIcon, PublishContentIcon, QueryListIcon, RedEyeIcon, RefreshIcon, RemoveFromShoppingListIcon, RevToggleKeyIcon, SadIcon, SaveIcon, SearchDataIcon, SearchIcon, ServerProcessesIcon, SettingsIcon, SkypeCircleCheckIcon, StatusCircleCheckmarkIcon, StatusCircleErrorXIcon, StatusErrorFullIcon, SyncIcon, UploadIcon, ViewIcon } from '@fluentui/react-icons';
+import { Theme, ThemeProvider } from '@fluentui/react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import './App.css';
@@ -8,83 +7,13 @@ import { Loading } from './components/common/Loading';
 import { MainTab } from './components/MainTab';
 import { ConfigEvent, ConfigEventAction, IConfigEvent } from './events/ConfigEvent';
 import i18n from './i18n';
+import './RegisterIcons';
 import { Config, getConfig, setConfig } from './services/config.service';
-import { themes } from './theme';
-
-// icons
-registerIcons({
-  icons: {
-    circleAdditionSolid: <CircleAdditionSolidIcon />,
-    circleAddition: <CircleAdditionIcon />,
-    publishcontent: <PublishContentIcon />,
-    installation: <InstallationIcon />,
-    chevrondown: <ChevronDownIcon />,
-    chevronright: <ChevronRightIcon />,
-    mapLayers: <MapLayersIcon />,
-    database: <DatabaseIcon />,
-    permissions: <PermissionsIcon />,
-    moreVertical: <MoreVerticalIcon />,
-    clipboardList: <ClipboardListIcon />,
-    embed: <EmbedIcon />,
-    refresh: <RefreshIcon />,
-    copy: <CopyIcon />,
-    edit: <EditIcon />,
-    plugDisconnected: <PlugDisconnectedIcon />,
-    plugConnected: <PlugConnectedIcon />,
-    filter: <FilterIcon />,
-    filterSolid: <FilterSolidIcon />,
-    funnelChart: <FunnelChartIcon />,
-    more: <MoreIcon />,
-    statusErrorFull: <StatusErrorFullIcon />,
-    statusCircleErrorX: <StatusCircleErrorXIcon />,
-    cancel: <CancelIcon />,
-    chevrondownsmall: <ChevronDownSmallIcon />,
-    chevronupsmall: <ChevronUpSmallIcon />,
-    chevronleft: <ChevronLeftIcon />,
-    redeye: <RedEyeIcon />,
-    hide: <HideIcon />,
-    doublechevrondown: <DoubleChevronDownIcon />,
-    doublechevronup: <DoubleChevronUpIcon />,
-    blocked2: <Blocked2Icon />,
-    errorbadge: <ErrorBadgeIcon />,
-    clear: <ClearIcon />,
-    completed: <CompletedIcon />,
-    delete: <DeleteIcon />,
-    removeFromShoppingList: <RemoveFromShoppingListIcon />,
-    skypeCircleCheck: <SkypeCircleCheckIcon />,
-    save: <SaveIcon />,
-    revToggleKey: <RevToggleKeyIcon />,
-    statuscirclecheckmark: <StatusCircleCheckmarkIcon />,
-    circlering: <CircleRingIcon />,
-    checkmark: <CheckMarkIcon />,
-    grouplist: <GroupListIcon />,
-    querylist: <QueryListIcon />,
-    ascending: <AscendingIcon />,
-    descending: <DescendingIcon />,
-    view: <ViewIcon />,
-    settings: <SettingsIcon />,
-    colorsolid: <ColorSolidIcon />,
-    localeLanguage: <LocaleLanguageIcon />,
-    home: <HomeIcon />,
-    search: <SearchIcon />,
-    searchdata: <SearchDataIcon />,
-    syncicon: <SyncIcon />,
-    info: <InfoIcon />,
-    ServerProcesses: <ServerProcessesIcon />,
-    DataManagementSettings: <DataManagementSettingsIcon />,
-    Code: <CodeIcon />,
-    ProductList: <ProductListIcon />,
-    Upload: <UploadIcon />,
-    Sad: <SadIcon />,
-    Emoji2: <Emoji2Icon />,
-    Location: <LocationIcon />
-  }
-})
-
+import { getCustomTheme } from './themes';
 
 function App() {
-  const [_config, _setConfig] = useState<Config>({ theme: 'light', language: navigator.language, port: 63790 }),
-    [theme, setTheme] = useState<Theme>(themes.light),
+  const [_config, _setConfig] = useState<Config>({ theme: 'light', language: navigator.language}),
+    [theme, setTheme] = useState<Theme>(getCustomTheme('light')),
     [error, setError] = useState<Error>(),
     [loading, setLoading] = useState<boolean>(true);
 
@@ -93,7 +22,7 @@ function App() {
     getConfig().then((ret) => {
       if (!ret) return;
       _setConfig({ ...ret });
-      setTheme(themes[ret.theme]);
+      setTheme(getCustomTheme(ret.theme));
     })
       .catch(setError)
       .finally(() => {
@@ -118,14 +47,7 @@ function App() {
             saveConfig(c);
             return c;
           })
-          setTheme(themes[v.params]);
-          break;
-        case ConfigEventAction.Port:
-          _setConfig(c => {
-            c.port = v.params;
-            saveConfig(c)
-            return c;
-          })
+          setTheme(getCustomTheme(v.params));
           break;
         default:
           break;

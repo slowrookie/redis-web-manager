@@ -3,8 +3,7 @@ import { Subject } from 'rxjs';
 // change config event
 export enum ConfigEventAction {
     Language,
-    Theme,
-    Port
+    Theme
 }
 export interface IConfigEvent {
     action: ConfigEventAction,

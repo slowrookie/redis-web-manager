@@ -1,72 +1,198 @@
 name: Release
 
-# 新tag则release
 on:
   push:
     tags:
-      - '*'
-
-  # Allows you to run this workflow manually from the Actions tab
+      - "v*"
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build-frontend:
-    # The type of runner that the job will run on
+  frontend-build:
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out
       - uses: actions/checkout@v2
-      # use node.js
-      - uses: actions/setup-node@v2
+      # yarn cache
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - uses: actions/cache@v2
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
-          node-version: '14'
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      # yarn build
+      - uses: borales/actions-yarn@v2.3.0
       - run: |
           cd ./web
-          npm install
-          npm run build
+          yarn install
+          yarn run build
+      # upload
       - name: Upload frontend build
         uses: actions/upload-artifact@v2
         with:
           name: frontend-artifact
           path: ./web/build
-  
-  goreleaser:
-    runs-on: ubuntu-latest
-    needs: build-frontend
+      - name: Get the version
+        id: get_version
+        run: |
+          echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
+          echo ::set-output name=COMMIT::$(echo $GITHUB_SHA)
+          echo ::set-output name=DATE::$(date +'%Y-%m-%d')
+    outputs:
+      VERSION: ${{steps.get_version.outputs.VERSION}}
+      COMMIT: ${{steps.get_version.outputs.COMMIT}}
+      DATE: ${{steps.get_version.outputs.DATE}}
+
+  platform-build:
+    strategy:
+      matrix:
+        go-version: [1.18]
+        # platform: [macos-latest]
+        platform: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{matrix.platform}}
+    needs: frontend-build
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+      # - name: Get the version
+      #   id: get_version
+      #   run: |
+      #     echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
+      #     echo ::set-output name=COMMIT::$(echo $GITHUB_SHA)
+      #     echo ::set-output name=DATE::$(date +'%Y-%m-%d')
       - name: Download frontend build
         uses: actions/download-artifact@v2
         with:
           name: frontend-artifact
           path: ./web/build
-
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.16
-      # - run: |
-      #     go get -a
+          go-version: ${{matrix.go-version}}
+      - run: |
+          go install github.com/wailsapp/wails/v2/cmd/wails@latest
+      - name: Build package osx
+        run: |
+          npm install -g appdmg
+          # darwin/amd64
+          wails build -s -platform darwin/amd64 -ldflags '-s -w -X main.version=${{ needs.frontend-build.outputs.VERSION }} -X main.commit=${{ needs.frontend-build.outputs.COMMIT}} -X main.date=${{needs.frontend-build.outputs.DATE}} -X main.builtBy=GithubActions -X main.MODE=release'
+          # ls -lh ./build/bin/RedisWebManager.app/Contents/MacOS
+          # truning .app to .dmg
+          codesign --force --deep --sign - ./build/bin/RedisWebManager.app
+          appdmg dmg-spec.json RedisWebManager.dmg
+          # darwin/arm64
+          # wails build -s -platform darwin/arm64  -ldflags '-s -w -X main.version=${{ needs.frontend-build.outputs.VERSION }} -X main.commit=${{ needs.frontend-build.outputs.COMMIT}} -X main.date=${{needs.frontend-build.outputs.DATE}} -X main.builtBy=GithubActions -X main.MODE=release'
+          # appdmg dmg-spec.json RedisWebManager_darwin_arm64.dmg
+        if: matrix.platform == 'macos-latest'
+      - name: Build package linux
+        run: |
+          sudo apt update && sudo apt install -y libgtk-3-dev libwebkit2gtk-4.0-dev
+          # wails doctor
+          wails build -s -ldflags '-s -w -X main.version=${{ needs.frontend-build.outputs.VERSION }} -X main.commit=${{ needs.frontend-build.outputs.COMMIT}} -X main.date=${{needs.frontend-build.outputs.DATE}} -X main.builtBy=GithubActions -X main.MODE=release'
+          # turn into app image
+          wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          chmod +x linuxdeploy*.AppImage
+          ./linuxdeploy*.AppImage --appdir AppDir --executable ./build/bin/RedisWebManager --desktop-file=RedisWebManager.AppImage.desktop --icon-file=./iconset/icon_128x128.png --output appimage
+          ls ./
+          cp Redis_Web_Manager-*.AppImage ./RedisWebManager_amd64.AppImage
+        if: matrix.platform == 'ubuntu-latest'
+      - name: Build package windows
+        run: |
+          # wails doctor
+          wails build -s -ldflags '-s -w -X main.version=${{ needs.frontend-build.outputs.VERSION }} -X main.commit=${{ needs.frontend-build.outputs.COMMIT}} -X main.date=${{needs.frontend-build.outputs.DATE}} -X main.builtBy=GithubActions -X main.MODE=release'
+          dir
+          copy build/bin/RedisWebManager.exe build/bin/RedisWebManager_windows_amd64.exe
+        if: matrix.platform == 'windows-latest'
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
+      - name: Upload artifact osx
+        uses: actions/upload-artifact@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          name: RedisWebManager.dmg
+          path: |
+            RedisWebManager.dmg
+            # RedisWebManager_darwin_amd64.dmg
+            # RedisWebManager_darwin_arm64.dmg
+        if: matrix.platform == 'macos-latest'
+      - name: Upload artifact linux
+        uses: actions/upload-artifact@v3
+        with:
+          name: RedisWebManager_amd64.AppImage
+          path: RedisWebManager_amd64.AppImage
+        if: matrix.platform == 'ubuntu-latest'
+      - name: Upload artifact windows
+        uses: actions/upload-artifact@v3
+        with:
+          name: RedisWebManager_windows_amd64.exe
+          path: build/bin/RedisWebManager_windows_amd64.exe
+        if: matrix.platform == 'windows-latest'
 
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v2
+  release:
+    runs-on: ubuntu-latest
+    needs: platform-build
+    steps:
+      - name: Download artifact osx
+        uses: actions/download-artifact@v3
         with:
-          # either 'goreleaser' (default) or 'goreleaser-pro'
-          distribution: goreleaser
-          version: latest
-          args: release --rm-dist
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: RedisWebManager.dmg
+          path: ./bin/
+      - name: Download artifact linx
+        uses: actions/download-artifact@v3
+        with:
+          name: RedisWebManager_amd64.AppImage
+          path: ./bin/
+      - name: Download artifact windows
+        uses: actions/download-artifact@v3
+        with:
+          name: RedisWebManager_windows_amd64.exe
+          path: ./bin/
+      - name: Release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          # automatic_release_tag: "latest"
+          prerelease: false
+          title: ${{needs.frontend-build.outputs.VERSION}}
+          files: |
+            ./bin/**
+
+
+  # goreleaser:
+  #   runs-on: ubuntu-latest
+  #   needs: build-frontend
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
+  #       with:
+  #         fetch-depth: 0
+  #     - name: Download frontend build
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: frontend-artifact
+  #         path: ./web/build
+
+  #     - name: Set up Go
+  #       uses: actions/setup-go@v2
+  #       with:
+  #         go-version: 1.17.6
+  #     - run: |
+  #         go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+  #     - name: Login to Docker Hub
+  #       uses: docker/login-action@v1
+  #       with:
+  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
+  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  #     - name: Run GoReleaser
+  #       uses: goreleaser/goreleaser-action@v2
+  #       with:
+  #         # either 'goreleaser' (default) or 'goreleaser-pro'
+  #         distribution: goreleaser
+  #         version: latest
+  #         args: release --rm-dist
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

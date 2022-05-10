@@ -78,7 +78,6 @@ export const ZsetKeyCursor = (props: IZsetKeyCursorProps) => {
         scanned = scanned > ret[1] ? ret[1] : scanned;
         return { ...kp, keyName: keyProps.keyName, length: ret[1], scanned, currentCursor: ret[2][0] };
       })
-      console.log(ret);
     })
       .catch(err => setError(err));
   }, [connection.id, db, search, keyProps.keyName]);

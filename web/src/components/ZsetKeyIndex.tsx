@@ -61,7 +61,6 @@ export const ZsetKeyIndex = (props: IZsetKeyIndexProps) => {
       ]
     }).then((ret) => {
       if (!ret || !ret.length) return;
-      console.log(ret);
       const length = ret[2].length / 2;
       const vs = [...Array(length)].map((_, i) => {
         const index = 2 * i;

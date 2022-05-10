@@ -17,7 +17,7 @@ export const ErrorMessageBar = (props: IErrorMessageBar) => {
   return (<>
     {
       _error && <MessageBar styles={{ icon: { height: 16, lineHeight: '14px' } }} isMultiline={false} messageBarType={MessageBarType.blocked} onDismiss={() => { _setError(undefined); }} truncated={true}>
-        {_error.message}
+        {_error}
       </MessageBar>
     }
   </>)

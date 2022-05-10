@@ -1,8 +1,16 @@
 import { createTheme } from "@fluentui/style-utilities";
 import { Theme } from "@fluentui/theme";
+import { DefaultTheme, DarkTheme, WordTheme, TeamsTheme } from '@fluentui/theme-samples';
+
+DarkTheme.name = 'dark';
 
 export const themes: { [index: string]: Theme } = {
-  dark: createTheme({
+  default: DefaultTheme,
+  light: DefaultTheme,
+  dark: DarkTheme,
+  word: WordTheme,
+  teams: TeamsTheme,
+  customDark: createTheme({
     palette: {
       themePrimary: '#007acc',
       themeLighterAlt: '#f3f9fd',
@@ -28,7 +36,7 @@ export const themes: { [index: string]: Theme } = {
       white: '#1e1e1e',
     }
   }),
-  light: createTheme({
+  CustomLight: createTheme({
     palette: {
       themePrimary: '#0078d4',
       themeLighterAlt: '#eff6fc',
@@ -54,4 +62,11 @@ export const themes: { [index: string]: Theme } = {
       white: '#ffffff',
     }
   })
+}
+
+export const getCustomTheme = (theme: string) => {
+  theme = theme || 'light'
+  const th = themes[theme]
+  th.fonts.medium.fontSize = 12;
+  return th
 }

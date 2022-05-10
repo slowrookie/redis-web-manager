@@ -37,6 +37,7 @@ export const ConnectionList = (props: IConnectionListProps) => {
 
   useEffect(() => {
     load();
+    return () => setSelectedConnection(undefined)
   }, [load]);
 
   const handleSave = () => {
@@ -74,7 +75,12 @@ export const ConnectionList = (props: IConnectionListProps) => {
         return <DocumentCard key={connection.id} type={DocumentCardType.compact} styles={{ root: { width: 320 } }} onClick={() => handleConnectionClick(connection)}>
           <DocumentCardDetails>
             <Label style={{ ...textOverflow, padding: '5px 10px' }}>{connection.name}</Label>
-            <Text variant='small' style={{ ...textOverflow, padding: '0 10px' }}>{`${connection.host}:${connection.port}`}</Text>
+            {(connection.isCluster || connection.isSentinel) && (
+              <Text variant='small' style={{ ...textOverflow, padding: '0 10px' }}>{connection.addrs?.join(',')}</Text>
+            )}
+            {!(connection.isCluster || connection.isSentinel) && (
+              <Text variant='small' style={{ ...textOverflow, padding: '0 10px' }}>{`${connection.host}:${connection.port}`}</Text>
+            )}
             <Stack horizontal style={{ width: '100%' }}>
               <Stack.Item grow={1}><span></span></Stack.Item>
               <DocumentCardActions actions={[
@@ -82,7 +88,7 @@ export const ConnectionList = (props: IConnectionListProps) => {
                   iconProps: { iconName: 'edit' }, title: t('Edit'), disabled: loading, onClick: (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    setSelectedConnection(connection);
+                    setSelectedConnection({...connection});
                     setShowEditPanel(true);
                   }
                 },

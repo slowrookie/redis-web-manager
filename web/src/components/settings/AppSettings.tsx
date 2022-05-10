@@ -5,7 +5,6 @@ import { ConfigEvent, ConfigEventAction } from '../../events/ConfigEvent';
 import { supportedLanguages } from '../../locales/resources';
 import { Config } from '../../services/config.service';
 import { AboutDialog } from './AboutDialog';
-import { PortDialog } from './PortDialog';
 
 export interface IAppSettings {
   config: Config
@@ -14,7 +13,6 @@ export interface IAppSettings {
 export const AppSettings = (props: IAppSettings) => {
   const { t } = useTranslation(),
     [aboutDialogHidden, setAboutDialogHidden] = useState(true),
-    [portDialogHidden, setPortDialogHidden] = useState(true),
     [showContextualMenu, setShowContextualMenu] = useState(false),
     linkRef = useRef(null);
 
@@ -25,11 +23,7 @@ export const AppSettings = (props: IAppSettings) => {
   const handleChangeTheme = (theme: string) => {
     ConfigEvent.next({ action: ConfigEventAction.Theme, params: theme })
   }
-
-  const handleChangePort = (port: number) => {
-    ConfigEvent.next({ action: ConfigEventAction.Port, params: port })
-  }
-
+  
   return (<>
     {/* settings */}
     <div ref={linkRef} onClick={(e: React.MouseEvent) => {
@@ -45,8 +39,10 @@ export const AppSettings = (props: IAppSettings) => {
           {
             key: 'colorSolid', text: t('Theme'), iconProps: { iconName: 'ColorSolid', style: { lineHeight: '14px' } }, subMenuProps: {
               items: [
-                { key: 'darkTheme', text: t('Theme-Dark'), title: t('Theme-Dark'), onClick: () => handleChangeTheme('dark') },
                 { key: 'lightTheme', text: t('Theme-Light'), title: t('Theme-Light'), onClick: () => handleChangeTheme('light') },
+                { key: 'darkTheme', text: t('Theme-Dark'), title: t('Theme-Dark'), onClick: () => handleChangeTheme('dark') },
+                { key: 'WordTheme', text: t('Theme-Word'), title: t('Theme-Word'), onClick: () => handleChangeTheme('word') },
+                { key: 'TeamsTheme', text: t('Theme-Teams'), title: t('Theme-Teams'), onClick: () => handleChangeTheme('teams') },
               ],
             },
           },
@@ -56,12 +52,6 @@ export const AppSettings = (props: IAppSettings) => {
                 return { key: v, text: supportedLanguages[v], onClick: () => handleChangeLanguage(v) }
               }),
             },
-          },
-          { key: 'divider_port', itemType: ContextualMenuItemType.Divider },
-          {
-            key: 'port', id: 'settingPort', text: t("Change port"), iconProps: { iconName: 'Location', style: { lineHeight: '14px' } }, onClick: () => {
-              setPortDialogHidden(false);
-            }
           },
           { key: 'divider_about', itemType: ContextualMenuItemType.Divider },
           {
@@ -79,12 +69,6 @@ export const AppSettings = (props: IAppSettings) => {
       {/* about dialog  */}
       <AboutDialog hidden={aboutDialogHidden} onDismiss={() => setAboutDialogHidden(true)} />
 
-      {/* prot dialog */}
-      <PortDialog
-        hidden={portDialogHidden}
-        onDismiss={() => setPortDialogHidden(true)}
-        port={props.config.port}
-        onChangePort={(port: number) => { handleChangePort(port) }} />
     </div>
   </>)
 

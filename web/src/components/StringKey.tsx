@@ -87,7 +87,6 @@ export const StringKey = (props: IStringKeyProps) => {
       ]
     }).then((ret) => {
       if (!ret || !ret.length) return;
-      console.log(ret);
       setKeyProps({
         keyName: keyProps.keyName,
         TTL: ret[1],

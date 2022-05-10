@@ -1,14 +1,21 @@
-import { DefaultButton, CommandBarButton, ITextFieldProps, MessageBar, MessageBarType, Overlay, Panel, PanelType, Pivot, PivotItem, PrimaryButton, Separator, Spinner, SpinnerSize, Stack, TextField, Toggle } from '@fluentui/react';
-import React, { useEffect, useRef, useState } from 'react';
+import { ChoiceGroup, DefaultButton, IChoiceGroupOption, IconButton, Label, MessageBar, MessageBarType, Overlay, Panel, PanelType, Pivot, PivotItem, PrimaryButton, Separator, Spinner, SpinnerSize, Stack, TextField, Toggle } from '@fluentui/react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection, saveConnection, testConnection } from '../../services/connection.service';
 import { ErrorMessageBar } from '../common/ErrorMessageBar';
+import { ReadFileTextFiled } from '../common/ReadFileTextField';
+import _ from 'lodash';
 
 export interface IConnectionPanel {
   connection?: Connection
   isOpen: boolean,
   setIsOpen: (open: boolean) => void
   onSave?: (connection: Connection) => void
+}
+
+interface Addr {
+  host: string,
+  port: number
 }
 
 const defaultConnection: Connection = {
@@ -20,39 +27,16 @@ const defaultConnection: Connection = {
   username: '',
   keysPattern: '*',
   namespaceSeparator: ':',
-  timeoutConnect: 20000,
-  timeoutExecute: 60000,
+  timeoutConnect: 2000,
+  timeoutExecute: 2000,
   dbScanLimit: 20,
   dataScanLimit: 2000,
   tls: {
     enable: false
+  },
+  ssh: {
+    enable: false
   }
-}
-
-const ReadFileTextFiled = (props: ITextFieldProps) => {
-  const { t } = useTranslation();
-  const fileChosenRef = useRef<any>();
-
-  return <TextField {...props} onRenderLabel={(fieldProps, defaultRender: any) => {
-    return (
-      <Stack horizontal>
-        {defaultRender(fieldProps)}
-        <Stack.Item grow={1}><span></span></Stack.Item>
-        <input type="file" style={{ display: 'none' }} ref={fileChosenRef} onChange={(e) => {
-          if (!e.target.files) return;
-          let file = e.target.files[0];
-          const fileReader = new FileReader()
-          fileReader.onloadend = () => {
-            props.onChange && props.onChange(e, fileReader.result?.toString());
-          }
-          fileReader.readAsText(file);
-        }} />
-        <CommandBarButton iconProps={{ iconName: 'Upload' }} text={t('Upload')} onClick={() => {
-          fileChosenRef.current.click();
-        }}></CommandBarButton>
-      </Stack>
-    )
-  }} />
 }
 
 
@@ -66,10 +50,23 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
     [success, setSuccess] = useState<string>()
     ;
 
+  const clientTypeOptions: IChoiceGroupOption[] = [
+    { key: 'general', text: t('general') },
+    { key: 'cluster', text: t('cluster') },
+    { key: 'sentinel', text: t('sentinel') }
+  ];
+
   useEffect(() => {
+    console.log(connection);
+
     setError(undefined);
     setSuccess("");
-    connection && _setConnection(connection.id ? connection : defaultConnection);
+    if (!connection || !connection.id) {
+      _setConnection(defaultConnection)
+    } else {
+      _setConnection(_.cloneDeep(connection))
+    }
+    connection && connection.addrs && setAddrs(connection.addrs.map(a => ({ host: a.split(':')[0], port: Number(a.split(':')[1] || 0) })));
   }, [connection])
 
   const onTestConnection = () => {
@@ -90,7 +87,7 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
     setSuccess("");
     setConnecting(true);
     saveConnection(_connection).then((v) => {
-      setSuccess(t("The connection to the Redis server is successful!"));
+      setSuccess(t("Save success!"));
       setIsOpen(false);
       onSave && onSave(v);
     })
@@ -98,19 +95,105 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
       .finally(() => setConnecting(false));
   }
 
-  const basic = (
-    <PivotItem headerText={t('Basic')}>
-      <TextField label={t('Name')} placeholder={t('Connection name')} required value={_connection.name} onChange={(e, v) => {
-        _setConnection(c => ({ ...c, name: v || '' }));
-      }} />
-      <TextField label={t('Address')} placeholder={t('Service address')} required value={_connection.host} onChange={(e, v) => {
-        _setConnection(c => ({ ...c, host: v || '' }))
-      }} />
+  // address
+  const [addrs, setAddrs] = useState<Array<Addr>>([{ host: '', port: 0 }]);
+  useEffect(() => {
+    _setConnection(c => ({ ...c, addrs: addrs.map(a => `${a.host}:${a.port}`) }))
+  }, [addrs])
+
+  const handleAddAddr = () => {
+    setAddrs([...addrs, { host: '', port: 0 }])
+  }
+
+  const handleDeleteAddr = (index: number) => {
+    addrs.splice(index, 1);
+    setAddrs([...addrs]);
+  }
+
+  const general = (<>
+    <Stack horizontal tokens={{ childrenGap: 10 }}>
+      <Stack.Item grow={1}>
+        <TextField label={t('Host')} placeholder={t('Service address')} required value={_connection.host} onChange={(e, v) => {
+          _setConnection(c => ({ ...c, host: v || '' }))
+        }} />
+      </Stack.Item>
       <TextField label={t('Port')} type="number" placeholder={t('Port')} min={0} max={65535} required value={`${_connection.port}`} onChange={(e, v) => {
         var nv = Number(v);
         if (nv > 65535) { nv = 65535 };
         _setConnection(c => ({ ...c, port: nv }));
       }} />
+    </Stack>
+  </>);
+
+  const cluster = (<>
+    <Stack tokens={{ childrenGap: 10 }}>
+      <Stack horizontal horizontalAlign='space-between' verticalAlign='center' tokens={{ childrenGap: 10 }}>
+        <Label required>{t('Address')}</Label>
+        <IconButton iconProps={{ iconName: 'circleAdditionSolid' }} onClick={handleAddAddr} />
+      </Stack>
+      <Stack tokens={{ childrenGap: 10 }}>
+        {addrs.length && [...Array(addrs.length)].fill(0).map((_, index: number) => {
+          return <Stack key={`address${index}`} horizontal tokens={{ childrenGap: 10 }} horizontalAlign='space-evenly'>
+            <Stack.Item grow={1}>
+              <TextField label={''} placeholder={t('Service address')} underlined value={addrs[index].host} onChange={(e, v) => {
+                addrs[index].host = v || '';
+                setAddrs([...addrs])
+              }} />
+            </Stack.Item>
+            <TextField label={''} type="number" placeholder={t('Port')} underlined min={0} max={65535} value={`${addrs[index].port}`} onChange={(e, v) => {
+              var nv = Number(v);
+              if (nv > 65535) { nv = 65535 };
+              addrs[index].port = nv || 0;
+              setAddrs([...addrs])
+            }} />
+            <IconButton iconProps={{ iconName: 'delete' }} onClick={() => handleDeleteAddr(index)} />
+          </Stack>
+        })}
+      </Stack>
+
+      <ChoiceGroup label={t('Route')} required styles={{ flexContainer: { display: "flex", justifyContent: 'space-between' } }}
+        selectedKey={_connection.routeByLatency ? 'RouteByLatency' : _connection.routeRandomly ? 'RouteRandomly' : 'RouteByLatency'}
+        onChange={(e, o) => {
+          if (!o) return;
+          const routeByLatency = 'RouteByLatency' === o.key;
+          const routeRandomly = 'RouteRandomly' === o.key;
+          _setConnection(c => ({ ...c, routeByLatency, routeRandomly }))
+        }}
+        options={[
+          { key: 'RouteByLatency', text: t('RouteByLatency') },
+          { key: 'RouteRandomly', text: t('RouteRandomly') }
+        ]} />
+
+    </Stack>
+  </>)
+
+  const sentinel = (<>
+    <TextField label={t('Sentinel password')} type="password" placeholder={t('Sentinel password')} canRevealPassword={true} value={_connection.sentinelPassword} onChange={(e, v) => {
+      _setConnection(c => ({ ...c, sentinelPassword: v || '' }))
+    }} />
+
+    <TextField label={t('Master name')} type="text" placeholder={t('Master name')} value={_connection.masterName} onChange={(e, v) => {
+      _setConnection(c => ({ ...c, masterName: v || '' }))
+    }} />
+  </>)
+
+  const basic = (
+    <PivotItem headerText={t('Basic')}>
+      <TextField label={t('Name')} placeholder={t('Connection name')} required value={_connection.name} onChange={(e, v) => {
+        _setConnection(c => ({ ...c, name: v || '' }));
+      }} />
+      <ChoiceGroup label={t('Type')} required styles={{ flexContainer: { display: "flex", justifyContent: 'space-between' } }}
+        selectedKey={_connection.isCluster ? 'cluster' : _connection.isSentinel ? 'sentinel' : 'general'}
+        onChange={(e, o) => {
+          if (!o) return;
+          _setConnection(c => ({ ...c, isCluster: o.key === 'cluster', isSentinel: o.key === 'sentinel' }))
+        }}
+        options={clientTypeOptions} />
+
+      {(_connection.isCluster || _connection.isSentinel) && cluster}
+      {_connection.isSentinel && sentinel}
+      {(!_connection.isCluster && !_connection.isSentinel) && general}
+
       <TextField label={t('Password')} type="password" placeholder={t('(Optional) Service authentication password')} canRevealPassword={true} value={_connection.auth} onChange={(e, v) => {
         _setConnection(c => ({ ...c, auth: v || '' }))
       }}
@@ -123,14 +206,23 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
 
   const security = (
     <PivotItem headerText={t("Security")}>
-      <Toggle inlineLabel label="SSL / TLS" checked={_connection.tls.enable}
+      {/* tls */}
+      <Toggle inlineLabel label="SSL / TLS" checked={_connection.tls && _connection.tls.enable}
         onChange={(e, checked: boolean | undefined) => {
+          if (!_connection.tls) {
+            _connection.tls = { enable: false }
+          };
+          if (!_connection.ssh) {
+            _connection.ssh = { enable: false }
+          }
           _connection.tls.enable = !!checked;
+          _connection.ssh.enable = !!!checked;
           _setConnection({ ..._connection })
         }} />
-      {_connection.tls.enable && (<Stack tokens={{ childrenGap: 10 }}>
+      {_connection.tls && _connection.tls.enable && (<Stack tokens={{ childrenGap: 10 }}>
 
         <ReadFileTextFiled label="Cert" multiline rows={3} value={_connection.tls.cert} required onChange={(e, v) => {
+          if (!_connection.tls) return;
           _connection.tls.cert = v;
           _setConnection({ ..._connection });
         }} placeholder="-----BEGIN CERTIFICATE-----
@@ -138,12 +230,14 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
         BQAwNTETMBEGA1UECgwKUmVkaXMgVGVzdDEeMBwGA1UEAwwVQ2VydGlma"/>
 
         <ReadFileTextFiled label="Key" multiline rows={3} value={_connection.tls.key} required onChange={(e, v) => {
+          if (!_connection.tls) return;
           _connection.tls.key = v;
           _setConnection({ ..._connection });
         }} placeholder="-----BEGIN RSA PRIVATE KEY-----
         MIIEowIBAAKCAQEA1Ypl1H65Fs6x4nD0inPqpxSSW2RDWJDD5z5k8knZLr+aKXOW" />
 
         <ReadFileTextFiled label="CA" multiline rows={3} value={_connection.tls.ca} onChange={(e, v) => {
+          if (!_connection.tls) return;
           _connection.tls.ca = v;
           _setConnection({ ..._connection });
         }} placeholder="-----BEGIN CERTIFICATE-----
@@ -151,7 +245,62 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
         BQAwNTETMBEGA1UECgwKUmVkaXMgVGVzdDEeMBwGA1UEAwwVQ2VydGlma" />
 
       </Stack>)}
-      <Toggle inlineLabel label="SSH 通道" />
+
+      {/* ssh */}
+      <Toggle inlineLabel label="SSH" checked={_connection.ssh && _connection.ssh.enable}
+        onChange={(e, checked: boolean | undefined) => {
+          if (!_connection.ssh) {
+            _connection.ssh = { enable: false };
+          }
+          if (!_connection.tls) {
+            _connection.tls = { enable: false }
+          };
+          _connection.ssh.enable = !!checked;
+          _connection.tls.enable = !!!checked;
+          _setConnection({ ..._connection })
+        }} />
+      {_connection.ssh && _connection.ssh.enable && (<Stack tokens={{ childrenGap: 10 }}>
+        <Stack horizontal tokens={{ childrenGap: 10 }}>
+          <Stack.Item grow={1}>
+            <TextField label={t('Host')} required value={_connection.ssh.host} onChange={(e, v) => {
+              if (!_connection.ssh) return;
+              _connection.ssh.host = v;
+              _setConnection({ ..._connection })
+            }} />
+          </Stack.Item>
+
+          <TextField label={t('Port')} type="number" placeholder={t('Port')} min={0} max={65535} required value={`${_connection.ssh.port}`} onChange={(e, v) => {
+            var nv = Number(v);
+            if (nv > 65535) { nv = 65535 };
+            if (!_connection.ssh) return;
+            _connection.ssh.port = nv;
+            _setConnection({ ..._connection });
+          }} />
+        </Stack>
+
+        <TextField label={t('Username')} required value={_connection.ssh.user} onChange={(e, v) => {
+          if (!_connection.ssh) return;
+          _connection.ssh.user = v;
+          _setConnection({ ..._connection })
+        }} />
+
+        <TextField type='password' label={t('Password')} canRevealPassword value={_connection.ssh.password} onChange={(e, v) => {
+          if (!_connection.ssh) return;
+          _connection.ssh.password = v;
+          _setConnection({ ..._connection })
+        }} />
+
+        <ReadFileTextFiled label={t('Private key')} multiline rows={3} value={_connection.ssh.privateKey} onChange={(e, v) => {
+          if (!_connection.ssh) return;
+          _connection.ssh.privateKey = v;
+          _setConnection({ ..._connection });
+        }} placeholder="-----BEGIN CERTIFICATE-----
+        MIIFSzCCAzOgAwIBAgIUD0gAuzJzzUCPs05IHM70fIQEo/cwDQYJKoZIhvcNAQEL
+        BQAwNTETMBEGA1UECgwKUmVkaXMgVGVzdDEeMBwGA1UEAwwVQ2VydGlma" />
+
+
+      </Stack>)}
+
     </PivotItem>
   )
 
@@ -187,12 +336,11 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
       isOpen={isOpen}
       isBlocking={true}
       type={PanelType.medium}
-      isLightDismiss={true}
       onDismiss={() => setIsOpen(false)}
       headerText={t('Connection settings')}
       onRenderFooterContent={() => {
-        const disabled = !(_connection.name && _connection.host && _connection.port) || 
-          (_connection.tls.enable && (!_connection.tls.cert || !_connection.tls.key));
+        const disabled = !(_connection.name && _connection.host && _connection.port) ||
+          (_connection.tls && _connection.tls.enable && (!_connection.tls.cert || !_connection.tls.key));
         return (
           <Stack tokens={{ childrenGap: 10 }} horizontal horizontalAlign="space-evenly">
             <PrimaryButton

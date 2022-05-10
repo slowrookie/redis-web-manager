@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Redis Web Manager
+Exec=RedisWebManager
+Icon=icon_128x128
+Type=Application
+Categories=GTK;GNOME;Utility;Development;
