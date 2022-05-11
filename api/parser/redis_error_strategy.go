@@ -56,7 +56,7 @@ func (s *RedisErrorStrategy) setExpects(recognizer antlr.Parser) {
 	expecting := s.GetExpectedTokens(recognizer)
 	expectStr := expecting.StringVerbose(recognizer.GetLiteralNames(), recognizer.GetSymbolicNames(), true)
 	if len(expectStr) > 0 {
-		expectStr = strings.ReplaceAll(strings.ReplaceAll(expectStr, "{", ""), "}", "")
+		expectStr = strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(expectStr, "{", ""), "}", ""), "'", "")
 	}
 	s.Expects = strings.Split(expectStr, ",")
 }

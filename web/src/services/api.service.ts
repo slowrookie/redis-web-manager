@@ -22,4 +22,10 @@ export class APIService {
 
 }
 
+<<<<<<< HEAD
 export const defaultService = new APIService();
+=======
+export const isWails = !!(window as any).go;
+
+export const defaultService = isWails ? defaultWailsService : defaultWebSocketService;
+>>>>>>> db8c865 (feat: auto suggestion command)

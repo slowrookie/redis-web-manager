@@ -1,9 +1,7 @@
-import { BasePicker, Callout, FocusZone, FocusZoneDirection, List, SearchBox, Stack, useTheme } from '@fluentui/react';
-import { useBoolean, useId } from '@fluentui/react-hooks';
-import React, { ChangeEvent, CSSProperties, useState } from 'react';
+import { Stack, useTheme } from '@fluentui/react';
+import React, { CSSProperties, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Connection, executeCommand, suggestions } from '../../services/connection.service';
-import { ErrorMessageBar } from '../common/ErrorMessageBar';
+import { Connection, executeCommand } from '../../services/connection.service';
 import { Suggestion } from './Suggestion';
 
 
@@ -56,19 +54,15 @@ export const Command = (props: ICommandProps) => {
   }
 
   const [lines, setLines] = useState<Array<IInputLine>>([defaultInputLine]),
-    [currentLine, setCurrentLine] = useState(''),
-    [error, setError] = useState<Error>(),
-    [selectedDB, setSelectedDB] = useState<number>(0),
-    searchBoxId = useId(`command-callout-button-${props.connection.id}`),
-    [isCalloutVisible, { toggle: toggleIsCalloutVisible, setFalse: setCalloutVisibleFalse, setTrue: setCalloutVisibleTrue }] = useBoolean(false),
-    [expects, setExpects] = useState<Array<any>>([]);
+    [errorMessage, setErroMessage] = useState<string>(''),
+    [selectedDB, setSelectedDB] = useState<number>(0);
 
   const handleSearch = (v?: string) => {
     if (!v) return;
 
-    setError(undefined);
+    setErroMessage('');
     var commands: Array<Array<any>> = [[]];
-    var currentCommand = currentLine.trim().split(" ");
+    var currentCommand = v.trim().split(" ");
     var currentDB: number = selectedDB;
     // clear
     if (currentCommand[0].toUpperCase() === 'CLEAR') {
@@ -88,32 +82,19 @@ export const Command = (props: ICommandProps) => {
 
     executeCommand<Array<any>>({ id: props.connection.id, commands })
       .then((ret) => {
-        lines[lines.length - 1] = { ...lines[lines.length - 1], disabled: true, command: currentLine }
+        lines[lines.length - 1] = { ...lines[lines.length - 1], disabled: true, command: v }
         lines.push({ type: 'O', ret: formatRet(ret[ret.length - 1]) });
         lines.push({ ...defaultInputLine, db: currentDB });
         setLines([...lines]);
-        setCurrentLine('');
       })
-      .catch((err: Error) => { setError(err); });
-  }
-
-  const handleChange = (e?: ChangeEvent<any>, value?: string) => {
-    setCurrentLine(value || "");
-    if (value) {
-      suggestions(value.trim()).then((v: any) => {
-        console.log(v);
-        setExpects(v);
-        v && v.length && setCalloutVisibleTrue();
-      })
-    }
+      .catch((err) => { 
+        setErroMessage(err)
+      });
   }
 
   return (
     <div style={{ height: "100%" }}>
       <Stack style={{ height: '100%' }}>
-
-        <ErrorMessageBar error={error} />
-
         <Stack.Item grow={1} style={{ padding: 5, overflow: 'auto', color: theme.palette.neutralPrimary, fontSize: 12 }}>
           {lines && lines.map((line, i) => <Stack key={i} horizontal verticalAlign="center" tokens={{ childrenGap: 10 }}>
 
@@ -123,16 +104,7 @@ export const Command = (props: ICommandProps) => {
                 {line.disabled ? (<span style={inputStyle}>{line.command}</span>) :
                   (
                     <>
-                      <Suggestion />
-                      {/* <SearchBox
-                        id={searchBoxId}
-                        styles={{ root: { height: 24, paddingLeft: 0 }, iconContainer: { width: 0 } }}
-                        autoFocus
-                        iconProps={{ iconName: '' }}
-                        underlined={true}
-                        onChange={handleChange}
-                        onSearch={handleSearch}
-                      /> */}
+                      <Suggestion {...props} onSearch={handleSearch} errorMessage={errorMessage}/>
                     </>
                   )}
               </Stack.Item>
@@ -145,29 +117,6 @@ export const Command = (props: ICommandProps) => {
           </Stack>)}
         </Stack.Item>
       </Stack>
-
-      {isCalloutVisible && <>
-        <Callout role="suggestion"
-          gapSpace={2}
-          target={`#${searchBoxId}`}
-          onDismiss={toggleIsCalloutVisible}
-          calloutMaxHeight={300}
-          coverTarget={false}
-          alignTargetEdge={true}
-          setInitialFocus={true}
-          isBeakVisible={false}
-        >
-          <FocusZone direction={FocusZoneDirection.vertical}>
-            <List id='SearchList' tabIndex={0} items={expects} onRenderCell={(item: any) => {
-              return (<div key={item} data-is-focusable={true}>
-                {item}
-              </div>)
-            }}
-            />
-          </FocusZone>
-
-        </Callout>
-      </>}
     </div>
   )
 }
