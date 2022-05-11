@@ -1,12 +1,11 @@
-import { defaultWailsService } from "./wails.service";
-import { defaultWebSocketService } from "./websocket.service";
+import { APIService } from "./api.service";
 
 export interface RequestOptions {
     method: string
     params?: Array<any> | {}
 }
 
-export class APIService {
+export class WailsService implements APIService {
 
     request = async (opt: RequestOptions): Promise<any> => {
         const go = (window as any).go;
@@ -25,6 +24,4 @@ export class APIService {
 
 }
 
-export const isWails = !!(window as any).go;
-
-export const defaultService = isWails ? defaultWailsService : defaultWebSocketService;
+export const defaultWailsService = new WailsService();

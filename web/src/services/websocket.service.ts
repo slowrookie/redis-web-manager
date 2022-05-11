@@ -106,4 +106,4 @@ export class WebSocketService {
 
 let address = process.env.NODE_ENV === 'development' ? 'ws://localhost:63790/ws' : `ws://${window.location.host}/ws`;
 
-export const defaultWebSocket = new WebSocketService(address);
+export const defaultWebSocketService = new WebSocketService(address);
