@@ -12,4 +12,6 @@ export interface APIService {
 
 }
 
-export const defaultService = (window as any).go ? defaultWailsService : defaultWebSocketService;
+export const isWails = !!(window as any).go;
+
+export const defaultService = isWails ? defaultWailsService : defaultWebSocketService;

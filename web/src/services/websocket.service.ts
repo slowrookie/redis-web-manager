@@ -97,7 +97,7 @@ export class WebSocketService implements APIService {
 
     return lastValueFrom(obs).then((message: IJSONRPCResponse) => {
       if (message.error) {
-        throw new Error(typeof message.error === 'object' ? message.error.message : message.error);
+        throw message.error.message || message.error;
       }
       return message.result;
     });
