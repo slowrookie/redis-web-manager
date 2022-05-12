@@ -1,7 +1,6 @@
 import { filter, first, lastValueFrom, ReplaySubject, Subject, retry } from 'rxjs';
 import { WebSocketSubject } from 'rxjs/webSocket';
 import { v1 as uuidv1 } from 'uuid';
-import { APIService } from './api.service';
 
 const JSONRPC_VERSION = '2.0'
 
@@ -25,7 +24,7 @@ export enum ConnectionState {
   DISCONNECTED = "Disconnected"
 }
 
-export class WebSocketService implements APIService {
+export class WebSocketService {
   private connectionState = new ReplaySubject<ConnectionState>(1);
   private socket: WebSocketSubject<ArrayBuffer | Object>;
 

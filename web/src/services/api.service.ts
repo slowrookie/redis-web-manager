@@ -6,9 +6,22 @@ export interface RequestOptions {
     params?: Array<any> | {}
 }
 
-export interface APIService {
+export class APIService {
 
- request: (opt: RequestOptions) => Promise<any>
+    request = async (opt: RequestOptions): Promise<any> => {
+        const go = (window as any).go;
+        const method = go.main.App[opt.method];
+        if (!method) return new Promise((resolve, reject) => {
+            const msg = `Mehthod ${opt.method} not found`;
+            return reject(msg)
+        })
+
+        console.log("Request: ", opt);
+        return ((opt.params ? method(opt.params) : method()) as Promise<any>).then(v => {
+            console.log("Response: ", v)
+            return v;
+        });
+    }
 
 }
 

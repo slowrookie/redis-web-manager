@@ -68,7 +68,7 @@ func main() {
 				return reply(ctx, about, nil)
 			// Connections
 			case "Connections":
-				api.LoadConnections()
+				err := api.LoadConnections()
 				return reply(ctx, api.Connections, err)
 			case "TestConnection":
 				var connection api.Connection
@@ -197,7 +197,7 @@ func main() {
 				if err := api.LoadLuas(&luas); nil != err {
 					return reply(ctx, nil, err)
 				}
-				_luas := []api.Lua{}
+				var _luas []api.Lua
 				for _, v := range luas {
 					if v.ConnectionID == connectionId {
 						_luas = append(_luas, v)
