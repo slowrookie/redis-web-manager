@@ -10,9 +10,12 @@ func Suggestions(command string) []string {
 	p := NewRedisParser(stream)
 	p.BuildParseTrees = true
 
-	redisErrorStrategy := &RedisErrorStrategy{}
-	p.SetErrorHandler(redisErrorStrategy)
+	//redisErrorStrategy := &RedisErrorStrategy{}
+	//p.SetErrorHandler(redisErrorStrategy)
+	redisErrorListener := &SuggestionRedisErrorListener{}
+	p.RemoveErrorListeners()
+	p.AddErrorListener(redisErrorListener)
 	p.Command()
 
-	return redisErrorStrategy.Expects
+	return redisErrorListener.Expects
 }

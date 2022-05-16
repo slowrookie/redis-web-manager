@@ -84,22 +84,22 @@ connectionManagement
     ;
 
 clientSub
-    :CACHING
-    |GETNAME
-    |GETREDIR
-    |HELP
-    |ID
-    |INFO
-    |KILL
-    |LIST
-    |NOEVICT
-    |PAUSE
-    |REPLY
-    |SETNAME
-    |TRACKING
-    |TRACKINGINFO
-    |UNBLOCK
-    |UNPAUSE
+    : CACHING
+    | GETNAME
+    | GETREDIR
+    | HELP
+    | ID
+    | INFO
+    | KILL
+    | LIST
+    | NOEVICT
+    | PAUSE
+    | REPLY
+    | SETNAME
+    | TRACKING
+    | TRACKINGINFO
+    | UNBLOCK
+    | UNPAUSE
     ;
 
 // Generic

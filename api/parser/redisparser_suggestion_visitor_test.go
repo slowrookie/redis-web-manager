@@ -31,6 +31,24 @@ func (sut *SuggestionRedisParserVisitorSuite) TestVisitCommand() {
 	fmt.Println(redisErrorStrategy.Expects)
 }
 
+func (sut *SuggestionRedisParserVisitorSuite) TestVisitClientCommand() {
+	input := antlr.NewInputStream("CLIENT")
+	lexer := NewRedisLexer(input)
+	stream := antlr.NewCommonTokenStream(lexer, 0)
+	p := NewRedisParser(stream)
+	p.BuildParseTrees = true
+
+	//redisErrorStrategy := &RedisErrorStrategy{}
+	//p.SetErrorHandler(redisErrorStrategy)
+	redisErrorListener := &SuggestionRedisErrorListener{}
+	p.RemoveErrorListeners()
+	p.AddErrorListener(redisErrorListener)
+	p.Command()
+
+	sut.Assert().GreaterOrEqual(len(redisErrorListener.Expects), 1)
+	fmt.Println(redisErrorListener.Expects)
+}
+
 func TestConnectionSuite(t *testing.T) {
 	suite.Run(t, new(SuggestionRedisParserVisitorSuite))
 }

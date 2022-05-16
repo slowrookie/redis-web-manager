@@ -1,4 +1,4 @@
-import { Callout, CheckboxVisibility, DetailsList, DetailsListLayoutMode, FocusZone, FocusZoneDirection, SelectionMode, TextField } from '@fluentui/react';
+import { Callout, CheckboxVisibility, DetailsList, DetailsListLayoutMode, DirectionalHint, FocusZone, FocusZoneDirection, SelectionMode, TextField } from '@fluentui/react';
 import { useId } from '@fluentui/react-hooks';
 import React, { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react';
 import { Connection, suggestions } from '../../services/connection.service';
@@ -16,16 +16,19 @@ export const Suggestion = (props: ISuggestionProps) => {
   const [command, setCommand] = useState<string>(),
     searchBoxId = useId(`command-callout-button-${props.connection.id}`),
     [isCalloutVisible, setCalloutVisible] = useState(false),
-    [expects, setExpects] = useState<Array<string | number>>([]);
+    [expects, setExpects] = useState<Array<string | number>>([]),
+    [_errorMessage, _setErrorMessage] = useState<string>();
 
   const handleChange = (e?: ChangeEvent<any>, value?: string) => {
     setCommand(value || "");
-
+    _setErrorMessage("");
+    
     if (value) {
-      suggestions(value.trim()).then((v: any) => {
+      suggestions(value).then((v: any) => {
         if (v) {
-          const matchToken = value.split(' ')[0].toUpperCase();
-          const eps = (v as Array<string>).filter(e => e.indexOf(matchToken) >= 0);
+          const tokens = value.split(' ');
+          const matchToken = tokens[tokens.length - 1];
+          const eps = matchToken ? (v as Array<string>).filter(e => e.indexOf(matchToken.toUpperCase()) >= 0) : v;
           setExpects(eps);
           setCalloutVisible(!!eps.length);
         } else {
@@ -56,6 +59,10 @@ export const Suggestion = (props: ISuggestionProps) => {
   }
 
   useEffect(() => {
+    _setErrorMessage(props.errorMessage);
+  }, [props.errorMessage])
+
+  useEffect(() => {
     props.onChange && props.onChange(command);
   }, [command, props])
 
@@ -69,7 +76,7 @@ export const Suggestion = (props: ISuggestionProps) => {
         value={command}
         onChange={handleChange}
         onKeyUp={handleKeyUp}
-        errorMessage={props.errorMessage}
+        errorMessage={_errorMessage}
       />
       <Callout id='SuggestionContainer'
         ariaLabelledBy={'callout-suggestions'}
@@ -82,7 +89,7 @@ export const Suggestion = (props: ISuggestionProps) => {
         calloutMaxHeight={300}
         style={{ width: 295 }}
         target={`#${searchBoxId}`}
-        directionalHint={5}
+        directionalHint={DirectionalHint.bottomLeftEdge}
         isBeakVisible={false}
       >
         <FocusZone direction={FocusZoneDirection.vertical}>

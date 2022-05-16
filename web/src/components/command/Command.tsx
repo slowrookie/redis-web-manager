@@ -43,7 +43,6 @@ const formatRet = (ret: any) => {
 
 export const Command = (props: ICommandProps) => {
   const theme = useTheme();
-  const { t } = useTranslation();
   const inputStyle: CSSProperties = {
     border: 'none',
     outline: 'none',
@@ -92,6 +91,8 @@ export const Command = (props: ICommandProps) => {
       });
   }
 
+  const handleChange = (v?: string) => {}
+
   return (
     <div style={{ height: "100%" }}>
       <Stack style={{ height: '100%' }}>
@@ -104,7 +105,7 @@ export const Command = (props: ICommandProps) => {
                 {line.disabled ? (<span style={inputStyle}>{line.command}</span>) :
                   (
                     <>
-                      <Suggestion {...props} onSearch={handleSearch} errorMessage={errorMessage}/>
+                      <Suggestion {...props} onSearch={handleSearch} onChange={handleChange} errorMessage={errorMessage}/>
                     </>
                   )}
               </Stack.Item>
