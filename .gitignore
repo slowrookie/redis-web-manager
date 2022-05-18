@@ -30,3 +30,5 @@ package-lock.json
 web/node_modules
 api/go.sum
 server/go.sum
+
+/gen

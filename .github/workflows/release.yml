@@ -68,14 +68,16 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: frontend-artifact
-          path: ./web/build
+          path: ./desktop/web/build
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
           go-version: ${{matrix.go-version}}
       - run: |
+          cd ./desktop
           go install github.com/wailsapp/wails/v2/cmd/wails@latest
       - name: Build package osx
+        if: matrix.platform == 'macos-latest'
         run: |
           npm install -g appdmg
           # darwin/amd64
@@ -87,8 +89,9 @@ jobs:
           # darwin/arm64
           # wails build -s -platform darwin/arm64  -ldflags '-s -w -X main.version=${{ needs.frontend-build.outputs.VERSION }} -X main.commit=${{ needs.frontend-build.outputs.COMMIT}} -X main.date=${{needs.frontend-build.outputs.DATE}} -X main.builtBy=GithubActions -X main.MODE=release'
           # appdmg dmg-spec.json RedisWebManager_darwin_arm64.dmg
-        if: matrix.platform == 'macos-latest'
+
       - name: Build package linux
+        if: matrix.platform == 'ubuntu-latest'
         run: |
           sudo apt update && sudo apt install -y libgtk-3-dev libwebkit2gtk-4.0-dev
           # wails doctor
@@ -99,16 +102,17 @@ jobs:
           ./linuxdeploy*.AppImage --appdir AppDir --executable ./build/bin/RedisWebManager --desktop-file=RedisWebManager.AppImage.desktop --icon-file=./iconset/icon_128x128.png --output appimage
           ls ./
           cp Redis_Web_Manager-*.AppImage ./RedisWebManager_amd64.AppImage
-        if: matrix.platform == 'ubuntu-latest'
+
       - name: Build package windows
+        if: matrix.platform == 'windows-latest'
         run: |
           # wails doctor
           wails build -s -ldflags '-s -w -X main.version=${{ needs.frontend-build.outputs.VERSION }} -X main.commit=${{ needs.frontend-build.outputs.COMMIT}} -X main.date=${{needs.frontend-build.outputs.DATE}} -X main.builtBy=GithubActions -X main.MODE=release'
           dir
           copy build/bin/RedisWebManager.exe build/bin/RedisWebManager_windows_amd64.exe
-        if: matrix.platform == 'windows-latest'
 
       - name: Upload artifact osx
+        if: matrix.platform == 'macos-latest'
         uses: actions/upload-artifact@v3
         with:
           name: RedisWebManager.dmg
@@ -116,19 +120,21 @@ jobs:
             RedisWebManager.dmg
             # RedisWebManager_darwin_amd64.dmg
             # RedisWebManager_darwin_arm64.dmg
-        if: matrix.platform == 'macos-latest'
+
       - name: Upload artifact linux
+        if: matrix.platform == 'ubuntu-latest'
         uses: actions/upload-artifact@v3
         with:
           name: RedisWebManager_amd64.AppImage
           path: RedisWebManager_amd64.AppImage
-        if: matrix.platform == 'ubuntu-latest'
+
       - name: Upload artifact windows
+        if: matrix.platform == 'windows-latest'
         uses: actions/upload-artifact@v3
         with:
           name: RedisWebManager_windows_amd64.exe
           path: build/bin/RedisWebManager_windows_amd64.exe
-        if: matrix.platform == 'windows-latest'
+
 
   release:
     runs-on: ubuntu-latest
