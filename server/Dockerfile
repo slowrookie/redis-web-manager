@@ -1,8 +1,8 @@
 FROM alpine
 
-ENTRYPOINT ["/usr/bin/RWM"]
+ENTRYPOINT ["/usr/bin/RedisWebManager"]
 
-COPY RWM /usr/bin/RWM
+COPY RedisWebManager /usr/bin/RedisWebManager
 
 VOLUME [ "/rwm_data" ]
 
