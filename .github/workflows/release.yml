@@ -79,6 +79,7 @@ jobs:
       - name: Build package osx
         if: matrix.platform == 'macos-latest'
         run: |
+          cd ./desktop
           npm install -g appdmg
           # darwin/amd64
           wails build -s -platform darwin/amd64 -ldflags '-s -w -X main.version=${{ needs.frontend-build.outputs.VERSION }} -X main.commit=${{ needs.frontend-build.outputs.COMMIT}} -X main.date=${{needs.frontend-build.outputs.DATE}} -X main.builtBy=GithubActions -X main.MODE=release'
@@ -93,6 +94,7 @@ jobs:
       - name: Build package linux
         if: matrix.platform == 'ubuntu-latest'
         run: |
+          cd ./desktop
           sudo apt update && sudo apt install -y libgtk-3-dev libwebkit2gtk-4.0-dev
           # wails doctor
           wails build -s -ldflags '-s -w -X main.version=${{ needs.frontend-build.outputs.VERSION }} -X main.commit=${{ needs.frontend-build.outputs.COMMIT}} -X main.date=${{needs.frontend-build.outputs.DATE}} -X main.builtBy=GithubActions -X main.MODE=release'
@@ -106,6 +108,7 @@ jobs:
       - name: Build package windows
         if: matrix.platform == 'windows-latest'
         run: |
+          cd ./desktop
           # wails doctor
           wails build -s -ldflags '-s -w -X main.version=${{ needs.frontend-build.outputs.VERSION }} -X main.commit=${{ needs.frontend-build.outputs.COMMIT}} -X main.date=${{needs.frontend-build.outputs.DATE}} -X main.builtBy=GithubActions -X main.MODE=release'
           dir
@@ -117,7 +120,7 @@ jobs:
         with:
           name: RedisWebManager.dmg
           path: |
-            RedisWebManager.dmg
+            desktop/RedisWebManager.dmg
             # RedisWebManager_darwin_amd64.dmg
             # RedisWebManager_darwin_arm64.dmg
 
@@ -126,14 +129,14 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: RedisWebManager_amd64.AppImage
-          path: RedisWebManager_amd64.AppImage
+          path: desktop/RedisWebManager_amd64.AppImage
 
       - name: Upload artifact windows
         if: matrix.platform == 'windows-latest'
         uses: actions/upload-artifact@v3
         with:
           name: RedisWebManager_windows_amd64.exe
-          path: build/bin/RedisWebManager_windows_amd64.exe
+          path: desktop/build/bin/RedisWebManager_windows_amd64.exe
 
 
   release:
