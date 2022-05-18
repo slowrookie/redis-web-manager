@@ -3,7 +3,7 @@ name: Release Desktop
 on:
   push:
     tags:
-      - "v*desktop"
+      - "v*desktop*"
   workflow_dispatch:
 
 jobs:
