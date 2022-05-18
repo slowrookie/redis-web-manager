@@ -1,6 +1,5 @@
 before:
   hooks:
-    - cd ./server
     - go mod tidy
 builds:
   - id: "redis-web-manager"
