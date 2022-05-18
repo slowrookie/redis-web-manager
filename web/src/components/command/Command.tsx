@@ -1,6 +1,5 @@
 import { Stack, useTheme } from '@fluentui/react';
 import React, { CSSProperties, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Connection, executeCommand } from '../../services/connection.service';
 import { Suggestion } from './Suggestion';
 
