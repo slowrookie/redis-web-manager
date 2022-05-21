@@ -24,7 +24,7 @@ export const Suggestion = (props: ISuggestionProps) => {
     _setErrorMessage("");
     
     if (value) {
-      suggestions(value).then((v: any) => {
+      suggestions({ id: props.connection.id, commands: [[value]] }).then((v: any) => {
         if (v) {
           const tokens = value.split(' ');
           const matchToken = tokens[tokens.length - 1];

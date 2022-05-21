@@ -59,9 +59,9 @@ export const Command = (props: ICommandProps) => {
     if (!v) return;
 
     setErroMessage('');
-    var commands: Array<Array<any>> = [[]];
-    var currentCommand = v.trim().split(" ");
-    var currentDB: number = selectedDB;
+    let commands: Array<Array<any>> = [[]];
+    let currentCommand = v.trim().split(" ");
+    let currentDB: number = selectedDB;
     // clear
     if (currentCommand[0].toUpperCase() === 'CLEAR') {
       setLines([{ ...defaultInputLine, db: currentDB }]);

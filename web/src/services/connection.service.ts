@@ -73,6 +73,6 @@ export const executeCommand = <T>(command: Command): Promise<T> => {
   return defaultService.request({ method: 'CommandConnection', params: command });
 }
 
-export const suggestions = <T>(command: string): Promise<T> => {
+export const suggestions = <T>(command: Command): Promise<T> => {
   return defaultService.request({ method: 'Suggestions', params: command });
 }

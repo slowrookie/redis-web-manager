@@ -16,12 +16,36 @@ builds:
       - amd64
       - arm64
 
+#dockers:
+#  -
+#    goos: linux
+#    goarch: amd64
+#    image_templates:
+#      - "docker.io/slowrookie/redis-web-manager:{{ .Tag }}"
+#      - "docker.io/slowrookie/redis-web-manager:latest"
+#    skip_push: false
+#    dockerfile: Dockerfile
+
 dockers:
-  - 
+  - image_templates:
+      - "docker.io/slowrookie/redis-web-manager:{{ .Tag }}-amd64"
+      - "docker.io/slowrookie/redis-web-manager:latest"
+    use: buildx
     goos: linux
     goarch: amd64
-    image_templates:
-      - "docker.io/slowrookie/redis-web-manager:{{ .Tag }}"
-      - "docker.io/slowrookie/redis-web-manager:latest"
-    skip_push: false
     dockerfile: Dockerfile
+    build_flag_templates:
+      - "--platform=linux/amd64"
+  - image_templates:
+      - "docker.io/slowrookie/redis-web-manager:{{ .Tag }}-arm64v8"
+    goos: linux
+    use: buildx
+    goarch: arm64
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--platform=linux/arm64/v8"
+docker_manifests:
+  - name_template: docker.io/slowrookie/redis-web-manager:{{ .Tag }}
+    image_templates:
+      - docker.io/slowrookie/redis-web-manager:{{ .Tag }}-amd64
+      - docker.io/slowrookie/redis-web-manager:{{ .Tag }}-arm64v8

@@ -33,13 +33,13 @@ var icon []byte
 
 func main() {
 	// log
-	f, err := os.OpenFile(path.Join(api.APP_ROOT, "rwm.log"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err := os.OpenFile(path.Join(api.AppRoot, "rwm.log"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
 	defer f.Close()
 	log.SetOutput(io.MultiWriter(os.Stdout, f))
-	log.Println(fmt.Sprintf("Root Path: %s", api.APP_ROOT))
+	log.Println(fmt.Sprintf("Root Path: %s", api.AppRoot))
 
 	app := NewApp()
 	var about = make(map[string]string)

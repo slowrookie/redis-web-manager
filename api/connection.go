@@ -6,6 +6,8 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
+	"github.com/antlr/antlr4/runtime/Go/antlr"
+	"github.com/slowrookie/redis-web-manager/api/parser"
 	"net"
 	"strconv"
 	"time"
@@ -131,9 +133,9 @@ func (c *Connection) Disconnection() error {
 	return nil
 }
 
-// Command
-func (c *Connection) Command(cmd Command) ([]interface{}, error) {
-	size := len(cmd.Commands)
+// Command .
+func (c *Connection) Command(commands [][]interface{}) ([]interface{}, error) {
+	size := len(commands)
 	if size == 0 {
 		return nil, nil
 	}
@@ -143,8 +145,8 @@ func (c *Connection) Command(cmd Command) ([]interface{}, error) {
 	retCmds := make([]*redis.Cmd, size)
 	rets := make([]interface{}, size)
 
-	for i := 0; i < len(cmd.Commands); i++ {
-		retCmds[i] = pipe.Do(ctx, cmd.Commands[i]...)
+	for i := 0; i < size; i++ {
+		retCmds[i] = pipe.Do(ctx, commands[i]...)
 	}
 	if _, err := pipe.Exec(ctx); nil != err {
 		return nil, err
@@ -173,6 +175,36 @@ func (c *Connection) Scripting(lua *Lua) error {
 	return nil
 }
 
+func (c *Connection) Suggestions(command string) []string {
+	input := antlr.NewInputStream(command)
+	lexer := parser.NewRedisLexer(input)
+	stream := antlr.NewCommonTokenStream(lexer, 0)
+	p := parser.NewRedisParser(stream)
+	p.BuildParseTrees = true
+
+	redisErrorListener := &parser.SuggestionRedisErrorListener{}
+	p.RemoveErrorListeners()
+	p.AddErrorListener(redisErrorListener)
+	tree := p.Command()
+
+	if nil == c || nil == c._client {
+		return redisErrorListener.ExpectedTokens
+	}
+
+	suggestionVisitor := &parser.SuggestionRedisParserVisitor{
+		ExpectedTokens: redisErrorListener.ExpectedTokens,
+		Client:         c._client,
+		Expects:        []string{},
+	}
+
+	suggestionVisitor.Visit(tree)
+
+	if len(suggestionVisitor.Expects) <= 0 {
+		return redisErrorListener.ExpectedTokens
+	}
+	return suggestionVisitor.Expects
+}
+
 func (c *Connection) client() (redis.UniversalClient, error) {
 	// options
 	universalOptions := &redis.UniversalOptions{
@@ -189,16 +221,16 @@ func (c *Connection) client() (redis.UniversalClient, error) {
 		if nil != err {
 			return nil, err
 		}
-		tls := tls.Config{
+		tlsConfig := tls.Config{
 			Certificates:       []tls.Certificate{cer},
 			InsecureSkipVerify: true,
 		}
 		if len(c.Tls.Ca) > 0 {
 			caCertPool := x509.NewCertPool()
 			caCertPool.AppendCertsFromPEM([]byte(c.Tls.Ca))
-			tls.RootCAs = caCertPool
+			tlsConfig.RootCAs = caCertPool
 		}
-		universalOptions.TLSConfig = &tls
+		universalOptions.TLSConfig = &tlsConfig
 	}
 
 	// ssh enable
@@ -268,13 +300,13 @@ func GetConnection(id string) (*Connection, error) {
 }
 
 func LoadConnections() error {
-	var byts [][]byte
-	err := GlobalStorage.ReadAll(connectionCollection, &byts)
+	var bytes [][]byte
+	err := GlobalStorage.ReadAll(connectionCollection, &bytes)
 	if err != nil {
 		return err
 	}
 	var _connections = make([]*Connection, 0)
-	if err = RecordsToStruct(byts, &_connections); err != nil {
+	if err = RecordsToStruct(bytes, &_connections); err != nil {
 		return err
 	}
 	for _, nc := range _connections {

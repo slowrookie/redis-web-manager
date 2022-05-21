@@ -45,8 +45,8 @@ func (sut *SuggestionRedisParserVisitorSuite) TestVisitClientCommand() {
 	p.AddErrorListener(redisErrorListener)
 	p.Command()
 
-	sut.Assert().GreaterOrEqual(len(redisErrorListener.Expects), 1)
-	fmt.Println(redisErrorListener.Expects)
+	sut.Assert().GreaterOrEqual(len(redisErrorListener.ExpectedTokens), 1)
+	fmt.Println(redisErrorListener.ExpectedTokens)
 }
 
 func TestConnectionSuite(t *testing.T) {

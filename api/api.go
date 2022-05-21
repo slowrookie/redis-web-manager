@@ -9,7 +9,7 @@ import (
 	"runtime"
 )
 
-var APP_ROOT string
+var AppRoot string
 
 func AppDataPath() string {
 	const project = "com.github.slowrookie.redis-web-manager"
@@ -31,11 +31,13 @@ func AppDataPath() string {
 }
 
 func init() {
-	APP_ROOT = AppDataPath()
-	if err := os.MkdirAll(APP_ROOT, os.ModePerm); err != nil {
+	AppRoot = AppDataPath()
+	if err := os.MkdirAll(AppRoot, os.ModePerm); err != nil {
 		panic(err)
 	}
 
 	// storage
-	GlobalStorage.Initialize(path.Join(APP_ROOT, "storage"))
+	if err := GlobalStorage.Initialize(path.Join(AppRoot, "storage")); err != nil {
+		panic(err)
+	}
 }

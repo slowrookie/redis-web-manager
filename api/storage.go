@@ -31,21 +31,21 @@ func (o *Storage) Initialize(dir string) error {
 // Write v to collection
 func (o *Storage) Write(collection string, key string, value interface{}) error {
 	if len(collection) <= 0 {
-		return errors.New("Storage Write, no collection")
+		return errors.New("storage write, no collection")
 	}
 	if len(key) <= 0 {
-		return errors.New("Storage Write, no key")
+		return errors.New("storage write, no key")
 	}
 	if err := os.MkdirAll(path.Join(o.dir, collection), os.ModePerm); err != nil {
 		return err
 	}
-	byts, err := json.Marshal(value)
+	bytes, err := json.Marshal(value)
 	if err != nil {
 		return err
 	}
 	dest := path.Join(o.dir, collection, fmt.Sprintf("%s.%s", key, suffix))
 	destTmp := fmt.Sprintf("%s.tmp", dest)
-	if err := ioutil.WriteFile(destTmp, byts, 0644); err != nil {
+	if err := ioutil.WriteFile(destTmp, bytes, 0644); err != nil {
 		return err
 	}
 	return os.Rename(destTmp, dest)
@@ -54,10 +54,10 @@ func (o *Storage) Write(collection string, key string, value interface{}) error 
 // Read record from collection
 func (o *Storage) Read(collection string, key string, value interface{}) error {
 	if len(collection) <= 0 {
-		return errors.New("Storage Read, no collection")
+		return errors.New("storage read, no collection")
 	}
 	if len(key) <= 0 {
-		return errors.New("Storage Read, no key")
+		return errors.New("storage read, no key")
 	}
 	dest := path.Join(o.dir, collection, fmt.Sprintf("%s.%s", key, suffix))
 	if _, err := os.Stat(dest); err != nil {
@@ -73,10 +73,10 @@ func (o *Storage) Read(collection string, key string, value interface{}) error {
 // Delete key from collection
 func (o *Storage) Delete(collection string, key string) error {
 	if len(collection) <= 0 {
-		return errors.New("Storage Delete, no collection")
+		return errors.New("storage delete, no collection")
 	}
 	if len(key) <= 0 {
-		return errors.New("Storage Delete, no key")
+		return errors.New("storage delete, no key")
 	}
 	dest := path.Join(o.dir, collection, fmt.Sprintf("%s.%s", key, suffix))
 	if _, err := os.Stat(dest); err != nil {
@@ -85,32 +85,33 @@ func (o *Storage) Delete(collection string, key string) error {
 	return os.RemoveAll(dest)
 }
 
-// ReadCollection
+// ReadAll .
 func (o *Storage) ReadAll(collection string, records *[][]byte) error {
 	if len(collection) <= 0 {
-		return errors.New("Storage ReadAll, no collection")
+		return errors.New("storage read all, no collection")
 	}
 
 	files, err := ioutil.ReadDir(path.Join(o.dir, collection))
 	if err != nil {
-		return err
+		log.Printf("storage read all error (is empty): %s \n", err)
+		return nil
 	}
 
 	for _, file := range files {
 		if file.IsDir() {
 			continue
 		}
-		byts, err := ioutil.ReadFile(path.Join(o.dir, collection, file.Name()))
+		bytes, err := ioutil.ReadFile(path.Join(o.dir, collection, file.Name()))
 		if err != nil {
 			return err
 		}
-		*records = append(*records, byts)
+		*records = append(*records, bytes)
 	}
 
 	return nil
 }
 
-// RecordsToStruct is convert recoreds to []T
+// RecordsToStruct is convert records to []T
 func RecordsToStruct[T any](records [][]byte, vs *[]T) error {
 	for _, bts := range records {
 		var record T

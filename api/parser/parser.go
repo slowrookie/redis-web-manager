@@ -17,5 +17,5 @@ func Suggestions(command string) []string {
 	p.AddErrorListener(redisErrorListener)
 	p.Command()
 
-	return redisErrorListener.Expects
+	return redisErrorListener.ExpectedTokens
 }

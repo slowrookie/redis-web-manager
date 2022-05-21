@@ -2,17 +2,18 @@
 
 <img align="right" width="100" src="https://user-images.githubusercontent.com/1582077/158051511-e664578b-2d95-47ed-8371-0b782d7943d9.png">
 
-# RWM (Redis web manager) 
+# RedisWebManager 
 
 [![](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/slowrookie/redis-web-manager/blob/master/LICENSE)
 [![](https://github.com/slowrookie/redis-web-manager/actions/workflows/release.yml/badge.svg)](https://github.com/slowrookie/redis-web-manager/actions/workflows/release.yml)
 ![](https://shields.io/github/v/release/slowrookie/redis-web-manager)
-<!-- [![Docker Hub](https://img.shields.io/docker/pulls/slowrookie/redis-web-manager.svg)](https://hub.docker.com/r/slowrookie/redis-web-manager) -->
+[![Docker Hub](https://img.shields.io/docker/pulls/slowrookie/redis-web-manager.svg)](https://hub.docker.com/r/slowrookie/redis-web-manager)
 
 
 English | [简体中文](README.zh_CN.md)
 
-Redis Web Manager is a desktop application developed with React & Golang, used to manage Redis, and supports multi-platform operation.
+Redis Web Manager is an application developed with React & Golang that provides both desktop and web versions for managing Redis and supports multiple platforms.
+
 ## Introduction
   - [Project Screenshot](#Project-screenshot)
   - [Download & Install](#Download--install)
@@ -31,13 +32,33 @@ Redis Web Manager is a desktop application developed with React & Golang, used t
 
 ## Download & Install
 
-`Windows`, `Linux`, `MacOS`：
-  [Release](https://github.com/slowrookie/redis-web-manager/releases)
-  
+[Release](https://github.com/slowrookie/redis-web-manager/releases)
+
+Desktop：
+* `Windows`:  RedisWebManager_windows_amd64.exe
+* `Linux` : RedisWebManager_amd64.AppImage
+* `MacOS`: RedisWebManager.dmg
+
+Web Server:
+  * `Windows`:
+    * redis-web-manager_${version}-server.2_windows_amd64.tar.gz
+    * redis-web-manager_${version}-server.2_windows_arm64.tar.gz
+  * `Linux`:
+    * redis-web-manager_${version}-server.2_linux_amd64.tar.gz
+    * redis-web-manager_${version}-server.2_linux_arm64.tar.gz
+  * `MacOS`:
+    * redis-web-manager_${version}-server.2_darwin_amd64.tar.gz
+    * redis-web-manager_${version}-server.2_darwin_arm64.tar.gz
+  * `Docker`:
+    * https://hub.docker.com/r/slowrookie/redis-web-manager
+
+
 ## Project Structure
 
-- `api` The directory stores the back-end logic and interface files
-- `web` The Directory to store front-end project files
+- `api` main function logic
+- `web` frontend project
+- `desktop` desktop build
+- `server` web server build
 
 ## Related Efforts
 

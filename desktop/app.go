@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 
 	"github.com/slowrookie/redis-web-manager/api"
-	"github.com/slowrookie/redis-web-manager/api/parser"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -92,7 +91,7 @@ func (a *App) CommandConnection(cmd api.Command) ([]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return connection.Command(cmd)
+	return connection.Command(cmd.Commands)
 }
 
 func (a *App) ExecutionScript(lua *api.Lua) (*api.Lua, error) {
@@ -104,8 +103,12 @@ func (a *App) ExecutionScript(lua *api.Lua) (*api.Lua, error) {
 	return lua, nil
 }
 
-func (a *App) Suggestions(command string) []string {
-	return parser.Suggestions(command)
+func (a *App) Suggestions(cmd api.Command) []string {
+	connection, err := api.GetConnection(cmd.ID)
+	if err != nil {
+		return nil
+	}
+	return connection.Suggestions(cmd.Commands[0][0].(string))
 }
 
 // Config .

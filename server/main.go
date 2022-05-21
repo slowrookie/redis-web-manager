@@ -17,7 +17,6 @@ import (
 	"github.com/pkg/browser"
 	"github.com/slowrookie/redis-web-manager/api"
 	_ "github.com/slowrookie/redis-web-manager/api"
-	"github.com/slowrookie/redis-web-manager/api/parser"
 	"go.lsp.dev/jsonrpc2"
 	"golang.org/x/net/websocket"
 )
@@ -35,13 +34,13 @@ var assets embed.FS
 
 func main() {
 	// log
-	f, err := os.OpenFile(path.Join(api.APP_ROOT, "rwm.log"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err := os.OpenFile(path.Join(api.AppRoot, "rwm.log"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
 	defer f.Close()
 	log.SetOutput(io.MultiWriter(os.Stdout, f))
-	log.Println(fmt.Sprintf("Root Path: %s", api.APP_ROOT))
+	log.Println(fmt.Sprintf("Root Path: %s", api.AppRoot))
 
 	// static files
 	buildFiles, err := fs.Sub(assets, "web/build")
@@ -133,7 +132,7 @@ func main() {
 				if err != nil {
 					return reply(ctx, nil, err)
 				}
-				ret, err := connection.Command(cmd)
+				ret, err := connection.Command(cmd.Commands)
 				return reply(ctx, ret, err)
 			case "ExecutionScript":
 				var lua api.Lua
@@ -147,11 +146,12 @@ func main() {
 				err = connection.Scripting(&lua)
 				return reply(ctx, lua, err)
 			case "Suggestions":
-				var command string
-				if err := dec.Decode(&command); err != nil {
+				var cmd api.Command
+				if err := dec.Decode(&cmd); err != nil {
 					return jsonrpc2.ErrInvalidRequest
 				}
-				ret := parser.Suggestions(command)
+				connection, err := api.GetConnection(cmd.ID)
+				ret := connection.Suggestions(cmd.Commands[0][0].(string))
 				return reply(ctx, ret, err)
 			// Config
 			case "Config":
