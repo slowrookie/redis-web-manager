@@ -25,7 +25,7 @@ export const Luas = (props: ILuaProps) => {
     setError(undefined);
     setLoading(true);
     loadLuas(connection.id)
-      .then((v: Lua[]) => setLuas(v))
+      .then((v: Lua[]) => setLuas(v || []))
       .catch((err: Error) => { setError(err); })
       .finally(() => { setLoading(false) });
   }, [connection.id])

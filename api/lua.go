@@ -41,12 +41,12 @@ func (l *Lua) Delete() error {
 
 // LoadLuas load all lua scripts
 func LoadLuas(luas *[]Lua) error {
-	var byts [][]byte
-	if err := GlobalStorage.ReadAll(luaStorageCollection, &byts); err != nil {
+	var bytes [][]byte
+	if err := GlobalStorage.ReadAll(luaStorageCollection, &bytes); err != nil {
 		return err
 	}
 
-	if err := RecordsToStruct(byts, luas); err != nil {
+	if err := RecordsToStruct(bytes, luas); err != nil {
 		return err
 	}
 
