@@ -1,10 +1,13 @@
 import { Label, PrimaryButton, Stack, Text, TextField, useTheme } from '@fluentui/react';
-import Editor from '@monaco-editor/react';
+import Editor, {loader} from '@monaco-editor/react';
+import * as monaco from 'monaco-editor';
 import dayjs from 'dayjs';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { debounceTime, fromEvent, map } from 'rxjs';
 import { eidtLua, executionScript, Lua } from '../../services/lua.service';
+
+loader.config({monaco})
 
 export interface ILuaProps {
   lua: Lua,
