@@ -81,7 +81,7 @@ func main() {
 				if err := dec.Decode(&connection); err != nil {
 					return jsonrpc2.ErrInvalidRequest
 				}
-				err := connection.New()
+				err := connection.Edit()
 				return reply(ctx, nil, err)
 			case "DeleteConnection":
 				var id string

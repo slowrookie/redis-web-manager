@@ -29,7 +29,11 @@ export const ConnectionList = (props: IConnectionListProps) => {
   const load = useCallback(() => {
     setLoading(true);
     getConnections().then((data: Array<Connection>) => {
-      data && data.length && setConnections(data.sort((a, b) => Number(b.id) - Number(a.id)));
+      if (data && data.length) {
+        setConnections(data.sort((a, b) => Number(b.id) - Number(a.id)));
+      } else {
+        setConnections([]);
+      }
     })
       .catch(err => setError(err))
       .finally(() => { setLoading(false) });

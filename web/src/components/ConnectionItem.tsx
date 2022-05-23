@@ -37,8 +37,8 @@ export const ConnectionItem = (props: IConnectionItemProps) => {
       .then((ret: any) => {
         let info: any = parseInfo(ret[1]);
         let databases = ([...Array(ret[0].length ? Number(ret[0][1]) : 1)].map((_, i) => {
-          var reg = /[1-9][0-9]*/
-          var keys = (info.Keyspace && info.Keyspace[`db${i}`] && info.Keyspace[`db${i}`].match(reg)[0]) || 0;
+          const reg = /[1-9][0-9]*/
+          const keys = (info.Keyspace && info.Keyspace[`db${i}`] && info.Keyspace[`db${i}`].match(reg)[0]) || 0;
           return { db: i, dbsize: keys };
         }));
         setInfo(info);
