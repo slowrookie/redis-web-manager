@@ -31,5 +31,6 @@ web/node_modules
 api/go.sum
 server/go.sum
 server/web/build/**
+desktop/web/build/**
 
 /gen

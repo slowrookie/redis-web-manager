@@ -49,11 +49,12 @@ export const Database = (props: IDatabaseProps) => {
     [loading, setLoading] = useState(false),
     [_databases, _setDatabase] = useState<Array<{ db: number, dbsize: number }>>([]),
     [search, setSearch] = useState<IDatabaseSearch>({ db: 0, cursor: 0, pattern: connection.keysPattern, count: connection.dataScanLimit }),
-    [currentCursor, setCurrentCurosr] = useState(0),
+    [currentCursor, setCurrentCursor] = useState(0),
     [keysCount, setKeysCount] = useState({ scanned: 0, total: databases[0].dbsize }),
     [keys, setKeys] = useState<Array<string>>([]),
     [addKey, setAddKey] = useState<{ type: string, show: boolean }>({ type: KeyTypes.STRING, show: false }),
-    [showKeyPanel, setShowKeyPanel] = useState<any>({ type: '', keyName: '' });
+    [showKeyPanel, setShowKeyPanel] = useState<any>({ type: '', keyName: '' }),
+    [selectedKeys, setSelectedKeys] = useState<Array<string>>([]);
 
   useEffect(() => {
     _setDatabase(databases);
@@ -66,7 +67,7 @@ export const Database = (props: IDatabaseProps) => {
       .then((ret) => {
         if (!ret || !ret.length) return;
         _setDatabase(dbs => dbs.map(v => v.db === search.db ? { ...v, dbsize: ret[1] } : v));
-        setCurrentCurosr(ret[2][0]);
+        setCurrentCursor(ret[2][0]);
         setKeysCount(count => {
           count.total = ret[1];
           let scanned = ret[2][1].length > search.count ? ret[2][1].length : search.count * 1;
@@ -185,16 +186,23 @@ export const Database = (props: IDatabaseProps) => {
     }
 
     return <KeyList {...props} db={search.db} keys={keys}
-      onSelectedKey={handleSelectedKey} />
+      onSelectedKey={handleSelectedKey} onSelectedKeys={setSelectedKeys} />
   }, [props, search.db, keys])
 
+  const handleRemoveKeys = () => {
+    console.log(search.db);
+    Promise.all(selectedKeys.map(v => executeCommand<Array<any>>({ id: connection.id, commands: [['SELECT', search.db], ['DEL', v]] })))
+      .then(() => setSearch({ ...search, cursor: 0 }))
+      .catch(err => setError(err))
+      .finally(() => { });
+  }
 
   return (<>
     <Stack horizontal style={{ height: '100%' }}>
       <DragSlider>
-        <Stack style={{ height: '100%' }} tokens={{ padding: 5, childrenGap: 5 }}>
+        <Stack style={{ height: '100%' }} tokens={{ padding: 5, childrenGap: 2 }}>
           {/* header */}
-          <Stack horizontal tokens={{ childrenGap: 5 }} style={{ padding: '5px 0' }}>
+          <Stack horizontal tokens={{ childrenGap: 5 }}>
             <Stack.Item grow={1}>
               <Dropdown selectedKey={search.db}
                 styles={{
@@ -210,14 +218,6 @@ export const Database = (props: IDatabaseProps) => {
                   option && setSearch({ ...search, db: Number(option.key), cursor: 0 });
                 }} />
             </Stack.Item>
-            <TooltipHost key="refresh" content={t('Refresh')}>
-              <IconButton iconProps={{ iconName: 'refresh', style: { height: 'auto' } }} onClick={() => {
-                setSearch({ ...search, cursor: 0 });
-              }} />
-            </TooltipHost>
-            <TooltipHost key="circleAddition" content={t('Add key')}>
-              <IconButton iconProps={{ iconName: "circleAddition", style: { height: 'auto' } }} menuProps={addKeyMenuProps} onRenderMenuIcon={() => <></>} />
-            </TooltipHost>
           </Stack>
 
           {/* filter */}
@@ -228,7 +228,26 @@ export const Database = (props: IDatabaseProps) => {
             defaultCount={connection.dataScanLimit}
             namespaceSeparator={connection.namespaceSeparator}
             onFilter={handleFilter} />
-          <div style={{ borderBottom: `1px solid ${theme.palette.neutralLight}` }}></div>
+
+          {/* toolbar */}
+          <Stack horizontal tokens={{ childrenGap: 5 }} >
+            <Stack.Item grow={1}><span></span></Stack.Item>
+            <TooltipHost key="refresh" content={t('Refresh')}>
+              <IconButton iconProps={{ iconName: 'refresh', style: { height: 'auto' } }} onClick={() => {
+                setSearch({ ...search, cursor: 0 });
+              }} />
+            </TooltipHost>
+
+            <TooltipHost key="circleAddition" content={t('Add key')}>
+              <IconButton iconProps={{ iconName: "circleAddition", style: { height: 'auto' } }} menuProps={addKeyMenuProps} onRenderMenuIcon={() => <></>} />
+            </TooltipHost>
+
+            <TooltipHost key="removeKeys" content={t('Remove keys')}>
+              <IconButton iconProps={{ iconName: "delete", style: { height: 'auto', color: theme.palette.redDark } }}
+                disabled={!selectedKeys.length}
+                onClick={handleRemoveKeys}/>
+            </TooltipHost>
+          </Stack>
 
           {/* error */}
           {error && <ErrorMessageBar error={error} />}

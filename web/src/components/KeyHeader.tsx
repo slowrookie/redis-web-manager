@@ -54,7 +54,7 @@ export const KeyHeader = (props: IKeyHeaderProps) => {
 
   const [keyHeaderProps, setKeyHeaderProps] = useState<IKeyHeader>(defaultKeyHeaderProps),
     [error, setError] = useState<Error | undefined>(),
-    [hiddenConfirmDialog, setHiddenConfimDialog] = useState(true);
+    [hiddenConfirmDialog, setHiddenConfirmDialog] = useState(true);
 
   useEffect(() => {
     setKeyHeaderProps({ keyName: keyName, initialKeyName: keyName, TTL: TTL, initialTTL: TTL })
@@ -89,7 +89,7 @@ export const KeyHeader = (props: IKeyHeaderProps) => {
   }
 
   const handleConfirm = () => {
-    setHiddenConfimDialog(true);
+    setHiddenConfirmDialog(true);
     setError(undefined);
     executeCommand<Array<any>>({ id: connection.id, commands: [['SELECT', db], ['DEL', keyHeaderProps.initialKeyName]] })
       .then((ret) => {
@@ -132,13 +132,14 @@ export const KeyHeader = (props: IKeyHeaderProps) => {
           )
         }}></TextField>
 
-      <TooltipHost content={t('Delete Key')}>
-        <IconButton styles={buttonStyles} iconProps={{ iconName: 'delete', style: { height: 'auto' } }}
-          onClick={() => { setHiddenConfimDialog(false); }}></IconButton>
-      </TooltipHost>
       <TooltipHost content={t('Reload')}>
         <IconButton styles={buttonStyles} iconProps={{ iconName: 'refresh', style: { height: 'auto' } }}
           onClick={onRefresh} />
+      </TooltipHost>
+
+      <TooltipHost content={t('Delete Key')}>
+        <IconButton styles={buttonStyles} iconProps={{ iconName: 'delete', style: { height: 'auto', color: theme.palette.redDark } }}
+          onClick={() => { setHiddenConfirmDialog(false); }}></IconButton>
       </TooltipHost>
 
     </Stack>
@@ -146,10 +147,10 @@ export const KeyHeader = (props: IKeyHeaderProps) => {
     <ErrorMessageBar error={error} />
 
     {/* delete confirm dialog */}
-    <Dialog styles={{ main: { minHeight: 'auto' } }} hidden={hiddenConfirmDialog} dialogContentProps={{ type: DialogType.close, title: t('Delete this key?'), subText: keyHeaderProps.initialKeyName }} onDismiss={() => setHiddenConfimDialog(true)}>
+    <Dialog styles={{ main: { minHeight: 'auto' } }} hidden={hiddenConfirmDialog} dialogContentProps={{ type: DialogType.close, title: t('Delete this key?'), subText: keyHeaderProps.initialKeyName }} onDismiss={() => setHiddenConfirmDialog(true)}>
       <DialogFooter>
         <PrimaryButton onClick={handleConfirm} text={t('OK')} />
-        <DefaultButton onClick={() => { setHiddenConfimDialog(true) }} text={t('Cancel')} />
+        <DefaultButton onClick={() => { setHiddenConfirmDialog(true) }} text={t('Cancel')} />
       </DialogFooter>
     </Dialog>
   </>)
