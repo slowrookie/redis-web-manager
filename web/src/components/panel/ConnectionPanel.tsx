@@ -9,8 +9,8 @@ import _ from 'lodash';
 export interface IConnectionPanel {
   connection?: Connection
   isOpen: boolean,
-  setIsOpen: (open: boolean) => void
   onSave?: (connection: Connection) => void
+  onDismiss?: (ev?: React.SyntheticEvent<HTMLElement> | KeyboardEvent) => void;
 }
 
 interface Addr {
@@ -18,7 +18,7 @@ interface Addr {
   port: number
 }
 
-const defaultConnection: Connection = {
+export const defaultConnection: Connection = {
   id: '',
   name: '',
   host: '127.0.0.1',
@@ -42,7 +42,7 @@ const defaultConnection: Connection = {
 
 export const ConnectionPanel = (props: IConnectionPanel) => {
   const { t } = useTranslation();
-  const { connection, isOpen, setIsOpen, onSave } = props;
+  const { connection, isOpen, onDismiss, onSave } = props;
 
   const [_connection, _setConnection] = useState<Connection>(defaultConnection),
     [connecting, setConnecting] = useState(false),
@@ -57,8 +57,6 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
   ];
 
   useEffect(() => {
-    console.log(connection);
-
     setError(undefined);
     setSuccess("");
     if (!connection || !connection.id) {
@@ -88,8 +86,8 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
     setConnecting(true);
     saveConnection(_connection).then((v) => {
       setSuccess(t("Save success!"));
-      setIsOpen(false);
       onSave && onSave(v);
+      onDismiss && onDismiss();
     })
       .catch(err => setError(err))
       .finally(() => setConnecting(false));
@@ -118,8 +116,8 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
         }} />
       </Stack.Item>
       <TextField label={t('Port')} type="number" placeholder={t('Port')} min={0} max={65535} required value={`${_connection.port}`} onChange={(e, v) => {
-        var nv = Number(v);
-        if (nv > 65535) { nv = 65535 };
+        let nv = Number(v);
+        if (nv > 65535) { nv = 65535 }
         _setConnection(c => ({ ...c, port: nv }));
       }} />
     </Stack>
@@ -141,8 +139,8 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
               }} />
             </Stack.Item>
             <TextField label={''} type="number" placeholder={t('Port')} underlined min={0} max={65535} value={`${addrs[index].port}`} onChange={(e, v) => {
-              var nv = Number(v);
-              if (nv > 65535) { nv = 65535 };
+              let nv = Number(v);
+              if (nv > 65535) { nv = 65535 }
               addrs[index].port = nv || 0;
               setAddrs([...addrs])
             }} />
@@ -211,12 +209,12 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
         onChange={(e, checked: boolean | undefined) => {
           if (!_connection.tls) {
             _connection.tls = { enable: false }
-          };
+          }
           if (!_connection.ssh) {
             _connection.ssh = { enable: false }
           }
           _connection.tls.enable = !!checked;
-          _connection.ssh.enable = !!!checked;
+          _connection.ssh.enable = !checked;
           _setConnection({ ..._connection })
         }} />
       {_connection.tls && _connection.tls.enable && (<Stack tokens={{ childrenGap: 10 }}>
@@ -254,9 +252,9 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
           }
           if (!_connection.tls) {
             _connection.tls = { enable: false }
-          };
+          }
           _connection.ssh.enable = !!checked;
-          _connection.tls.enable = !!!checked;
+          _connection.tls.enable = !checked;
           _setConnection({ ..._connection })
         }} />
       {_connection.ssh && _connection.ssh.enable && (<Stack tokens={{ childrenGap: 10 }}>
@@ -270,8 +268,8 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
           </Stack.Item>
 
           <TextField label={t('Port')} type="number" placeholder={t('Port')} min={0} max={65535} required value={`${_connection.ssh.port}`} onChange={(e, v) => {
-            var nv = Number(v);
-            if (nv > 65535) { nv = 65535 };
+            let nv = Number(v);
+            if (nv > 65535) { nv = 65535 }
             if (!_connection.ssh) return;
             _connection.ssh.port = nv;
             _setConnection({ ..._connection });
@@ -336,7 +334,7 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
       isOpen={isOpen}
       isBlocking={true}
       type={PanelType.medium}
-      onDismiss={() => setIsOpen(false)}
+      onDismiss={(e) => onDismiss && onDismiss(e)}
       headerText={t('Connection settings')}
       onRenderFooterContent={() => {
         const disabled = !(_connection.name && _connection.host && _connection.port) ||
@@ -349,7 +347,7 @@ export const ConnectionPanel = (props: IConnectionPanel) => {
               iconProps={{ iconName: 'plugConnected' }} onClick={onTestConnection}></PrimaryButton>
             <Stack.Item grow={1}><span></span></Stack.Item>
             <DefaultButton disabled={disabled} text={t('OK')} onClick={OnConnection}></DefaultButton>
-            <DefaultButton text={t('Cancel')} onClick={() => setIsOpen(false)}></DefaultButton>
+            <DefaultButton text={t('Cancel')} onClick={() => onDismiss && onDismiss()}></DefaultButton>
           </Stack>
         )
       }}

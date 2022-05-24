@@ -69,7 +69,7 @@ export const Database = (props: IDatabaseProps) => {
         setCurrentCurosr(ret[2][0]);
         setKeysCount(count => {
           count.total = ret[1];
-          var scanned = ret[2][1].length > search.count ? ret[2][1].length : search.count * 1;
+          let scanned = ret[2][1].length > search.count ? ret[2][1].length : search.count * 1;
           if (search.cursor !== 0) {
             scanned += count.scanned * 1;
           }

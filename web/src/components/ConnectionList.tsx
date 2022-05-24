@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Connection, copyConnection, deleteConnection, getConnections, openConnection } from '../services/connection.service';
 import { ErrorMessageBar } from './common/ErrorMessageBar';
 import { Loading } from './common/Loading';
-import { ConnectionPanel } from './panel/ConnectionPanel';
+import {ConnectionPanel, defaultConnection} from './panel/ConnectionPanel';
 
 const textOverflow: CSSProperties = {
   whiteSpace: 'nowrap',
@@ -46,15 +46,21 @@ export const ConnectionList = (props: IConnectionListProps) => {
 
   const handleSave = () => {
     load();
+    setSelectedConnection(undefined);
   }
 
   const handleConnectionClick = (connection: Connection) => {
     setLoading(true);
-    openConnection(connection.id).then(ret => {
+    openConnection(connection.id).then(() => {
       onConnectionClick && onConnectionClick(connection);
     })
       .catch(err => setError(err))
       .finally(() => { setLoading(false) });
+  }
+
+  const handleDismiss = () => {
+    setShowEditPanel(false);
+    setSelectedConnection(undefined);
   }
 
   return (<>
@@ -66,7 +72,7 @@ export const ConnectionList = (props: IConnectionListProps) => {
 
       <DocumentCard key={"add"} type={DocumentCardType.compact} styles={{ root: { width: 320 } }} onClick={() => {
         setShowEditPanel(true);
-        setSelectedConnection(undefined);
+        setSelectedConnection(defaultConnection);
       }}>
         <DocumentCardDetails>
           <Stack horizontalAlign="center" verticalAlign="center" style={{ height: '100%' }}>
@@ -135,6 +141,6 @@ export const ConnectionList = (props: IConnectionListProps) => {
         setSelectedConnection(undefined);
       }} /> */}
 
-    <ConnectionPanel isOpen={showEditPanel} setIsOpen={setShowEditPanel} connection={selectedConnection} onSave={handleSave} />
+    <ConnectionPanel isOpen={showEditPanel} onDismiss={handleDismiss} connection={selectedConnection} onSave={handleSave} />
   </>)
 }
