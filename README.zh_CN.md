@@ -1,6 +1,6 @@
 <!-- https://github.com/RichardLitt/standard-readme -->
 
-<img alt="Logo" style="float: right;" width="100" src="https://user-images.githubusercontent.com/1582077/158051511-e664578b-2d95-47ed-8371-0b782d7943d9.png">
+<img alt="Logo" align="center" style="float: right;" width="100" src="https://user-images.githubusercontent.com/1582077/158051511-e664578b-2d95-47ed-8371-0b782d7943d9.png">
 
 # RedisWebManager
 
@@ -78,7 +78,7 @@ Web应用服务名:
 
 ## 特别感谢
 
-<p style="text-align: center">
+<p align="center" style="text-align: center">
    特别感谢 JetBrains 提供许可支持！<br/>
    <a href="https://jb.gg/OpenSourceSupport?from=RedisWebManager">
     <img alt="JetBrains" src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width="30%">
