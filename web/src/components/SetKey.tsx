@@ -86,7 +86,7 @@ export const SetKey = (props: ISetKeyProps) => {
         });
       });
       setKeyProps(kp => {
-        var scanned = vs.length > search.count ? vs.length : search.count * 1;
+        let scanned = vs.length > search.count ? vs.length : search.count * 1;
         if (search.cursor !== 0) {
           scanned += kp.scanned * 1;
         }

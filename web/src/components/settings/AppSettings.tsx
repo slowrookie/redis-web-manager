@@ -47,7 +47,7 @@ export const AppSettings = (props: IAppSettings) => {
             },
           },
           {
-            key: 'localeLanguage', text: t('Lanaguage'), iconProps: { iconName: 'LocaleLanguage', style: { lineHeight: '14px' } }, subMenuProps: {
+            key: 'localeLanguage', text: t('Language'), iconProps: { iconName: 'LocaleLanguage', style: { lineHeight: '14px' } }, subMenuProps: {
               items: Object.keys(supportedLanguages).map(v => {
                 return { key: v, text: supportedLanguages[v], onClick: () => handleChangeLanguage(v) }
               }),

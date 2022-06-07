@@ -7,17 +7,17 @@ export interface IStreamKeySearch {
   id: string
   onSearch: (start: string | number, end: string | number, count: number) => void
   length: number
-  firstTimestamp: number
-  lastTimestamp: number
-  defaultCount: number
+  firstTimestamp: number | null
+  lastTimestamp: number | null
+  defaultCount: number | null
 }
 
 export interface IStreamKeySearchCondition {
   start: string | number
   end: string | number
   count: number
-  firstTimestamp: number
-  lastTimestamp: number
+  firstTimestamp: number | null
+  lastTimestamp: number | null
   length: number
 }
 
@@ -32,7 +32,7 @@ export const StreamKeySearch = (props: IStreamKeySearch) => {
   };
 
   const [searchVisible, setSearchVisible] = useState(false),
-    [condition, setCondition] = useState<IStreamKeySearchCondition>({ start: '-', end: '+', count: defaultCount, length, firstTimestamp, lastTimestamp });
+    [condition, setCondition] = useState<IStreamKeySearchCondition>({ start: '-', end: '+', count: defaultCount || 0, length, firstTimestamp, lastTimestamp });
 
   useEffect(() => {
     setCondition(condition => {
@@ -60,11 +60,11 @@ export const StreamKeySearch = (props: IStreamKeySearch) => {
       <Stack tokens={{ childrenGap: 10, padding: 10 }} style={{ minWidth: 300 }}>
 
         <Slider ranged
-          min={condition.firstTimestamp}
-          max={condition.lastTimestamp}
-          defaultLowerValue={condition.firstTimestamp}
-          lowerValue={condition.start === '-' ? condition.firstTimestamp : Number(condition.start)}
-          value={condition.end === '+' ? condition.lastTimestamp : Number(condition.end)}
+          min={condition.firstTimestamp || 0}
+          max={condition.lastTimestamp || 0}
+          defaultLowerValue={condition.firstTimestamp || 0}
+          lowerValue={condition.start === '-' ? (condition.firstTimestamp || 0) : Number(condition.start)}
+          value={condition.end === '+' ? (condition.lastTimestamp || 0) : Number(condition.end)}
           onChange={handleRangeChange}
           showValue={false}
           step={100} />

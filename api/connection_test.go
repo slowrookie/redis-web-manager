@@ -30,6 +30,23 @@ func (sut *ConnectionSuite) TestOpen() {
 	sut.NotEqual(connection._client, nil)
 }
 
+func (sut *ConnectionSuite) TestConnection() {
+	id := strconv.FormatInt(time.Now().UnixNano(), 10)
+	connection := &Connection{
+		ID:   id,
+		Host: "localhost",
+		Port: 6379,
+	}
+	err := connection.Open()
+	sut.ErrorIs(err, nil)
+	commands := [][]interface{}{
+		{"SELECT", "1"},
+		{"HSET", "hash1", "name3", nil},
+	}
+	_, err = connection.Command(commands)
+	sut.ErrorIs(err, nil)
+}
+
 func (sut *ConnectionSuite) TestScripting() {
 	id := strconv.FormatInt(time.Now().UnixNano(), 10)
 	connection := &Connection{

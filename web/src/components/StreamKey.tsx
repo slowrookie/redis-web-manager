@@ -38,8 +38,8 @@ export interface IStreamKey {
   length: number
   values: Array<IStreamKeyItem>
   memoryUsage: number
-  firstTimestamp: number
-  lastTimestamp: number
+  firstTimestamp: number | null
+  lastTimestamp: number | null
 }
 
 const defaultStreamKey: IStreamKey = {
@@ -95,9 +95,13 @@ export const StreamKey = (props: IStreamKeyProps) => {
       const streamInfo = parseArrayToObject(ret[2]);
       setKeyProps(kp => {
         return {
-          ...kp, keyName: keyProps.keyName, TTL: ret[1], length: streamInfo.length, values: vs,
-          firstTimestamp: Number(Object.keys(streamInfo['first-entry'])[0].split("-")[0]),
-          lastTimestamp: Number(Object.keys(streamInfo['last-entry'])[0].split("-")[0])
+          ...kp,
+          keyName: keyProps.keyName,
+          TTL: ret[1],
+          length: streamInfo.length,
+          values: vs,
+          firstTimestamp: streamInfo['first-entry'] ? Number(Object.keys(streamInfo['first-entry'])[0].split("-")[0]) : null,
+          lastTimestamp: streamInfo['last-entry'] ? Number(Object.keys(streamInfo['last-entry'])[0].split("-")[0]) : null
         };
       })
     })

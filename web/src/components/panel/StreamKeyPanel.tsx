@@ -50,8 +50,7 @@ export const StreamKeyPanel = (props: IStreamKeyPanelProps) => {
   const handleSave = (refresh = false) => {
     setError(undefined);
     setLoading(true);
-
-    const values = JSON.parse(keyItem.value);
+    const values = JSON.parse(keyItem.value);;
     const kvs = Object.keys(values).map(k => { return [k, values[k]]; }).reduce((p, c) => p.concat(c))
     const commands = [['SELECT', db]];
     commands.push(['XADD', keyItem.name, keyItem.id, ...kvs]);
@@ -65,6 +64,27 @@ export const StreamKeyPanel = (props: IStreamKeyPanelProps) => {
       .finally(() => setLoading(false));
   }
 
+  const validValue = () => {
+    if (!keyItem.value) {
+      setValueError(t('Incorrect format'))
+      return;
+    }
+    try {
+      const v = JSON.parse(keyItem.value);
+      if (Array.isArray(v) || typeof v !== 'object') {
+        setValueError(t('Incorrect format'));
+        return;
+      }
+      if (Object.keys(v).length <= 0) {
+        setValueError(t('Incorrect format'));
+        return;
+      }
+    } catch (error) {
+      setValueError(t('Incorrect format'));
+      return;
+    }
+  }
+
   return (
     <Panel
       styles={{ content: { paddingBottom: 0, height: '100%' } }}
@@ -76,7 +96,7 @@ export const StreamKeyPanel = (props: IStreamKeyPanelProps) => {
       onRenderFooterContent={() => {
         if (onlyView) return (<></>);
 
-        var disabled: boolean = !!!keyItem.name || !keyItem.id || !!valueError;
+        let disabled: boolean = !keyItem.name || !keyItem.id || !!valueError;
         return (
           <Stack tokens={{ childrenGap: 10 }} horizontal horizontalAlign="space-evenly">
             <Stack.Item grow={1}><span></span></Stack.Item>
@@ -109,19 +129,10 @@ export const StreamKeyPanel = (props: IStreamKeyPanelProps) => {
           }} />
 
         <Stack.Item grow={1}>
-          <FormatTextField label={t('Value (JSON object)')} multiline rows={10} value={keyItem.value} errorMessage={valueError} onChange={(e, v) => {
-            if (!v) return;
-            setKeyItem({ ...keyItem, value: v });
+          <FormatTextField autoFocus onFocus={validValue} label={t('Value (JSON object)')} multiline rows={10} value={keyItem.value} errorMessage={valueError} onChange={(e, v) => {
+            setKeyItem({ ...keyItem, value: v || '' });
             setValueError("");
-            try {
-              if (Array.isArray(JSON.parse(v))) {
-                setValueError(t('Incorrect format'));
-                return;
-              }
-            } catch (error) {
-              setValueError(t('Incorrect format'));
-              return;
-            }
+            validValue();
           }} />
         </Stack.Item>
 
