@@ -69,10 +69,12 @@ export const StreamKey = (props: IStreamKeyProps) => {
     [error, setError] = useState<Error>(),
     [showEditPanel, setShowEditPanel] = useState(false),
     [search, setSearch] = useState<IStreamKeySearch>({ start: '-', end: '+', count: connection.dataScanLimit, asc: true }),
-    [items, setItems] = useState<Array<IStreamKeyItem>>([]);
+    [items, setItems] = useState<Array<IStreamKeyItem>>([]),
+    [loading, setLoading] = useState(true);
 
   const load = useCallback(() => {
     if (!search.start || !search.end || !search.count) return;
+    setLoading(true);
     setError(undefined);
     const commands = [
       ['SELECT', db],
@@ -105,7 +107,8 @@ export const StreamKey = (props: IStreamKeyProps) => {
         };
       })
     })
-      .catch(err => setError(err));
+      .catch(err => setError(err))
+      .finally(() => setLoading(false));
   }, [connection.id, db, search, keyProps.keyName]);
 
   useEffect(() => {
@@ -215,7 +218,7 @@ export const StreamKey = (props: IStreamKeyProps) => {
           checkboxVisibility={CheckboxVisibility.hidden}
           selectionMode={SelectionMode.single}
           layoutMode={DetailsListLayoutMode.justified}
-          enableShimmer={!keyProps.values.length}
+          enableShimmer={loading}
           onItemInvoked={(item) => { setSelectedValue(item); setShowEditPanel(true) }}
           onRenderRow={props => {
             const detailsRowStyles: Partial<IDetailsRowStyles> = {

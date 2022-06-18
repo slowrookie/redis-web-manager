@@ -38,7 +38,7 @@ func (sut *AppSuite) TestOpenConnection() {
 	sut.ErrorIs(err, nil)
 	log.Println(fmt.Sprintf("%#v", connection))
 	commands := [][]interface{}{{"ping"}}
-	ret, err := connection.Command(api.Command{ID: connection.ID, Commands: commands})
+	ret, err := connection.Command(commands)
 	sut.NotEmpty(ret)
 }
 
