@@ -9,7 +9,7 @@ import (
 	"go.lsp.dev/jsonrpc2"
 )
 
-var handlers = []jsonrpc2.Handler{}
+var handlers []jsonrpc2.Handler
 
 // RegisterHandler .
 func RegisterHandler(handler jsonrpc2.Handler) {

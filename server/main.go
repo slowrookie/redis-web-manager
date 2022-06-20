@@ -6,6 +6,7 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
+	jsoniter "github.com/json-iterator/go"
 	"io"
 	"io/fs"
 	"log"
@@ -133,7 +134,9 @@ func main() {
 					return reply(ctx, nil, err)
 				}
 				ret, err := connection.Command(cmd.Commands)
-				return reply(ctx, ret, err)
+				var json = jsoniter.ConfigCompatibleWithStandardLibrary
+				retJson, err := json.Marshal(ret)
+				return reply(ctx, string(retJson), err)
 			case "ExecutionScript":
 				var lua api.Lua
 				if err := dec.Decode(&lua); err != nil {

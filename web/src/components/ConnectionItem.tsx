@@ -36,7 +36,7 @@ export const ConnectionItem = (props: IConnectionItemProps) => {
     executeCommand({ id: connection.id, commands: [['CONFIG', 'GET', 'DATABASES'], ['INFO']] })
       .then((ret: any) => {
         let info: any = parseInfo(ret[1]);
-        let databases = ([...Array(ret[0].length ? Number(ret[0][1]) : 1)].map((_, i) => {
+        let databases = ([...Array(ret[0].length ? Number(ret[0]['databases']) : 1)].map((_, i) => {
           const reg = /[1-9][0-9]*/
           const keys = (info.Keyspace && info.Keyspace[`db${i}`] && info.Keyspace[`db${i}`].match(reg)[0]) || 0;
           return { db: i, dbsize: keys };

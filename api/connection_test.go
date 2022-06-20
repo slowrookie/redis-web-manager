@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	jsoniter "github.com/json-iterator/go"
 	"strconv"
 	"testing"
 	"time"
@@ -40,11 +41,15 @@ func (sut *ConnectionSuite) TestConnection() {
 	err := connection.Open()
 	sut.ErrorIs(err, nil)
 	commands := [][]interface{}{
-		{"SELECT", "1"},
-		{"HSET", "hash1", "name3", nil},
+		{"CONFIG", "GET", "*"},
+		{"INFO"},
 	}
-	_, err = connection.Command(commands)
+	ret, err := connection.Command(commands)
 	sut.ErrorIs(err, nil)
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
+	retJson, err := json.Marshal(ret)
+	sut.ErrorIs(err, nil)
+	fmt.Println(string(retJson))
 }
 
 func (sut *ConnectionSuite) TestScripting() {

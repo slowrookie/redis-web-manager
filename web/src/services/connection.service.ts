@@ -70,7 +70,7 @@ export const copyConnection = (connection: Connection): Promise<Connection> => {
 }
 
 export const executeCommand = <T>(command: Command): Promise<T> => {
-  return defaultService.request({ method: 'CommandConnection', params: command });
+  return defaultService.request({ method: 'CommandConnection', params: command }).then(v => JSON.parse(v));
 }
 
 export const suggestions = <T>(command: Command): Promise<T> => {

@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Connection, executeCommand } from '../../services/connection.service';
 import { ErrorMessageBar } from '../common/ErrorMessageBar';
+import _ from 'lodash';
 
 export interface IDatabaseConfigProps {
   connection: Connection
@@ -27,16 +28,22 @@ export const DatabaseConfiguration = (props: IDatabaseConfigProps) => {
     setLoading(true);
     executeCommand<Array<any>>({ id: props.connection.id, commands: [['CONFIG', 'GET', filter]] })
       .then(ret => {
+        console.log(ret);
+        
         if (!ret || !ret.length) return;
-        const length: number = ret[0].length / 2;
-        const confs: Array<Config> = [];
-        [...Array(length)].forEach((_, i) => {
-          const index = 2 * i;
-          const key = ret[0][index];
-          const value = ret[0][index + 1];
-          confs.push({ key, value })
-        });
-        setConfigs([...confs]);
+        // const length: number = ret[0].length / 2;
+        // const confs: Array<Config> = [];
+        // [...Array(length)].forEach((_, i) => {
+        //   const index = 2 * i;
+        //   const key = ret[0][index];
+        //   const value = ret[0][index + 1];
+        //   confs.push({ key, value })
+        // });
+        // setConfigs([...confs]);
+        const conffs = _.map(_.entries(ret[0]), ([k, v]) => ({[k]: v}))
+        console.log(conffs);
+        
+        // setConfigs(ret[0].map(v => {}))
       })
       .catch(err => setError(err))
       .finally(() => setLoading(false));
