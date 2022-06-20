@@ -3,6 +3,7 @@ package parser
 import (
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"github.com/go-redis/redis/v9"
+	"github.com/samber/lo"
 	"golang.org/x/net/context"
 	"strconv"
 )
@@ -38,13 +39,11 @@ func (s *SuggestionRedisParserVisitor) VisitConnectionManagement(ctx *Connection
 
 	if s.ExpectedTokens[0] == ctx.parser.GetSymbolicNames()[RedisLexerDB] {
 		ctx := context.Background()
-		ret, _ := s.Client.ConfigGet(ctx, "databases").Result()
-		if len(ret) >= 1 {
-			databases, _ := strconv.Atoi(ret["database"])
-			for i := 0; i < databases; i++ {
-				s.Expects = append(s.Expects, strconv.Itoa(i))
-			}
-		}
+		ret := s.Client.ConfigGet(ctx, "databases").Val()
+		databases, _ := strconv.Atoi(ret["databases"])
+		s.Expects = lo.Map[int, string](lo.Range(databases), func(v int, _ int) string {
+			return strconv.Itoa(v)
+		})
 	}
 	return s.VisitChildren(ctx)
 }

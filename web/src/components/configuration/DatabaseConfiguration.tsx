@@ -9,16 +9,11 @@ export interface IDatabaseConfigProps {
   connection: Connection
 }
 
-interface Config {
-  key: string
-  value: any
-}
-
 export const DatabaseConfiguration = (props: IDatabaseConfigProps) => {
 
   const theme = useTheme(), { t } = useTranslation();
 
-  const [configs, setConfigs] = useState<Array<Config>>([]),
+  const [configs, setConfigs] = useState<Array<any>>([]),
     // [selectedKey, setSelectedKey] = useState<Config>(),
     [filter, setFilter] = useState<string>("*"),
     [loading, setLoading] = useState<boolean>(false),
@@ -28,22 +23,14 @@ export const DatabaseConfiguration = (props: IDatabaseConfigProps) => {
     setLoading(true);
     executeCommand<Array<any>>({ id: props.connection.id, commands: [['CONFIG', 'GET', filter]] })
       .then(ret => {
-        console.log(ret);
-        
         if (!ret || !ret.length) return;
-        // const length: number = ret[0].length / 2;
-        // const confs: Array<Config> = [];
-        // [...Array(length)].forEach((_, i) => {
-        //   const index = 2 * i;
-        //   const key = ret[0][index];
-        //   const value = ret[0][index + 1];
-        //   confs.push({ key, value })
-        // });
-        // setConfigs([...confs]);
-        const conffs = _.map(_.entries(ret[0]), ([k, v]) => ({[k]: v}))
-        console.log(conffs);
-        
-        // setConfigs(ret[0].map(v => {}))
+        let cfs = [];
+        if(Array.isArray(ret[0])) {
+          cfs = _.map(_.chunk(ret[0], 2), ([k, v]) => ({key: k, value: v}));
+        } else {
+          cfs = _.map(_.entries(ret[0]), ([k, v]) => ({key: k, value: v}));
+        }
+        setConfigs(cfs);
       })
       .catch(err => setError(err))
       .finally(() => setLoading(false));
