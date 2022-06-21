@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	jsoniter "github.com/json-iterator/go"
 	"io/ioutil"
 
 	"github.com/slowrookie/redis-web-manager/api"
@@ -86,12 +87,21 @@ func (a *App) NewConnection(con api.Connection) error {
 	return con.New()
 }
 
-func (a *App) CommandConnection(cmd api.Command) ([]interface{}, error) {
+func (a *App) CommandConnection(cmd api.Command) (interface{}, error) {
 	connection, err := api.GetConnection(cmd.ID)
 	if err != nil {
 		return nil, err
 	}
-	return connection.Command(cmd.Commands)
+	ret, err := connection.Command(cmd.Commands)
+	if err != nil {
+		return nil, err
+	}
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
+	retJson, err := json.Marshal(ret)
+	if err != nil {
+		return nil, err
+	}
+	return string(retJson), nil
 }
 
 func (a *App) ExecutionScript(lua *api.Lua) (*api.Lua, error) {
