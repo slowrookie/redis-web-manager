@@ -6,11 +6,12 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/slowrookie/redis-web-manager/api v0.0.0-20220525113429-86ac49708877
 	github.com/stretchr/testify v1.7.1
-	github.com/wailsapp/wails/v2 v2.0.0-beta.37
+	github.com/wailsapp/wails/v2 v2.0.0-beta.43
 )
 
 require (
 	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220527190237-ee62e23da966 // indirect
+	github.com/bep/debounce v1.2.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
@@ -22,7 +23,6 @@ require (
 	github.com/labstack/echo/v4 v4.7.2 // indirect
 	github.com/labstack/gommon v0.3.1 // indirect
 	github.com/leaanthony/go-ansi-parser v1.4.0 // indirect
-	github.com/leaanthony/go-common-file-dialog v1.0.3 // indirect
 	github.com/leaanthony/gosod v1.0.3 // indirect
 	github.com/leaanthony/slicer v1.6.0 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
