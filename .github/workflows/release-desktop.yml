@@ -91,6 +91,7 @@ jobs:
           # wails doctor
           wails build -s -ldflags '-s -w -X main.version=${{ needs.frontend-build.outputs.VERSION }} -X main.commit=${{ needs.frontend-build.outputs.COMMIT}} -X main.date=${{needs.frontend-build.outputs.DATE}} -X main.builtBy=GithubActions -X main.MODE=release'
           # turn into app image
+          sudo apt install -y libfuse2
           wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
           chmod +x linuxdeploy*.AppImage
           ./linuxdeploy*.AppImage --appdir AppDir --executable ./build/bin/RedisWebManager --desktop-file=RedisWebManager.AppImage.desktop --icon-file=./iconset/icon_128x128.png --output appimage
