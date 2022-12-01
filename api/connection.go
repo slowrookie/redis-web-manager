@@ -239,8 +239,8 @@ func (c *Connection) client() (redis.UniversalClient, error) {
 		if nil != err {
 			return nil, err
 		}
-		universalOptions.ReadTimeout = -1
-		universalOptions.WriteTimeout = -1
+		universalOptions.ReadTimeout = -2
+		universalOptions.WriteTimeout = -2
 		universalOptions.Dialer = func(ctx context.Context, network, addr string) (net.Conn, error) {
 			return cli.Dial(network, addr)
 		}
