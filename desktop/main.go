@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"fmt"
+	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"io"
 	"log"
 	"os"
@@ -37,7 +38,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
-	defer f.Close()
+	defer func(f *os.File) {
+		_ = f.Close()
+	}(f)
 	log.SetOutput(io.MultiWriter(os.Stdout, f))
 	log.Println(fmt.Sprintf("Root Path: %s", api.AppRoot))
 
@@ -61,8 +64,8 @@ func main() {
 		Frameless:         false,
 		StartHidden:       false,
 		HideWindowOnClose: false,
-		RGBA:              &options.RGBA{R: 255, G: 255, B: 255, A: 255},
-		Assets:            assets,
+		BackgroundColour:  &options.RGBA{R: 255, G: 255, B: 255, A: 255},
+		AssetServer:       &assetserver.Options{Assets: assets},
 		LogLevel:          logger.DEBUG,
 		OnStartup:         app.startup,
 		OnDomReady:        app.domReady,

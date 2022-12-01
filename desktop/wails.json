@@ -1,5 +1,6 @@
 {
   "name": "RedisWebManager",
+  "frontend:dir": "../web/",
   "frontend:build": "",
   "frontend:install": "",
   "frontend:dev": "",
