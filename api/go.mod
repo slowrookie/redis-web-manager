@@ -1,6 +1,6 @@
 module github.com/slowrookie/redis-web-manager/api
 
-go 1.18
+go 1.19
 
 require (
 	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220527190237-ee62e23da966

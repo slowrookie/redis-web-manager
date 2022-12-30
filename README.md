@@ -8,6 +8,7 @@
 [![](https://github.com/slowrookie/redis-web-manager/actions/workflows/release.yml/badge.svg)](https://github.com/slowrookie/redis-web-manager/actions/workflows/release.yml)
 ![](https://shields.io/github/v/release/slowrookie/redis-web-manager)
 [![Docker Hub](https://img.shields.io/docker/pulls/slowrookie/redis-web-manager.svg)](https://hub.docker.com/r/slowrookie/redis-web-manager)
+![](https://visitor-badge.glitch.me/badge?page_id=slowrookie.redis-web-manager)
 
 
 English | [简体中文](README.zh_CN.md)
