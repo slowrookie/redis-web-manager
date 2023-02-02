@@ -33,7 +33,7 @@ export const ConnectionItem = (props: IConnectionItemProps) => {
 
   useEffect(() => {
     setLoading(true);
-    executeCommand({ id: connection.id, commands: [['CONFIG', 'GET', 'DATABASES'], ['INFO']] })
+    executeCommand({ id: connection.id, commands: [['CONFIG', 'GET', 'databases'], ['INFO']] })
       .then((ret: any) => {
         console.log(ret);
         let info: any = parseInfo(ret[1]);
