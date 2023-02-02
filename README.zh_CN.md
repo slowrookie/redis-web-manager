@@ -88,3 +88,5 @@ Web应用服务名:
 ## 使用许可
 
 [MIT](LICENSE) © slowrookie
+
+![](https://visitor-badge.glitch.me/badge?page_id=slowrookie.redis-web-manager)
